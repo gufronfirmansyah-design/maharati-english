@@ -2,19 +2,31 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Game English Maharati</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- AR DUEL DEPENDENCIES: Tone.js & MediaPipe -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dancing+Script:wght@700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dancing+Script:wght@700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             touch-action: manipulation;
-            background-image: url('https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/c2b32049c86b2789a3fc0dc7740eabe123e0eb1c/MAHARATI%20(5).gif');
+            background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.6)), url('https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/c2b32049c86b2789a3fc0dc7740eabe123e0eb1c/MAHARATI%20(5).gif');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -22,44 +34,65 @@
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
         .font-cursive { font-family: 'Dancing Script', cursive; }
+        .font-hud { font-family: 'Orbitron', monospace; }
+        
         .bg-duo-green { background-color: #58cc02; }
         .text-duo-green { color: #58cc02; }
         .animate-bounce-slow { animation: bounce 3s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        #cursive-canvas { cursor: crosshair; touch-action: none; background-image: linear-gradient(#e5e7eb 1px, transparent 1px); background-size: 100% 40px; }
-        .battle-track { background: rgba(243, 244, 246, 0.8); background-image: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(229, 231, 235, 0.5) 20px, rgba(229, 231, 235, 0.5) 40px); }
-        .glass-container { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px); border: 4px solid rgba(255, 255, 255, 0.3); }
+        
+        #cursive-canvas { 
+            cursor: crosshair; 
+            touch-action: none;
+            background-image: linear-gradient(#e5e7eb 1px, transparent 1px); 
+            background-size: 100% 40px; 
+        }
+        
+        .battle-track { background: rgba(243, 244, 246, 0.85); background-image: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(229, 231, 235, 0.5) 20px, rgba(229, 231, 235, 0.5) 40px); }
+        .glass-container { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px); border: 4px solid rgba(255, 255, 255, 0.35); }
+        
+        /* AR DUEL CSS */
+        .glass-panel-ar { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .p1-glow { box-shadow: 0 0 35px rgba(6, 182, 212, 0.35); border-color: rgba(6, 182, 212, 0.6); }
+        .p2-glow { box-shadow: 0 0 35px rgba(236, 72, 153, 0.35); border-color: rgba(236, 72, 153, 0.6); }
+        @keyframes pulseSlow { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.04); opacity: 1; } }
+        .animate-pulse-slow { animation: pulseSlow 2.5s infinite ease-in-out; }
+
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
         .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
-        #loading-overlay { position: fixed; inset: 0; background: white; z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .wheel-spin { transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
         
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #58cc02; cursor: pointer; margin-top: -5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #58cc02; cursor: pointer; margin-top: -5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        
+        .cursor-blink { animation: blink 0.9s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
-<body class="text-slate-800 pb-24 min-h-screen overflow-x-hidden text-center select-none">
+<body class="text-slate-800 pb-28 min-h-screen overflow-x-hidden text-center select-none">
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="animate-spin text-duo-green mb-4"><i data-lucide="refresh-cw" class="w-16 h-16"></i></div>
-        <p class="font-bold text-2xl uppercase tracking-tighter text-slate-600">Menghubungkan ke Database...</p>
+        <p id="loading-text" class="font-bold text-2xl uppercase tracking-tighter text-slate-700">Menghubungkan Data...</p>
+        <p class="text-xs text-slate-400 font-semibold mt-2">Menyiapkan permainan untuk kamu</p>
     </div>
 
     <!-- Audio Elements -->
-    <audio id="bg-music" loop><source src="https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/main/y2mate.com%20-%20Daak%20Saak%20Pakoq%20by%20Alif%20Fakod.mp3" type="audio/mpeg"></audio>
-    <audio id="battle-music" loop><source src="https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/c2b32049c86b2789a3fc0dc7740eabe123e0eb1c/Mission%20Impossible%20Theme%20(Full%20Theme).mp3" type="audio/mpeg"></audio>
-    <audio id="click-sound"><source src="https://github.com/kombelkapuascerdas-byte/icon/raw/refs/heads/main/Mouse%20Click%20Sound%20Effect.mp3" type="audio/mpeg"></audio>
-    <audio id="victory-sound"><source src="https://github.com/kombelkapuascerdas-byte/icon/raw/refs/heads/main/Victory%20Sound%20Effect.mp3" type="audio/mpeg"></audio>
+    <audio id="bg-music" loop preload="none"><source src="https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/main/y2mate.com%20-%20Daak%20Saak%20Pakoq%20by%20Alif%20Fakod.mp3" type="audio/mpeg"></audio>
+    <audio id="battle-music" loop preload="none"><source src="https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/c2b32049c86b2789a3fc0dc7740eabe123e0eb1c/Mission%20Impossible%20Theme%20(Full%20Theme).mp3" type="audio/mpeg"></audio>
+    <audio id="click-sound" preload="auto"><source src="https://github.com/kombelkapuascerdas-byte/icon/raw/refs/heads/main/Mouse%20Click%20Sound%20Effect.mp3" type="audio/mpeg"></audio>
+    <audio id="victory-sound" preload="auto"><source src="https://github.com/kombelkapuascerdas-byte/icon/raw/refs/heads/main/Victory%20Sound%20Effect.mp3" type="audio/mpeg"></audio>
 
-    <!-- Start Page -->
-    <div id="start-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-        <div class="glass-container p-8 sm:p-10 rounded-[3rem] shadow-2xl flex flex-col items-center max-w-lg w-full text-center">
+    <!-- Start Page Overlay -->
+    <div id="start-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+        <div class="glass-container p-8 sm:p-10 rounded-[3rem] shadow-2xl flex flex-col items-center max-w-lg w-full text-center animate-fade-in">
             <div class="w-24 h-24 bg-duo-green rounded-[30px] flex items-center justify-center shadow-[0_8px_0_0_#46a302] mb-6">
                 <i data-lucide="languages" class="w-12 h-12 text-white"></i>
             </div>
-            <h1 class="text-3xl sm:text-4xl font-black mb-1 uppercase font-game text-slate-800">English Maharati</h1>
+            <h1 class="text-3xl sm:text-4xl font-black mb-1 uppercase font-game text-slate-800 tracking-wider">English Maharati</h1>
             <p class="text-slate-500 font-bold mb-6 italic text-sm">SMKN 2 Mantangai Kapuas</p>
             
             <div class="w-full mb-6">
@@ -71,9 +104,9 @@
         </div>
     </div>
 
-    <!-- Victory Modal -->
+    <!-- Victory Modal (Standard Battle) -->
     <div id="victory-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-6">
-        <div class="glass-container p-8 sm:p-10 rounded-[3rem] max-w-md w-full shadow-2xl bg-white relative text-center">
+        <div class="glass-container p-8 sm:p-10 rounded-[3rem] max-w-md w-full shadow-2xl bg-white relative text-center animate-fade-in">
             <button onclick="hideVictory()" class="absolute top-6 right-6 text-slate-300 hover:text-rose-500 transition-colors">
                 <i data-lucide="x-circle" class="w-8 h-8"></i>
             </button>
@@ -83,16 +116,37 @@
                 <p id="v-quote" class="text-slate-700 font-medium mb-1"></p>
                 <p id="v-author" class="text-xs font-black text-slate-400 uppercase"></p>
             </div>
-            <button onclick="hideVictory();" class="w-full py-5 bg-duo-green text-white font-black rounded-3xl text-xl uppercase shadow-[0_6px_0_0_#46a302]">Lanjutkan</button>
+            <button onclick="hideVictory();" class="w-full py-5 bg-duo-green text-white font-black rounded-3xl text-xl uppercase shadow-[0_6px_0_0_#46a302] active:translate-y-1">Lanjutkan</button>
+        </div>
+    </div>
+
+    <!-- Mic Request Modal -->
+    <div id="mic-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[400] hidden flex items-center justify-center p-6 text-center">
+        <div class="glass-container p-8 sm:p-10 rounded-[3rem] max-w-sm w-full shadow-2xl bg-white relative animate-fade-in">
+            <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg animate-pulse">
+                <i data-lucide="mic" class="w-10 h-10 text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2 uppercase text-slate-800 tracking-tighter">Akses Mikrofon</h2>
+            <p class="text-slate-500 font-medium mb-8 text-sm">Mode Talk membutuhkan izin mikrofon 1x saja agar kamu bisa berlatih speaking.</p>
+            <button onclick="grantMicPermission()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xl uppercase shadow-[0_6px_0_0_#1d4ed8] active:translate-y-1 transition-all">Izinkan Mikrofon</button>
+            <button onclick="cancelMicPermission()" class="mt-4 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">Batal</button>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] hidden flex items-center justify-center p-4">
+        <div class="glass-container p-6 rounded-3xl max-w-xs w-full text-center shadow-2xl">
+            <p id="alert-message" class="text-slate-800 font-bold mb-5 text-sm sm:text-base"></p>
+            <button onclick="closeCustomAlert()" class="px-6 py-2.5 bg-duo-green text-white font-black rounded-xl uppercase text-sm shadow-[0_4px_0_0_#46a302] active:translate-y-1">Mengerti</button>
         </div>
     </div>
 
     <!-- Nav Top -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-gray-100 px-4 sm:px-6 py-4 flex justify-between items-center shadow-sm">
+    <nav id="nav-top" class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-gray-100 px-4 sm:px-6 py-4 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-2 cursor-pointer" onclick="goToHome()">
-            <div class="bg-duo-green text-white p-2 rounded-xl"><i data-lucide="languages"></i></div>
+            <div class="bg-duo-green text-white p-2 rounded-xl shadow-md"><i data-lucide="languages"></i></div>
             <div class="flex flex-col text-left">
-                <span class="text-lg font-black leading-none font-game tracking-wider">MAHARATI</span>
+                <span class="text-lg font-black leading-none font-game tracking-wider text-slate-800">MAHARATI</span>
                 <span id="player-display" class="text-[10px] font-bold text-duo-green uppercase text-left">STUDENT</span>
             </div>
         </div>
@@ -102,25 +156,25 @@
                 <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="handleVolumeChange(this.value)" class="w-16 sm:w-24">
             </div>
             <div class="px-3 py-2 bg-orange-100 text-orange-600 rounded-2xl font-black text-sm shadow-sm flex items-center gap-1"><i data-lucide="flame" class="w-4 h-4 fill-current"></i><span id="display-score">0</span></div>
-            <button onclick="toggleFullScreen()" class="p-2 bg-gray-100 rounded-xl hover:bg-white transition-all text-slate-600"><i data-lucide="maximize" class="w-5 h-5"></i></button>
+            <button onclick="toggleFullScreen()" class="p-2 bg-gray-100 rounded-xl hover:bg-white transition-all text-slate-600 hidden sm:block"><i data-lucide="maximize" class="w-5 h-5"></i></button>
         </div>
     </nav>
 
     <!-- Main Container -->
-    <main id="app-container" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col justify-center items-center min-h-[65vh]"></main>
+    <main id="app-container" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col justify-center items-center min-h-[68vh]"></main>
 
     <!-- Bottom Menu -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t-4 border-gray-100 px-2 py-3 flex justify-around items-center z-50 shadow-lg">
-        <button onclick="playClick(); goToHome()" class="flex flex-col items-center gap-1 nav-item text-duo-green" id="nav-home"><i data-lucide="home"></i><span class="text-[9px] font-black uppercase">Home</span></button>
-        <button onclick="playClick(); startActivity('Reading')" class="flex flex-col items-center gap-1 nav-item text-gray-400" id="nav-reading"><i data-lucide="book-open"></i><span class="text-[9px] font-black uppercase">Read</span></button>
-        <button onclick="playClick(); startActivity('Speaking')" class="flex flex-col items-center gap-1 nav-item text-gray-400" id="nav-speaking"><i data-lucide="mic"></i><span class="text-[9px] font-black uppercase">Talk</span></button>
-        <button onclick="playClick(); startActivity('Roulette')" class="flex flex-col items-center gap-1 nav-item text-gray-400" id="nav-roulette"><i data-lucide="refresh-cw"></i><span class="text-[9px] font-black uppercase">Spin</span></button>
-        <button onclick="playClick(); startActivity('Battle')" class="flex flex-col items-center gap-1 nav-item text-gray-400" id="nav-battle"><i data-lucide="swords"></i><span class="text-[9px] font-black uppercase">Battle</span></button>
-        <button onclick="playClick(); showLeaderboard()" class="flex flex-col items-center gap-1 nav-item text-gray-400" id="nav-rank"><i data-lucide="trophy"></i><span class="text-[9px] font-black uppercase">Rank</span></button>
+    <div id="nav-bottom" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-4 border-gray-100 px-2 py-4 flex justify-around items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+        <button onclick="playClick(); goToHome()" class="flex flex-col items-center gap-1 nav-item text-duo-green w-14" id="nav-home"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Home</span></button>
+        <button onclick="playClick(); startActivity('Reading')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-reading"><i data-lucide="book-open" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Read</span></button>
+        <button onclick="playClick(); startActivity('Speaking')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-speaking"><i data-lucide="mic" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Talk</span></button>
+        <button onclick="playClick(); startActivity('Roulette')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-roulette"><i data-lucide="refresh-cw" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Spin</span></button>
+        <button onclick="playClick(); startActivity('Battle')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-battle"><i data-lucide="swords" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Battle</span></button>
+        <button onclick="playClick(); showLeaderboard()" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-rank"><i data-lucide="trophy" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Rank</span></button>
     </div>
 
     <!-- Feedback Toast -->
-    <div id="feedback-toast" class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 w-[92%] max-w-md p-5 rounded-[2rem] flex flex-col items-center gap-2 shadow-2xl z-[60] text-white relative">
+    <div id="feedback-toast" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 w-[92%] max-w-md p-5 rounded-[2rem] flex flex-col items-center gap-2 shadow-2xl z-[60] text-white relative">
         <button onclick="hideFeedback()" class="absolute top-4 right-4 text-white/60 hover:text-white transition-colors">
             <i data-lucide="x" class="w-5 h-5"></i>
         </button>
@@ -131,20 +185,16 @@
         </div>
     </div>
 
-    <!-- Modal Peringatan Kustom -->
-    <div id="alert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] hidden flex items-center justify-center p-4">
-        <div class="glass-container p-6 rounded-3xl max-w-xs w-full text-center shadow-2xl">
-            <p id="alert-message" class="text-slate-800 font-bold mb-5 text-sm sm:text-base"></p>
-            <button onclick="closeCustomAlert()" class="px-6 py-2.5 bg-duo-green text-white font-black rounded-xl uppercase text-sm shadow-[0_4px_0_0_#46a302]">Mengerti</button>
-        </div>
-    </div>
-
     <script>
-        // ==============================================================
-        // 1. KREDENSIAL SUPABASE
-        // ==============================================================
+        // Kredensial Supabase
         const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
+
+        // Inisialisasi Supabase
+        let supabaseClient = null;
+        if (typeof window.supabase !== 'undefined') {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
 
         const QUOTES = [
             {t: "The only way to do great work is to love what you do.", a: "Steve Jobs"},
@@ -158,7 +208,8 @@
             data: null, index: 0, battlePos: 0, transcript: '', 
             isListening: false, speakingStatus: null, isMusicPlaying: false,
             battleQuestionA: null, battleQuestionB: null, volume: 0.5, lastVolume: 0.5,
-            startTime: null, leaderboard: []
+            startTime: null, leaderboard: [],
+            mediaStream: null
         };
 
         const TUG_IMG = "https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/b2ee696febe8154e230c71a534069edb78ab438f/ChatGPT_Image_Feb_12__2026__08_44_05_PM__1_-removebg-preview.png";
@@ -167,160 +218,50 @@
             document.getElementById('alert-message').innerText = msg;
             document.getElementById('alert-modal').classList.remove('hidden');
         }
+        function closeCustomAlert() { document.getElementById('alert-modal').classList.add('hidden'); }
+        function playClick() { const s = document.getElementById('click-sound'); if(s){ s.volume = state.volume; s.currentTime = 0; s.play().catch(()=>{}); } }
 
-        function closeCustomAlert() {
-            document.getElementById('alert-modal').classList.add('hidden');
-        }
-
-        function playClick() { 
-            const s = document.getElementById('click-sound'); 
-            if(s){ s.volume = state.volume; s.currentTime = 0; s.play().catch(()=>{}); } 
-        }
-
-        // ==============================================================
-        // 2. KONEKSI KE SUPABASE REST API
-        // ==============================================================
-        async function fetchTable(tableName) {
-            const url = `${SUPABASE_URL}/rest/v1/${tableName}?select=*`;
-            const res = await fetch(url, {
-                headers: {
-                    "apikey": SUPABASE_ANON_KEY,
-                    "Accept": "application/json"
-                }
-            });
-            if (!res.ok) throw new Error(`Gagal memuat tabel ${tableName}`);
-            return await res.json();
+        // Fallback Data offline
+        function getFallbackQuestions() {
+            return {
+                Reading: { Easy: [{ text: "The cat is sleeping peacefully under the table.", q: "Where is the cat?", options: ["Under the chair", "Under the table", "On the bed"], a: "Under the table" }], Medium: [], Hard: [] },
+                Speaking: { Easy: ["Good morning teacher", "I love studying English", "Today is a wonderful day"], Medium: [], Hard: [] },
+                Battle: { Easy: [{ q: "Kucing", a: "cat" }, { q: "Buku", a: "book" }, { q: "Rumah", a: "house" }, { q: "Pohon", a: "tree" }], Medium: [], Hard: [] },
+                Cursive: { Easy: ["Apple", "School", "Garden"], Medium: [], Hard: [] },
+                Roulette: { Easy: ["Every morning I like to...", "My favorite English word is..."], Medium: [], Hard: [] }
+            };
         }
 
         async function fetchAllDataFromSupabase() {
+            const fallback = getFallbackQuestions();
+            if (!supabaseClient) return fallback;
             try {
-                // Tarik kelima tabel secara paralel
-                const [readingRows, speakingRows, battleRows, cursiveRows, rouletteRows] = await Promise.all([
-                    fetchTable('reading'),
-                    fetchTable('speaking'),
-                    fetchTable('battle'),
-                    fetchTable('cursive'),
-                    fetchTable('roulette')
-                ]);
-
-                const formatted = {
-                    Reading: { Easy: [], Medium: [], Hard: [] },
-                    Speaking: { Easy: [], Medium: [], Hard: [] },
-                    Battle: { Easy: [], Medium: [], Hard: [] },
-                    Cursive: { Easy: [], Medium: [], Hard: [] },
-                    Roulette: { Easy: [], Medium: [], Hard: [] }
-                };
-
-                // Format Reading
-                readingRows.forEach(r => {
-                    const lvl = r.level || 'Easy';
-                    if (!formatted.Reading[lvl]) formatted.Reading[lvl] = [];
-                    formatted.Reading[lvl].push({
-                        text: r.text || '',
-                        q: r.question || '',
-                        options: [r.option_1, r.option_2, r.option_3].filter(Boolean),
-                        a: r.answer || ''
-                    });
-                });
-
-                // Format Speaking
-                speakingRows.forEach(r => {
-                    const lvl = r.level || 'Easy';
-                    if (!formatted.Speaking[lvl]) formatted.Speaking[lvl] = [];
-                    if (r.text) formatted.Speaking[lvl].push(r.text);
-                });
-
-                // Format Battle
-                battleRows.forEach(r => {
-                    const lvl = r.level || 'Easy';
-                    if (!formatted.Battle[lvl]) formatted.Battle[lvl] = [];
-                    if (r.question && r.answer) formatted.Battle[lvl].push({ q: r.question, a: r.answer });
-                });
-
-                // Format Cursive
-                cursiveRows.forEach(r => {
-                    const lvl = r.level || 'Easy';
-                    if (!formatted.Cursive[lvl]) formatted.Cursive[lvl] = [];
-                    if (r.word) formatted.Cursive[lvl].push(r.word);
-                });
-
-                // Format Roulette
-                rouletteRows.forEach(r => {
-                    const lvl = r.level || 'Easy';
-                    if (!formatted.Roulette[lvl]) formatted.Roulette[lvl] = [];
-                    if (r.text) formatted.Roulette[lvl].push(r.text);
-                });
-
-                return formatted;
-            } catch (err) {
-                console.error("Gagal mengambil data dari Supabase:", err);
-                return null;
-            }
-        }
-
-        async function saveScoreToSupabase(name, activity, level, score) {
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
-                    method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Content-Type": "application/json",
-                        "Prefer": "return=minimal"
-                    },
-                    body: JSON.stringify([{ name, activity, level, score }])
-                });
-            } catch (err) {
-                console.warn("Gagal menyimpan skor ke Supabase:", err);
-            }
-        }
-
-        async function fetchLeaderboardFromSupabase() {
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?select=name,score`, {
-                    headers: {
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Accept": "application/json"
-                    }
-                });
-                if (!res.ok) return [];
-                const data = await res.json();
+                const fetchPromise = supabaseClient.from('questions').select('*');
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
                 
-                const scoreMap = {};
+                const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+                if (error) throw error;
+                if (!data || data.length === 0) return fallback;
+
+                const formatted = { Reading: { Easy: [], Medium: [], Hard: [] }, Speaking: { Easy: [], Medium: [], Hard: [] }, Battle: { Easy: [], Medium: [], Hard: [] }, Cursive: { Easy: [], Medium: [], Hard: [] }, Roulette: { Easy: [], Medium: [], Hard: [] } };
                 data.forEach(item => {
-                    const name = (item.name || 'Student').trim();
-                    scoreMap[name] = (scoreMap[name] || 0) + (Number(item.score) || 0);
+                    const act = item.activity; const lvl = item.level || 'Easy';
+                    if (!formatted[act]) return;
+                    if (!formatted[act][lvl]) formatted[act][lvl] = [];
+                    if (act === 'Reading') { let opts = item.options; if (typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e) { opts = []; } } formatted.Reading[lvl].push({ text: item.content || '', q: item.question || '', options: opts || [], a: item.answer || '' }); }
+                    else if (act === 'Speaking') formatted.Speaking[lvl].push(item.content || '');
+                    else if (act === 'Battle') formatted.Battle[lvl].push({ q: item.question || item.content || '', a: item.answer || '' });
+                    else if (act === 'Cursive') formatted.Cursive[lvl].push(item.content || '');
+                    else if (act === 'Roulette') formatted.Roulette[lvl].push(item.content || '');
                 });
-
-                return Object.keys(scoreMap).map(n => ({
-                    name: n,
-                    score: scoreMap[n]
-                })).sort((a, b) => b.score - a.score).slice(0, 10);
-            } catch (err) {
-                console.warn("Gagal memuat leaderboard:", err);
-                return [];
-            }
+                return formatted;
+            } catch (err) { return fallback; }
         }
 
-        // Helper untuk mengambil list soal dengan fallback otomatis jika level kosong
-        function getQuestionList(tab, level) {
-            if (!state.data || !state.data[tab]) return [];
-            const list = state.data[tab][level];
-            if (list && list.length > 0) return list;
-            // Fallback ke level lain jika di sheet hanya ada Medium atau Easy
-            for (let l of ['Easy', 'Medium', 'Hard']) {
-                if (state.data[tab][l] && state.data[tab][l].length > 0) {
-                    return state.data[tab][l];
-                }
-            }
-            return [];
-        }
-
-        // ==============================================================
-        // 3. LOGIKA APLIKASI
-        // ==============================================================
         async function initAppSession() {
-            const name = document.getElementById('student-name').value.trim();
-            if(!name) return showCustomAlert("Silakan ketik nama kamu terlebih dahulu!");
+            const nameInput = document.getElementById('student-name');
+            const name = (nameInput.value || '').trim();
+            if (!name) return showCustomAlert("Silakan ketik nama kamu terlebih dahulu!");
             
             state.studentName = name;
             document.getElementById('player-display').innerText = name;
@@ -328,15 +269,87 @@
             
             state.data = await fetchAllDataFromSupabase();
             document.getElementById('loading-overlay').style.display = 'none';
-
-            if (!state.data) {
-                return showCustomAlert("Gagal terhubung ke database. Periksa koneksi internet Anda atau refresh halaman.");
-            }
-
             document.getElementById('start-overlay').style.display = 'none';
+
             goToHome();
             handleVolumeChange(0.5);
-            document.getElementById('bg-music').play().then(()=>state.isMusicPlaying=true).catch(()=>{});
+            document.getElementById('bg-music').play().then(() => state.isMusicPlaying = true).catch(() => {});
+        }
+
+        let micPermissionGranted = false;
+        let micPromiseResolve = null;
+
+        async function requestMicOnce() {
+            if (micPermissionGranted) return true;
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showCustomAlert("Browser kamu tidak mendukung akses mikrofon. Gunakan Chrome terbaru.");
+                return false;
+            }
+            document.getElementById('mic-modal').classList.remove('hidden');
+            return new Promise((resolve) => { micPromiseResolve = resolve; });
+        }
+
+        async function grantMicPermission() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+                state.mediaStream = stream; 
+                micPermissionGranted = true;
+                document.getElementById('mic-modal').classList.add('hidden');
+                if (micPromiseResolve) micPromiseResolve(true);
+            } catch (err) {
+                document.getElementById('mic-modal').classList.add('hidden');
+                showCustomAlert("Akses mikrofon ditolak. Kamu perlu mengizinkannya untuk bermain di Mode Talk.");
+                if (micPromiseResolve) micPromiseResolve(false);
+            }
+        }
+
+        function cancelMicPermission() {
+            document.getElementById('mic-modal').classList.add('hidden');
+            if (micPromiseResolve) micPromiseResolve(false);
+        }
+
+        async function startActivity(tab) {
+            // Hentikan mode AR jika sedang aktif
+            if(state.tab === 'ARDuel' && tab !== 'ARDuel') { exitARDuel(); }
+
+            if (tab === 'Speaking') {
+                const micReady = await requestMicOnce();
+                if (!micReady) { goToHome(); return; }
+            }
+
+            state.tab = tab; state.transcript = ''; state.speakingStatus = null; state.startTime = Date.now();
+            document.getElementById('bg-music').pause(); document.getElementById('battle-music').pause();
+            
+            if (tab === 'ARDuel') {
+                render();
+                setTimeout(initARDuelUI, 100);
+                return;
+            }
+
+            // Memastikan Nav Top dan Bottom muncul
+            document.getElementById('nav-top').style.display = 'flex';
+            document.getElementById('nav-bottom').style.display = 'flex';
+            document.body.classList.remove('bg-slate-950');
+
+            const list = getQuestionList(tab, state.level);
+            if(list && list.length > 0) {
+                if(tab === 'Battle') {
+                    state.battleQuestionA = list[Math.floor(Math.random()*list.length)];
+                    state.battleQuestionB = list[Math.floor(Math.random()*list.length)];
+                    state.battlePos = 0;
+                    if(state.isMusicPlaying) document.getElementById('battle-music').play().catch(()=>{});
+                } else state.index = Math.floor(Math.random()*list.length);
+            }
+            render();
+            if(tab === 'Cursive') setTimeout(initCanvas, 100);
+        }
+
+        function getQuestionList(tab, level) {
+            if (!state.data || !state.data[tab]) return [];
+            const list = state.data[tab][level];
+            if (list && list.length > 0) return list;
+            for (let l of ['Easy', 'Medium', 'Hard']) if (state.data[tab][l] && state.data[tab][l].length > 0) return state.data[tab][l];
+            return [];
         }
 
         function saveRecap(activity, pts) {
@@ -345,83 +358,33 @@
             const total = pts + speedBonus;
             state.score += total;
             document.getElementById('display-score').innerText = state.score;
-            saveScoreToSupabase(state.studentName, activity, state.level, total);
             return speedBonus;
         }
 
-        function handleVolumeChange(val) {
-            state.volume = parseFloat(val);
-            ['bg-music','battle-music','click-sound','victory-sound'].forEach(id => { 
-                const el = document.getElementById(id); 
-                if(el) el.volume = state.volume; 
-            });
-            const icon = document.getElementById('music-icon');
-            if(state.volume === 0) icon.setAttribute('data-lucide', 'volume-x');
-            else if(state.volume < 0.5) icon.setAttribute('data-lucide', 'volume-1');
-            else icon.setAttribute('data-lucide', 'volume-2');
-            lucide.createIcons();
-        }
-
-        function toggleMute() { 
-            if(state.volume > 0) { 
-                state.lastVolume = state.volume; 
-                handleVolumeChange(0); 
-                document.getElementById('volume-slider').value = 0; 
-            } else { 
-                handleVolumeChange(state.lastVolume || 0.5); 
-                document.getElementById('volume-slider').value = state.lastVolume || 0.5; 
-            } 
-        }
-
-        function toggleFullScreen() { 
-            try { 
-                if(!document.fullscreenElement) document.documentElement.requestFullscreen(); 
-                else document.exitFullscreen(); 
-            } catch(e) {} 
-        }
-
-        function playTTS(text) { 
-            window.speechSynthesis.cancel(); 
-            const u = new SpeechSynthesisUtterance(text); 
-            u.lang = 'en-US'; 
-            u.rate = 0.9; 
-            u.volume = state.volume; 
-            window.speechSynthesis.speak(u); 
-        }
-
-        function startActivity(tab) {
-            state.tab = tab; state.transcript = ''; state.speakingStatus = null; state.startTime = Date.now();
-            document.getElementById('bg-music').pause(); document.getElementById('battle-music').pause();
-            
-            const list = getQuestionList(tab, state.level);
-            if(list && list.length > 0) {
-                if(tab === 'Battle') {
-                    state.battleQuestionA = list[Math.floor(Math.random()*list.length)];
-                    state.battleQuestionB = list[Math.floor(Math.random()*list.length)];
-                    state.battlePos = 0;
-                    if(state.isMusicPlaying) document.getElementById('battle-music').play();
-                } else {
-                    state.index = Math.floor(Math.random()*list.length);
-                }
-            }
-            render();
-            if(tab === 'Cursive') setTimeout(initCanvas, 100);
-        }
-
-        async function showLeaderboard() {
-            state.tab = 'Rank';
-            document.getElementById('loading-overlay').style.display = 'flex';
-            state.leaderboard = await fetchLeaderboardFromSupabase();
-            document.getElementById('loading-overlay').style.display = 'none';
-            render();
+        async function showLeaderboard() { 
+            if(state.tab === 'ARDuel') { exitARDuel(); }
+            state.tab = 'Rank'; 
+            document.getElementById('nav-top').style.display = 'flex';
+            document.getElementById('nav-bottom').style.display = 'flex';
+            document.body.classList.remove('bg-slate-950');
+            render(); 
         }
 
         function goToHome() { 
+            if(state.tab === 'ARDuel') { exitARDuel(); }
             state.tab = 'Home'; 
+            document.getElementById('nav-top').style.display = 'flex';
+            document.getElementById('nav-bottom').style.display = 'flex';
+            document.body.classList.remove('bg-slate-950');
             document.getElementById('battle-music').pause(); 
-            if(state.isMusicPlaying) document.getElementById('bg-music').play(); 
+            if(state.isMusicPlaying) document.getElementById('bg-music').play().catch(()=>{}); 
             render(); 
         }
+        
+        function handleVolumeChange(val) { state.volume = parseFloat(val); ['bg-music','battle-music','click-sound','victory-sound'].forEach(id => { const el = document.getElementById(id); if(el) el.volume = state.volume; }); const icon = document.getElementById('music-icon'); if(state.volume === 0) icon.setAttribute('data-lucide', 'volume-x'); else if(state.volume < 0.5) icon.setAttribute('data-lucide', 'volume-1'); else icon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
+        function toggleMute() { if(state.volume > 0) { state.lastVolume = state.volume; handleVolumeChange(0); document.getElementById('volume-slider').value = 0; } else { handleVolumeChange(state.lastVolume || 0.5); document.getElementById('volume-slider').value = state.lastVolume || 0.5; } }
+        function toggleFullScreen() { try { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch(e) {} }
+        function playTTS(text) { if (!window.speechSynthesis) return; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 0.9; u.volume = state.volume; window.speechSynthesis.speak(u); }
 
         function render() {
             const root = document.getElementById('app-container');
@@ -436,12 +399,13 @@
             else if(state.tab === 'Cursive') renderCursive(root);
             else if(state.tab === 'Roulette') renderRoulette(root);
             else if(state.tab === 'Rank') renderRank(root);
+            else if(state.tab === 'ARDuel') renderARDuelContainer(root);
             lucide.createIcons();
         }
 
         function renderHome(root) {
             root.innerHTML = `
-                <div class="space-y-8 animate-fade-in w-full text-center">
+                <div class="space-y-8 animate-fade-in w-full text-center select-none z-10 relative">
                     <div class="glass-container p-8 rounded-[3rem] shadow-xl max-w-2xl mx-auto text-center">
                         <h2 class="text-3xl font-black mb-2 uppercase text-center text-slate-800">Halo, ${state.studentName}! 👋</h2>
                         <p class="text-slate-500 font-bold mb-6 uppercase tracking-widest text-xs text-center">Pilih Level Kamu:</p>
@@ -450,315 +414,542 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                        <button onclick="startActivity('Reading')" class="glass-container p-4 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-emerald-400 transition-all hover:-translate-y-1"><div class="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><i data-lucide="book-open"></i></div><h3 class="font-black text-xs uppercase">Reading</h3></button>
-                        <button onclick="startActivity('Speaking')" class="glass-container p-4 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-blue-400 transition-all hover:-translate-y-1"><div class="p-3 bg-blue-100 text-blue-600 rounded-2xl"><i data-lucide="mic"></i></div><h3 class="font-black text-xs uppercase">Talk</h3></button>
-                        <button onclick="startActivity('Cursive')" class="glass-container p-4 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-rose-400 transition-all hover:-translate-y-1"><div class="p-3 bg-rose-100 text-rose-600 rounded-2xl"><i data-lucide="pen-tool"></i></div><h3 class="font-black text-xs uppercase">Draw</h3></button>
-                        <button onclick="startActivity('Roulette')" class="glass-container p-4 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-indigo-400 transition-all hover:-translate-y-1"><div class="p-3 bg-indigo-100 text-indigo-600 rounded-2xl"><i data-lucide="refresh-cw"></i></div><h3 class="font-black text-xs uppercase">Spin</h3></button>
-                        <button onclick="startActivity('Battle')" class="glass-container p-4 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-orange-400 md:col-span-2 transition-all hover:-translate-y-1"><div class="p-3 bg-orange-100 text-orange-600 rounded-2xl"><i data-lucide="swords"></i></div><h3 class="font-black text-xs uppercase">Battle Game</h3></button>
+                        <button onclick="startActivity('Reading')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-emerald-400 transition-all hover:-translate-y-1"><div class="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><i data-lucide="book-open"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Reading</h3></button>
+                        <button onclick="startActivity('Speaking')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-blue-400 transition-all hover:-translate-y-1"><div class="p-3 bg-blue-100 text-blue-600 rounded-2xl"><i data-lucide="mic"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Talk</h3></button>
+                        <button onclick="startActivity('Cursive')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-rose-400 transition-all hover:-translate-y-1"><div class="p-3 bg-rose-100 text-rose-600 rounded-2xl"><i data-lucide="pen-tool"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Draw</h3></button>
+                        
+                        <!-- New AR DUEL Card -->
+                        <button onclick="startActivity('ARDuel')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-fuchsia-400 md:col-span-3 transition-all hover:-translate-y-1 bg-gradient-to-r from-slate-900 to-slate-800 text-white border-2 border-slate-700">
+                            <div class="p-3 bg-fuchsia-500/20 text-fuchsia-400 rounded-2xl"><i data-lucide="scan-face"></i></div>
+                            <h3 class="font-black text-xs uppercase tracking-widest text-fuchsia-300">AR Word Clash (2 Player)</h3>
+                        </button>
+
+                        <button onclick="startActivity('Roulette')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-indigo-400 transition-all hover:-translate-y-1"><div class="p-3 bg-indigo-100 text-indigo-600 rounded-2xl"><i data-lucide="refresh-cw"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Spin</h3></button>
+                        <button onclick="startActivity('Battle')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-orange-400 md:col-span-2 transition-all hover:-translate-y-1"><div class="p-3 bg-orange-100 text-orange-600 rounded-2xl"><i data-lucide="swords"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Battle Game</h3></button>
                     </div>
                 </div>
             `;
         }
 
-        function renderReading(root) {
-            const list = getQuestionList('Reading', state.level);
-            if(!list || list.length === 0) return root.innerHTML = '<div class="glass-container p-10 rounded-3xl text-center font-bold text-slate-500">Tabel Reading kosong di Supabase. Silakan sinkronkan dari spreadsheet!</div>';
-            const item = list[state.index % list.length];
-            root.innerHTML = `
-                <div class="max-w-2xl mx-auto space-y-6 animate-fade-in w-full text-center">
-                    <div class="glass-container p-8 sm:p-10 rounded-[3rem] shadow-xl text-left border-emerald-400">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-2xl font-black text-emerald-600 uppercase">Reading</h3>
-                            <button onclick="playTTS('${item.text.replace(/'/g, "")}')" class="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg hover:bg-emerald-600 transition-colors"><i data-lucide="volume-2"></i></button>
-                        </div>
-                        <p class="text-xl font-bold italic mb-6 border-l-4 border-emerald-500 pl-4 text-slate-700">"${item.text}"</p>
-                        <p class="font-black text-lg mb-6 text-indigo-950 text-center">${item.q}</p>
-                        <div class="grid gap-3">
-                            ${item.options.map(o => o ? `<button onclick="checkReading('${o}', '${item.a}')" class="w-full text-center p-4 rounded-2xl border-2 border-slate-100 font-bold hover:bg-emerald-50 hover:border-emerald-300 transition-all text-slate-700 shadow-sm">${o}</button>` : '').join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function checkReading(val, correct) {
-            if(val.trim().toLowerCase() === correct.trim().toLowerCase()) { 
-                const bonus = saveRecap('Reading', 10); 
-                showFeedback(true, "Benar!", bonus > 0 ? `Bonus Kecepatan +${bonus}` : "Jawaban kamu tepat sekali."); 
-            } else {
-                showFeedback(false, "Ups!", "Coba baca dan perhatikan lagi ya.");
-            }
-        }
-
-        function renderSpeaking(root) {
-            const list = getQuestionList('Speaking', state.level);
-            if(!list || list.length === 0) return root.innerHTML = '<div class="glass-container p-10 rounded-3xl text-center font-bold text-slate-500">Tabel Speaking kosong di Supabase.</div>';
-            const phrase = list[state.index % list.length];
-            root.innerHTML = `
-                <div class="max-w-2xl mx-auto space-y-8 animate-fade-in w-full text-center">
-                    <div class="glass-container p-8 sm:p-10 rounded-[40px] shadow-xl border-blue-400 text-center">
-                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Ucapkan Kalimat Ini:</p>
-                        <div class="text-2xl sm:text-3xl font-black text-indigo-950 mb-10 italic">"${phrase}"</div>
-                        <div class="flex justify-center gap-6 mb-10">
-                            <button onclick="playTTS('${phrase.replace(/'/g, "")}')" class="w-20 h-20 bg-emerald-500 text-white rounded-3xl flex items-center justify-center shadow-lg hover:bg-emerald-600 transition-colors"><i data-lucide="volume-2" class="w-8 h-8"></i></button>
-                            <button onclick="toggleMic()" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full flex items-center justify-center shadow-2xl transition-all ${state.isListening?'bg-rose-500 animate-pulse':'bg-blue-600 hover:bg-blue-700'}"><i data-lucide="mic" class="w-12 h-12 sm:w-14 sm:h-14 text-white"></i></button>
-                        </div>
-                        <div class="min-h-[60px] flex items-center justify-center">
-                            ${state.speakingStatus === 'correct' ? '<div class="bg-emerald-100 text-emerald-700 px-8 py-3 rounded-full font-black text-xl uppercase animate-bounce border-2 border-emerald-200">✓ BENAR!</div>' : state.speakingStatus === 'incorrect' ? '<div class="bg-rose-100 text-rose-700 px-8 py-3 rounded-full font-black text-xl uppercase animate-shake border-2 border-rose-200">✗ COBA LAGI</div>' : ''}
-                        </div>
-                        ${state.transcript ? `<div class="mt-6 p-4 bg-white/70 rounded-2xl italic font-bold border-2 border-dashed border-slate-200">Suara terdeteksi: "${state.transcript}"</div>` : ''}
-                    </div>
-                    <button onclick="nextQuestion()" class="px-10 py-4 bg-duo-green text-white font-black rounded-2xl shadow-lg uppercase tracking-wider ${state.speakingStatus === 'correct'?'':'opacity-50'}" ${state.speakingStatus === 'correct'?'':'disabled'}>Selanjutnya</button>
-                </div>
-            `;
-        }
-
-        function renderBattle(root) {
-            if(!state.battleQuestionA) return;
-            root.innerHTML = `
-                <div class="space-y-8 sm:space-y-10 animate-fade-in text-center w-full">
-                    <h2 class="text-2xl sm:text-3xl font-black text-slate-800 font-game uppercase tracking-tighter glass-container py-3 px-8 inline-block rounded-full shadow-lg">Battle Tarik Tambang</h2>
-                    <div class="relative h-56 sm:h-64 w-full glass-container rounded-[40px] battle-track overflow-hidden shadow-inner flex items-center justify-center">
-                        <div class="absolute inset-0 flex justify-center pointer-events-none"><div class="w-2 h-full bg-slate-400/50 shadow-sm z-0 mx-auto"></div></div>
-                        <div id="tug-image" class="absolute transition-all duration-500 ease-out z-10" style="transform: translateX(${state.battlePos * 50}px)">
-                            <img src="${TUG_IMG}" class="h-32 sm:h-44 drop-shadow-2xl mx-auto" alt="Tug of War">
-                        </div>
-                        <div class="absolute left-8 sm:left-10 h-full w-4 bg-blue-500/20 border-r-2 border-dashed border-blue-400"></div>
-                        <div class="absolute right-8 sm:right-10 h-full w-4 bg-red-500/20 border-l-2 border-dashed border-red-400"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                        <div class="p-6 glass-container border-blue-400 rounded-[30px] flex flex-col gap-4 shadow-lg">
-                            <h4 class="font-black text-blue-600 uppercase tracking-wider">Tim Biru</h4>
-                            <div class="bg-blue-100 p-4 rounded-2xl text-blue-900 font-black text-xl sm:text-2xl flex items-center justify-center gap-2">"${state.battleQuestionA.q}"<button onclick="playTTS('${state.battleQuestionA.q.replace(/'/g, "")}')" class="p-1.5 bg-blue-500 text-white rounded-xl"><i data-lucide="volume-2" class="w-4 h-4"></i></button></div>
-                            <input type="text" id="input-p1" autocomplete="off" onkeydown="if(event.key==='Enter') checkBattle('A')" class="w-full p-4 rounded-2xl border-2 outline-none text-center font-bold bg-white/70 text-lg shadow-inner" placeholder="Ketik jawaban...">
-                            <button onclick="checkBattle('A')" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl uppercase shadow-[0_4px_0_0_#1e40af] active:translate-y-1">Tarik!</button>
-                        </div>
-                        <div class="p-6 glass-container border-red-400 rounded-[30px] flex flex-col gap-4 shadow-lg">
-                            <h4 class="font-black text-red-600 uppercase tracking-wider">Tim Merah</h4>
-                            <div class="bg-red-100 p-4 rounded-2xl text-red-900 font-black text-xl sm:text-2xl flex items-center justify-center gap-2">"${state.battleQuestionB.q}"<button onclick="playTTS('${state.battleQuestionB.q.replace(/'/g, "")}')" class="p-1.5 bg-red-500 text-white rounded-xl"><i data-lucide="volume-2" class="w-4 h-4"></i></button></div>
-                            <input type="text" id="input-p2" autocomplete="off" onkeydown="if(event.key==='Enter') checkBattle('B')" class="w-full p-4 rounded-2xl border-2 outline-none text-center font-bold bg-white/70 text-lg shadow-inner" placeholder="Ketik jawaban...">
-                            <button onclick="checkBattle('B')" class="w-full py-4 bg-red-600 text-white font-black rounded-2xl uppercase shadow-[0_4px_0_0_#991b1b] active:translate-y-1">Tarik!</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            setTimeout(() => { const el = document.getElementById('input-p1'); if(el) el.focus(); }, 100);
-        }
-
-        function checkBattle(team) {
-            const input = document.getElementById(team==='A'?'input-p1':'input-p2');
-            const val = input.value.trim().toLowerCase();
-            const currentQ = team==='A' ? state.battleQuestionA : state.battleQuestionB;
-            if(val === currentQ.a.trim().toLowerCase()) {
-                input.value = '';
-                if(team==='A') state.battlePos -= 1; else state.battlePos += 1;
-                if(Math.abs(state.battlePos) >= 4) {
-                    showVictory(state.battlePos < 0 ? 'BIRU' : 'MERAH');
-                } else {
-                    const list = getQuestionList('Battle', state.level);
-                    if(team==='A') state.battleQuestionA = list[Math.floor(Math.random()*list.length)];
-                    else state.battleQuestionB = list[Math.floor(Math.random()*list.length)];
-                    render();
-                }
-            } else { 
-                input.classList.add('animate-shake','border-red-500'); 
-                setTimeout(()=>input.classList.remove('animate-shake'), 400); 
-            }
-        }
-
-        function renderCursive(root) {
-            const list = getQuestionList('Cursive', state.level);
-            if(!list || list.length === 0) return root.innerHTML = '<div class="glass-container p-10 rounded-3xl text-center font-bold text-slate-500">Tabel Cursive kosong di Supabase.</div>';
-            state.currentCursiveWord = list[state.index % list.length];
-            root.innerHTML = `
-                <div class="max-w-4xl mx-auto space-y-6 animate-fade-in w-full text-center">
-                    <div class="glass-container p-6 sm:p-8 rounded-[40px] shadow-xl border-rose-400">
-                        <div class="flex justify-between items-center mb-4 sm:mb-6">
-                            <h3 class="text-2xl font-black text-rose-600 uppercase">Cursive Board</h3>
-                            <div class="flex gap-2">
-                                <button onclick="playTTS('${state.currentCursiveWord}')" class="p-3 sm:p-4 bg-indigo-500 text-white rounded-2xl shadow-lg hover:bg-indigo-600"><i data-lucide="volume-2"></i></button>
-                                <button onclick="clearCanvas()" class="p-3 sm:p-4 bg-rose-500 text-white rounded-2xl shadow-lg hover:bg-rose-600"><i data-lucide="eraser"></i></button>
-                            </div>
-                        </div>
-                        <p class="text-5xl sm:text-7xl font-cursive text-slate-800 mb-6 border-b-2 border-rose-100 pb-4">${state.currentCursiveWord}</p>
-                        <canvas id="cursive-canvas" class="w-full rounded-3xl border-2 border-gray-200 bg-white/90 shadow-inner"></canvas>
-                        <button onclick="nextCursiveWord()" class="mt-6 px-10 py-4 bg-rose-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-wider hover:bg-rose-700">Selanjutnya</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function initCanvas() {
-            const canvas = document.getElementById('cursive-canvas'); if(!canvas) return;
-            const ctx = canvas.getContext('2d'); 
-            canvas.width = canvas.parentElement.clientWidth - 40; 
-            canvas.height = 280;
-            let isDrawing = false;
-            const getPos = (e) => { 
-                const rect = canvas.getBoundingClientRect(); 
-                return { 
-                    x: (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left, 
-                    y: (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top 
-                }; 
-            };
-            const start = (e) => { isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
-            const move = (e) => { 
-                if(!isDrawing) return; 
-                const p = getPos(e); 
-                ctx.lineTo(p.x, p.y); 
-                ctx.lineWidth = 5; 
-                ctx.lineCap = 'round'; 
-                ctx.strokeStyle = '#e11d48'; 
-                ctx.stroke(); 
-            };
-            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', () => isDrawing = false);
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); }); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
-        }
-
-        function clearCanvas() { const c = document.getElementById('cursive-canvas'); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height); }
-        function nextCursiveWord() { 
-            const list = getQuestionList('Cursive', state.level);
-            if(list.length > 0) state.index = Math.floor(Math.random()*list.length); 
-            startActivity('Cursive'); 
-        }
-
-        function renderRoulette(root) {
-            root.innerHTML = `
-                <div class="max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
-                    <h2 class="text-2xl sm:text-3xl font-black text-slate-800 font-game uppercase glass-container py-3 px-8 inline-block rounded-full shadow-lg">Daily Template Spin</h2>
-                    <div class="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto mb-8">
-                        <div id="wheel" class="w-full h-full rounded-full border-8 border-slate-800 bg-white relative overflow-hidden wheel-spin shadow-2xl">
-                            ${[1,2,3,4,5,6].map((t, i) => `<div class="absolute top-0 left-0 w-full h-full" style="transform: rotate(${i * 60}deg); clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 20%); background-color: ${i % 2 === 0 ? '#58cc02' : '#ff4b4b'}; border: 1px solid rgba(0,0,0,0.1);"></div>`).join('')}
-                        </div>
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-slate-800 z-10" style="clip-path: polygon(0% 0%, 100% 0%, 50% 100%);"></div>
-                    </div>
-                    <div id="roulette-result" class="hidden">
-                        <div class="glass-container p-6 sm:p-8 rounded-[40px] shadow-xl mb-6 border-indigo-400">
-                            <p id="template-text" class="text-lg sm:text-2xl font-black text-indigo-950 leading-tight italic"></p>
-                            <input type="text" class="mt-6 w-full p-4 rounded-2xl border-2 outline-none text-center font-bold bg-white/70 shadow-inner text-base" placeholder="Lanjutkan kalimat ini...">
-                        </div>
-                        <button onclick="saveRecap('Roulette', 5); startActivity('Roulette')" class="px-10 py-4 bg-duo-green text-white font-black rounded-2xl uppercase mx-auto block shadow-[0_4px_0_0_#46a302]">Selesai & Lanjut</button>
-                    </div>
-                    <button id="spin-btn" onclick="spinTheWheel()" class="px-12 py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-[0_8px_0_0_#3730a3] text-2xl uppercase mx-auto block hover:bg-indigo-700 active:translate-y-1">PUTAR RODA!</button>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        function spinTheWheel() {
-            const list = getQuestionList('Roulette', state.level);
-            if(!list || list.length === 0) return showCustomAlert("Data Roulette belum tersedia di Supabase!");
-            const wheel = document.getElementById('wheel');
-            const spinBtn = document.getElementById('spin-btn');
-            const randomRotation = Math.floor(Math.random() * 360) + 1440; 
-            wheel.style.transform = `rotate(${randomRotation}deg)`;
-            spinBtn.disabled = true; spinBtn.classList.add('opacity-50');
-            setTimeout(() => {
-                const res = list[Math.floor(Math.random() * list.length)];
-                document.getElementById('roulette-result').classList.remove('hidden');
-                document.getElementById('template-text').innerText = res;
-                spinBtn.classList.add('hidden');
-                playTTS(res);
-            }, 4000);
-        }
-
-        function renderRank(root) {
-            root.innerHTML = `
-                <div class="max-w-2xl mx-auto w-full animate-fade-in">
-                    <div class="glass-container p-6 sm:p-8 rounded-[3rem] shadow-xl">
-                        <h2 class="text-2xl sm:text-3xl font-black mb-6 uppercase text-indigo-900 tracking-tight">Klasemen Top 10</h2>
-                        <div class="space-y-3">
-                            ${state.leaderboard.length > 0 ? state.leaderboard.map((u, i) => `
-                                <div class="flex items-center justify-between p-4 rounded-2xl ${i===0?'bg-yellow-50 border-2 border-yellow-300 shadow-sm':'bg-white/90 border-2 border-slate-100'}">
-                                    <div class="flex items-center gap-4">
-                                        <span class="w-8 h-8 rounded-full flex items-center justify-center font-black ${i===0?'bg-yellow-400 text-white shadow-md':'bg-slate-100 text-slate-500'}">${i+1}</span>
-                                        <span class="font-bold text-slate-800">${u.name}</span>
-                                    </div>
-                                    <span class="font-black text-indigo-600">${u.score} pts</span>
-                                </div>
-                            `).join('') : '<p class="py-10 text-slate-400 font-bold">Belum ada data nilai di Supabase.</p>'}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        let recognition = null;
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRec = window.webkitSpeechRecognition || window.SpeechRecognition;
-            recognition = new SpeechRec();
-            recognition.lang = 'en-US';
-            recognition.onresult = (e) => { 
-                const spoken = e.results[0][0].transcript;
-                state.transcript = spoken; 
-                const list = getQuestionList('Speaking', state.level);
-                if (list.length > 0) {
-                    const target = list[state.index % list.length];
-                    checkSpeakingResult(spoken, target);
-                }
-            };
-            recognition.onend = () => { state.isListening = false; render(); };
-            recognition.onerror = () => { state.isListening = false; render(); };
-        }
-
-        function checkSpeakingResult(spoken, target) {
-            const cleanS = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().split(/\s+/);
-            const cleanT = target.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().split(/\s+/);
-            let matches = 0; cleanT.forEach(tw => { if(cleanS.includes(tw)) matches++; });
-            if((matches/cleanT.length) >= 0.75) {
-                saveRecap('Speaking', 15); 
-                state.speakingStatus = 'correct'; 
-            } else { 
-                state.speakingStatus = 'incorrect'; 
-                setTimeout(() => { if(state.speakingStatus==='incorrect'){state.speakingStatus=null;render();} }, 2500); 
-            }
-            render();
-        }
-
-        function toggleMic() { 
-            if(!recognition) return showCustomAlert("Browser ini belum mendukung fitur perekam suara. Disarankan menggunakan Google Chrome."); 
-            if(state.isListening) recognition.stop(); 
-            else { 
-                state.isListening = true; 
-                state.transcript = ''; 
-                state.speakingStatus = null; 
-                try { recognition.start(); } catch(e) {}
-                render(); 
-            } 
-        }
-
-        function showFeedback(ok, title, msg) {
-            const t = document.getElementById('feedback-toast'); if(!t) return;
-            if (ok) { const s = document.getElementById('victory-sound'); if (s) { s.currentTime = 0; s.play().catch(() => {}); } }
-            t.className = `fixed bottom-24 left-1/2 -translate-x-1/2 w-[92%] max-w-md p-5 rounded-[2rem] flex flex-col items-center gap-2 shadow-2xl z-[60] text-white relative ${ok ? 'bg-emerald-500' : 'bg-rose-500'}`;
-            document.getElementById('feedback-icon').innerHTML = `<i data-lucide="${ok?'check-circle':'alert-circle'}" class="w-8 h-8"></i>`;
-            document.getElementById('feedback-title').innerText = title;
-            document.getElementById('feedback-msg').innerText = msg;
-            t.style.display = 'flex';
-            document.getElementById('btn-next-toast').style.display = ok ? 'block' : 'none';
-            lucide.createIcons();
-        }
-
-        function hideFeedback() { const t = document.getElementById('feedback-toast'); if(t) t.style.display = 'none'; }
+        /*========================================================================================
+                                     AR WORD CLASH (2 PLAYER GESTURE DUEL)
+          ========================================================================================*/
         
-        function showVictory(team) {
-            const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-            document.getElementById('winner-title').innerText = `TIM ${team} MENANG!`;
-            document.getElementById('v-quote').innerText = `"${q.t}"`;
-            document.getElementById('v-author').innerText = `- ${q.a}`;
-            document.getElementById('victory-overlay').classList.remove('hidden');
-            const s = document.getElementById('victory-sound'); if(s) { s.currentTime = 0; s.play().catch(()=>{}); }
+        let arState = null;
+        let arCameraInstance = null;
+        let arHandsInstance = null;
+        let arAnimFrameId = null;
+        let arMouseModeActive = false;
+        
+        const AR_VOCAB_BANK = [
+          { id: "Kucing", en: "Cat", decoys: ["Dog", "Tiger", "Bird"] },
+          { id: "Anjing", en: "Dog", decoys: ["Wolf", "Fox", "Bear"] },
+          { id: "Matahari", en: "Sun", decoys: ["Moon", "Star", "Cloud"] },
+          { id: "Bulan", en: "Moon", decoys: ["Sun", "Planet", "Sky"] },
+          { id: "Buku", en: "Book", decoys: ["Pen", "Paper", "Desk"] },
+          { id: "Rumah", en: "House", decoys: ["School", "Office", "Building"] },
+          { id: "Apel", en: "Apple", decoys: ["Banana", "Grape", "Orange"] },
+          { id: "Mobil", en: "Car", decoys: ["Train", "Plane", "Bicycle"] },
+          { id: "Pintu", en: "Door", decoys: ["Window", "Floor", "Wall"] },
+          { id: "Air", en: "Water", decoys: ["Fire", "Earth", "Wind"] },
+          { id: "Api", en: "Fire", decoys: ["Smoke", "Water", "Light"] },
+          { id: "Pohon", en: "Tree", decoys: ["Flower", "Grass", "Forest"] },
+          { id: "Ikan", en: "Fish", decoys: ["Crab", "Whale", "Duck"] },
+          { id: "Burung", en: "Bird", decoys: ["Eagle", "Bat", "Fly"] },
+          { id: "Sekolah", en: "School", decoys: ["Market", "Hospital", "Store"] }
+        ];
+
+        function initARDuelState() {
+            arState = {
+              isCameraMode: true, currentRound: 1, maxRounds: 10, activeQuestion: null,
+              p1Score: 0, p2Score: 0, p1Streak: 0, p2Streak: 0, isRoundCooldown: false,
+              p1Bubbles: [], p2Bubbles: [], p1CooldownUntil: 0, p2CooldownUntil: 0,
+              hands: { p1: null, p2: null }, particles: [], floatingTexts: []
+            };
+            arMouseModeActive = false;
         }
 
-        function hideVictory() { document.getElementById('victory-overlay').classList.add('hidden'); goToHome(); }
-        function nextQuestion() { 
-            hideFeedback(); 
-            const list = getQuestionList(state.tab, state.level);
-            if(list.length > 0) state.index = Math.floor(Math.random()*list.length); 
-            render(); 
+        // Render HTML for AR Duel completely overlaying everything
+        function renderARDuelContainer(root) {
+            document.getElementById('nav-top').style.display = 'none';
+            document.getElementById('nav-bottom').style.display = 'none';
+            document.body.classList.add('bg-slate-950'); // Dark background
+
+            root.innerHTML = `
+            <div id="ar-wrapper" class="fixed inset-0 w-full h-full z-[100] bg-slate-950 text-white overflow-hidden text-left">
+              <video id="ar-webcam" class="hidden" playsinline></video>
+              <canvas id="ar-gameCanvas" class="absolute inset-0 w-full h-full z-0"></canvas>
+              
+              <!-- Back Button -->
+              <button onclick="goToHome()" class="absolute top-6 left-6 z-50 glass-panel-ar px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-white/10 text-slate-200 shadow-lg border border-slate-700 pointer-events-auto">
+                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+              </button>
+
+              <div class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-4 md:p-6 pt-20">
+                <header class="w-full flex items-start justify-between gap-2 max-w-7xl mx-auto">
+                  <div class="flex items-center gap-3 glass-panel-ar p1-glow px-5 py-3 rounded-2xl border-l-4 border-cyan-400">
+                    <div class="w-3 h-10 bg-cyan-400 rounded-full shadow-[0_0_12px_#22d3ee]"></div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs tracking-wider uppercase font-bold text-cyan-300">P1 (KIRI)</span>
+                        <span id="ar-p1HandBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-200">Menunggu Tangan...</span>
+                      </div>
+                      <div class="flex items-baseline gap-2">
+                        <span id="ar-p1Score" class="font-hud text-3xl md:text-4xl font-black text-cyan-400">0</span>
+                        <span class="text-xs text-slate-400">PTS</span>
+                        <span id="ar-p1Streak" class="text-xs font-bold text-amber-400 ml-1 hidden">🔥 0x</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex-1 max-w-xl mx-2 flex flex-col items-center">
+                    <div class="glass-panel-ar px-6 py-3 rounded-2xl border border-amber-400/40 shadow-[0_0_25px_rgba(251,191,36,0.25)] text-center w-full">
+                      <div class="flex items-center justify-center gap-2 text-xs text-amber-300 tracking-widest uppercase font-semibold">
+                        <span>⚔️ TERJEMAHKAN KE BAHASA INGGRIS</span>
+                        <span id="ar-roundIndicator" class="font-hud bg-amber-500/20 text-amber-200 px-2.5 py-0.5 rounded-full border border-amber-500/30">RONDE 1/10</span>
+                      </div>
+                      <div class="flex items-center justify-center gap-3 mt-1">
+                        <div id="ar-targetWord" class="text-2xl md:text-4xl font-extrabold text-amber-300 tracking-wide font-hud animate-pulse-slow">"KUCING"</div>
+                        <button id="ar-btnRepeatSpeech" title="Dengarkan Pengucapan Lagi" class="pointer-events-auto p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 active:scale-95 text-amber-300 border border-amber-400/40 transition shadow-[0_0_10px_rgba(251,191,36,0.2)]">🔊</button>
+                      </div>
+                      <div class="text-[11px] text-slate-300 mt-0.5">Sentuh gelembung jawaban yang terpisah di wilayahmu!</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 glass-panel-ar p2-glow px-5 py-3 rounded-2xl border-r-4 border-pink-500 text-right">
+                    <div>
+                      <div class="flex items-center justify-end gap-2">
+                        <span id="ar-p2HandBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-pink-950 border border-pink-500/40 text-pink-200">Menunggu Tangan...</span>
+                        <span class="text-xs tracking-wider uppercase font-bold text-pink-300">P2 (KANAN)</span>
+                      </div>
+                      <div class="flex items-baseline justify-end gap-2">
+                        <span id="ar-p2Streak" class="text-xs font-bold text-amber-400 mr-1 hidden">🔥 0x</span>
+                        <span class="text-xs text-slate-400">PTS</span>
+                        <span id="ar-p2Score" class="font-hud text-3xl md:text-4xl font-black text-pink-400">0</span>
+                      </div>
+                    </div>
+                    <div class="w-3 h-10 bg-pink-500 rounded-full shadow-[0_0_12px_#ec4899]"></div>
+                  </div>
+                </header>
+
+                <div class="absolute inset-y-24 left-1/2 -translate-x-1/2 w-0.5 border-r-2 border-dashed border-white/20 pointer-events-none flex flex-col justify-center items-center">
+                  <div class="bg-slate-900/90 text-slate-400 text-[10px] font-hud px-2 py-1 rounded-full border border-slate-700 tracking-wider">ZONA PEMISAH</div>
+                </div>
+
+                <footer class="w-full flex items-end justify-between max-w-7xl mx-auto pointer-events-auto">
+                  <div class="glass-panel-ar px-4 py-2.5 rounded-xl text-xs text-slate-300 flex items-center gap-2">
+                    <span id="ar-cameraStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span id="ar-cameraStatusText">Inisialisasi AR...</span>
+                    <button id="ar-btnSwitchMouse" class="ml-3 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-[11px] text-amber-300 transition">Mode Mouse</button>
+                  </div>
+                </footer>
+              </div>
+
+              <!-- Start Modal AR -->
+              <div id="ar-startModal" class="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+                <div class="max-w-xl w-full glass-panel-ar p-8 rounded-3xl border border-cyan-500/40 shadow-2xl text-center space-y-6">
+                  <div class="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-pink-500/20 border border-white/20"><span class="text-4xl">⚔️ 🖐️</span></div>
+                  <div>
+                    <h1 class="font-hud text-3xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 via-amber-300 to-pink-500 bg-clip-text text-transparent">WORD CLASH</h1>
+                    <p class="text-sm font-hud text-cyan-300 tracking-widest mt-1">DUEL KOSAKATA GESTUR TANGAN</p>
+                  </div>
+                  <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-left text-sm space-y-2 text-slate-300">
+                    <div class="flex items-center gap-2 text-cyan-300 font-bold"><span>🎮 CARA MAIN (2 PEMAIN):</span></div>
+                    <ul class="list-disc pl-5 space-y-1.5 text-xs md:text-sm">
+                      <li><strong>Player 1</strong> di sisi <span class="text-cyan-400 font-semibold">kiri layar</span>, <strong>Player 2</strong> di sisi <span class="text-pink-400 font-semibold">kanan layar</span>.</li>
+                      <li>Arahkan <strong>ujung jari telunjuk</strong> menyentuh gelembung jawaban bahasa Inggris yang tepat.</li>
+                      <li>Tahan jari di gelembung selama <strong>0.5 detik</strong> hingga cincin kuning penuh.</li>
+                    </ul>
+                  </div>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="ar-btnStartGame" class="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:brightness-110 font-bold font-hud tracking-wider text-slate-950 text-base shadow-[0_0_25px_rgba(6,182,212,0.5)] transition">🚀 AKTIFKAN KAMERA</button>
+                    <button id="ar-btnStartMouse" class="py-4 px-6 rounded-2xl glass-panel-ar hover:bg-white/10 font-semibold text-slate-300 text-sm border border-slate-700 transition">💻 Mode Mouse</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Winner Modal AR -->
+              <div id="ar-winnerModal" class="hidden absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+                <div class="max-w-lg w-full glass-panel-ar p-8 rounded-3xl border border-amber-400/40 text-center space-y-6 animate-pulse-slow">
+                  <div id="ar-winnerBadge" class="text-6xl">🏆</div>
+                  <h2 id="ar-winnerText" class="font-hud text-3xl font-black text-amber-300">PLAYER 1 MENANG!</h2>
+                  <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex justify-around items-center">
+                    <div class="text-center"><div class="text-xs text-cyan-400 font-bold">PLAYER 1</div><div id="ar-finalP1Score" class="font-hud text-3xl font-black text-cyan-300">0</div></div>
+                    <div class="font-hud text-xl text-slate-500 font-bold">VS</div>
+                    <div class="text-center"><div class="text-xs text-pink-400 font-bold">PLAYER 2</div><div id="ar-finalP2Score" class="font-hud text-3xl font-black text-pink-300">0</div></div>
+                  </div>
+                  <button id="ar-btnPlayAgain" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 font-bold font-hud text-slate-950 shadow-[0_0_25px_rgba(251,191,36,0.4)] transition">MAIN LAGI (REMATCH)</button>
+                </div>
+              </div>
+            </div>
+            `;
+            lucide.createIcons();
         }
 
-        lucide.createIcons();
+        // TONE JS Setup for AR
+        let arAudioReady = false;
+        let arHoverSynth, arCorrectSynth, arWrongSynth, arFanfareSynth;
+        
+        function initARAudio() {
+            if (arAudioReady) return;
+            try {
+                arHoverSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.1, sustain: 0.01, release: 0.1 } }).toDestination();
+                arHoverSynth.volume.value = -12;
+                arCorrectSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.4 } }).toDestination();
+                arCorrectSynth.volume.value = -6;
+                arWrongSynth = new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.02, decay: 0.3, sustain: 0.0, release: 0.1 } }).toDestination();
+                arWrongSynth.volume.value = -8;
+                arFanfareSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                arAudioReady = true;
+            } catch (err) {}
+        }
+        function arPlayHover() { if (arAudioReady) try { arHoverSynth.triggerAttackRelease("C6", "16n"); } catch(e){} }
+        function arPlayCorrect() { if (arAudioReady) try { arCorrectSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); } catch(e){} }
+        function arPlayWrong() { if (arAudioReady) try { arWrongSynth.triggerAttackRelease("G#2", "8n"); } catch(e){} }
+        function arPlayVictory() { 
+            if (arAudioReady) try { 
+                const now = Tone.now(); 
+                arFanfareSynth.triggerAttackRelease(["C4", "G4", "C5"], "8n", now); 
+                arFanfareSynth.triggerAttackRelease(["E4", "B4", "E5"], "8n", now + 0.2); 
+                arFanfareSynth.triggerAttackRelease(["G4", "D5", "G5"], "4n", now + 0.4); 
+                arFanfareSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "2n", now + 0.7); 
+            } catch(e){} 
+        }
+
+        function arSpeak(text, lang='id-ID') {
+            if (!('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = lang; u.rate = lang==='id-ID'? 0.92 : 1.0; u.pitch = 1.05;
+                const voices = window.speechSynthesis.getVoices();
+                const targetVoice = voices.find(v => v.lang && v.lang.includes(lang.split('-')[0]));
+                if(targetVoice) u.voice = targetVoice;
+                window.speechSynthesis.speak(u);
+            } catch(e){}
+        }
+
+        class ARFloatingBubble {
+            constructor(text, isCorrect, playerSide, spawnX, spawnY, bounds) {
+                this.text = text; this.isCorrect = isCorrect; this.playerSide = playerSide;
+                const minDim = Math.min(bounds.width, bounds.height);
+                this.radius = Math.max(50, Math.min(76, minDim * 0.14));
+                this.bounds = bounds;
+                this.minX = bounds.minX + this.radius + 15; this.maxX = bounds.maxX - this.radius - 15;
+                this.minY = bounds.minY + this.radius + 15; this.maxY = bounds.maxY - this.radius - 15;
+                this.x = Math.max(this.minX, Math.min(this.maxX, spawnX));
+                this.y = Math.max(this.minY, Math.min(this.maxY, spawnY));
+                const speed = 0.45 + Math.random() * 0.35; const angle = Math.random() * Math.PI * 2;
+                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+                this.oscillator = Math.random() * Math.PI * 2; this.oscSpeed = 0.015 + Math.random() * 0.015;
+                this.baseColor = playerSide === 'p1' ? 'rgba(6, 182, 212, 0.22)' : 'rgba(236, 72, 153, 0.22)';
+                this.borderColor = playerSide === 'p1' ? '#22d3ee' : '#f472b6';
+                this.textColor = '#ffffff'; this.dwellProgress = 0;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy; this.oscillator += this.oscSpeed; this.y += Math.sin(this.oscillator) * 0.25;
+                if (this.x < this.minX) { this.x = this.minX; this.vx = Math.abs(this.vx); } else if (this.x > this.maxX) { this.x = this.maxX; this.vx = -Math.abs(this.vx); }
+                if (this.y < this.minY) { this.y = this.minY; this.vy = Math.abs(this.vy); } else if (this.y > this.maxY) { this.y = this.maxY; this.vy = -Math.abs(this.vy); }
+            }
+            draw(ctx) {
+                ctx.save(); ctx.translate(this.x, this.y);
+                ctx.shadowColor = this.borderColor; ctx.shadowBlur = this.dwellProgress > 0 ? 32 : 14;
+                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.dwellProgress > 0 ? (this.playerSide === 'p1' ? 'rgba(6, 182, 212, 0.55)' : 'rgba(236, 72, 153, 0.55)') : this.baseColor;
+                ctx.fill(); ctx.lineWidth = this.dwellProgress > 0 ? 4 : 2.5; ctx.strokeStyle = this.borderColor; ctx.stroke();
+                
+                const grad = ctx.createRadialGradient(-this.radius * 0.35, -this.radius * 0.35, 2, 0, 0, this.radius);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.65)'); grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.12)'); grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.fill();
+
+                if (this.dwellProgress > 0) {
+                    ctx.beginPath(); ctx.arc(0, 0, this.radius + 7, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * this.dwellProgress));
+                    ctx.lineWidth = 5; ctx.strokeStyle = '#facc15'; ctx.shadowColor = '#facc15'; ctx.shadowBlur = 18; ctx.lineCap = 'round'; ctx.stroke();
+                }
+                ctx.shadowBlur = 6; ctx.shadowColor = '#000000'; ctx.fillStyle = this.textColor;
+                ctx.font = `bold ${Math.round(this.radius * 0.38)}px 'Plus Jakarta Sans', sans-serif`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.text, 0, 0);
+                ctx.restore();
+            }
+            containsPoint(px, py) {
+                const dx = px - this.x; const dy = py - this.y; return (dx * dx + dy * dy) <= (this.radius * this.radius);
+            }
+        }
+
+        function arResolveCollisions(bubbles) {
+            for (let i = 0; i < bubbles.length; i++) {
+                for (let j = i + 1; j < bubbles.length; j++) {
+                    const b1 = bubbles[i]; const b2 = bubbles[j];
+                    const dx = b2.x - b1.x; const dy = b2.y - b1.y; const dist = Math.hypot(dx, dy);
+                    const targetDist = b1.radius + b2.radius + 28; // 28 is min gap
+                    if (dist < targetDist && dist > 0.001) {
+                        const overlap = targetDist - dist; const nx = dx / dist; const ny = dy / dist;
+                        b1.x -= nx * (overlap * 0.52); b1.y -= ny * (overlap * 0.52);
+                        b2.x += nx * (overlap * 0.52); b2.y += ny * (overlap * 0.52);
+                        const dotVelocity = (b1.vx - b2.vx) * nx + (b1.vy - b2.vy) * ny;
+                        if (dotVelocity > 0) {
+                            const impulse = dotVelocity * 0.8;
+                            b1.vx -= nx * impulse; b1.vy -= ny * impulse;
+                            b2.vx += nx * impulse; b2.vy += ny * impulse;
+                        }
+                        const maxSpeed = 0.8;
+                        const s1 = Math.hypot(b1.vx, b1.vy); if (s1 > maxSpeed) { b1.vx = (b1.vx / s1) * maxSpeed; b1.vy = (b1.vy / s1) * maxSpeed; }
+                        const s2 = Math.hypot(b2.vx, b2.vy); if (s2 > maxSpeed) { b2.vx = (b2.vx / s2) * maxSpeed; b2.vy = (b2.vy / s2) * maxSpeed; }
+                    }
+                }
+            }
+        }
+
+        function arSetupRound() {
+            if (arState.currentRound > arState.maxRounds) { arFinishGame(); return; }
+            arState.isRoundCooldown = false;
+            const q = AR_VOCAB_BANK[Math.floor(Math.random() * AR_VOCAB_BANK.length)];
+            arState.activeQuestion = q;
+            document.getElementById("ar-targetWord").innerText = `"${q.id.toUpperCase()}"`;
+            document.getElementById("ar-roundIndicator").innerText = `RONDE ${arState.currentRound}/${arState.maxRounds}`;
+            arSpeak(q.id);
+
+            const options = [q.en, ...q.decoys.slice(0, 3)].sort(() => 0.5 - Math.random());
+            const c = document.getElementById("ar-gameCanvas");
+            if(!c) return;
+            const w = c.width || window.innerWidth; const h = c.height || window.innerHeight;
+            
+            const p1Bounds = { minX: 30, maxX: (w/2)-45, minY: 120, maxY: h-90, width: (w/2)-75, height: h-210 };
+            const p2Bounds = { minX: (w/2)+45, maxX: w-30, minY: 120, maxY: h-90, width: (w/2)-75, height: h-210 };
+
+            const buildBubbles = (opts, bounds, side) => {
+                const bw = bounds.maxX - bounds.minX; const bh = bounds.maxY - bounds.minY;
+                const slots = [
+                    { x: bounds.minX + bw*0.28, y: bounds.minY + bh*0.26 }, { x: bounds.minX + bw*0.72, y: bounds.minY + bh*0.26 },
+                    { x: bounds.minX + bw*0.28, y: bounds.minY + bh*0.74 }, { x: bounds.minX + bw*0.72, y: bounds.minY + bh*0.74 }
+                ].sort(()=>0.5-Math.random());
+                return opts.map((o, i) => {
+                    const sx = slots[i].x + (Math.random()-0.5)*bw*0.12; const sy = slots[i].y + (Math.random()-0.5)*bh*0.12;
+                    return new ARFloatingBubble(o, o===q.en, side, sx, sy, bounds);
+                });
+            };
+
+            arState.p1Bubbles = buildBubbles(options, p1Bounds, 'p1');
+            arState.p2Bubbles = buildBubbles([...options].sort(()=>0.5-Math.random()), p2Bounds, 'p2');
+        }
+
+        function arHandleAnswer(side, bubble) {
+            if(arState.isRoundCooldown) return;
+            const now = performance.now();
+            if(side==='p1' && now<arState.p1CooldownUntil) return;
+            if(side==='p2' && now<arState.p2CooldownUntil) return;
+
+            if(bubble.isCorrect) {
+                arState.isRoundCooldown = true; arPlayCorrect(); arSpeak(bubble.text, 'en-US');
+                const isP1 = side==='p1';
+                const pts = 150 + (isP1 ? arState.p1Streak*25 : arState.p2Streak*25);
+                if(isP1) {
+                    arState.p1Score+=pts; arState.p1Streak++; document.getElementById("ar-p1Score").innerText = arState.p1Score;
+                    document.getElementById("ar-p1Streak").innerText = `🔥 ${arState.p1Streak}x`; document.getElementById("ar-p1Streak").classList.remove('hidden');
+                } else {
+                    arState.p2Score+=pts; arState.p2Streak++; document.getElementById("ar-p2Score").innerText = arState.p2Score;
+                    document.getElementById("ar-p2Streak").innerText = `🔥 ${arState.p2Streak}x`; document.getElementById("ar-p2Streak").classList.remove('hidden');
+                }
+                arSpawnExplosion(bubble.x, bubble.y, isP1?'#22d3ee':'#f472b6');
+                arState.floatingTexts.push({ text: `+${pts} PT!`, x: bubble.x, y: bubble.y, color: '#facc15', alpha: 1, vy: -2 });
+                if(arState.p1Score >= 1000 || arState.p2Score >= 1000) { setTimeout(arFinishGame, 800); return; }
+                setTimeout(() => { arState.currentRound++; arSetupRound(); }, 1200);
+            } else {
+                arPlayWrong(); arSpawnExplosion(bubble.x, bubble.y, '#ef4444');
+                arState.floatingTexts.push({ text: `SALAH! (-30)`, x: bubble.x, y: bubble.y, color: '#ef4444', alpha: 1, vy: -2 });
+                if(side==='p1') {
+                    arState.p1Score = Math.max(0, arState.p1Score-30); arState.p1Streak = 0; arState.p1CooldownUntil = now+1200;
+                    document.getElementById("ar-p1Score").innerText = arState.p1Score; document.getElementById("ar-p1Streak").classList.add('hidden');
+                } else {
+                    arState.p2Score = Math.max(0, arState.p2Score-30); arState.p2Streak = 0; arState.p2CooldownUntil = now+1200;
+                    document.getElementById("ar-p2Score").innerText = arState.p2Score; document.getElementById("ar-p2Streak").classList.add('hidden');
+                }
+            }
+        }
+
+        function arSpawnExplosion(x,y,c) {
+            for(let i=0; i<25; i++) {
+                const ang=Math.random()*Math.PI*2; const spd=2+Math.random()*5;
+                arState.particles.push({x,y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, color:c, size:3+Math.random()*4, alpha:1, decay:0.02+Math.random()*0.02});
+            }
+        }
+
+        function arUpdateInteraction(side, handPt) {
+            const bubbles = side==='p1'?arState.p1Bubbles : arState.p2Bubbles;
+            const handObj = arState.hands[side];
+            if(!handPt) { bubbles.forEach(b=>b.dwellProgress=0); return; }
+            let hv = null; for(let b of bubbles) { if(b.containsPoint(handPt.x, handPt.y)) { hv=b; break; } }
+            bubbles.forEach(b=>{ if(b!==hv) b.dwellProgress=0; });
+            
+            if(hv) {
+                if(!handObj.dwellingOn || handObj.dwellingOn!==hv) { handObj.dwellingOn=hv; handObj.dwellStart=performance.now(); arPlayHover(); }
+                else {
+                    const elp = performance.now()-handObj.dwellStart; hv.dwellProgress = Math.min(1, elp/500); // 500ms
+                    if(hv.dwellProgress>=1) { arHandleAnswer(side, hv); hv.dwellProgress=0; handObj.dwellingOn=null; }
+                }
+            } else { handObj.dwellingOn=null; }
+        }
+
+        function arLoop() {
+            if(!arState) return;
+            const c = document.getElementById("ar-gameCanvas");
+            if(!c) return;
+            const ctx = c.getContext('2d'); const w = c.width; const h = c.height;
+            ctx.clearRect(0,0,w,h);
+            const vid = document.getElementById("ar-webcam");
+
+            if(arState.isCameraMode && vid && vid.readyState >= 2) {
+                ctx.save(); ctx.scale(-1,1); ctx.drawImage(vid, -w, 0, w, h); ctx.restore();
+                ctx.fillStyle = "rgba(3,7,18,0.65)"; ctx.fillRect(0,0,w,h);
+            } else {
+                ctx.fillStyle = "#030712"; ctx.fillRect(0,0,w,h);
+                ctx.strokeStyle = "rgba(255,255,255,0.03)"; ctx.lineWidth=1;
+                for(let x=0;x<w;x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+                for(let y=0;y<h;y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+            }
+
+            ctx.save(); ctx.strokeStyle="rgba(255,255,255,0.15)"; ctx.lineWidth=2; ctx.setLineDash([8,8]);
+            ctx.beginPath(); ctx.moveTo(w/2,80); ctx.lineTo(w/2,h-70); ctx.stroke(); ctx.restore();
+
+            arState.p1Bubbles.forEach(b=>b.update()); arState.p2Bubbles.forEach(b=>b.update());
+            arResolveCollisions(arState.p1Bubbles); arResolveCollisions(arState.p2Bubbles);
+            arState.p1Bubbles.forEach(b=>b.draw(ctx)); arState.p2Bubbles.forEach(b=>b.draw(ctx));
+
+            const drawCursor = (hd, pSide) => {
+                if(!hd) return; const cColor = pSide==='p1'?'#22d3ee':'#ec4899';
+                ctx.save(); ctx.translate(hd.x, hd.y); ctx.shadowColor=cColor; ctx.shadowBlur=20; ctx.strokeStyle=cColor; ctx.lineWidth=3;
+                ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.stroke();
+                ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-30,0); ctx.lineTo(-12,0); ctx.moveTo(12,0); ctx.lineTo(30,0); ctx.moveTo(0,-30); ctx.lineTo(0,-12); ctx.moveTo(0,12); ctx.lineTo(0,30); ctx.stroke();
+                ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill();
+                ctx.font="bold 11px Orbitron"; ctx.fillStyle=cColor; ctx.textAlign="center"; ctx.fillText(pSide==='p1'?"P1":"P2",0,42);
+                ctx.restore();
+            };
+            drawCursor(arState.hands.p1, 'p1'); drawCursor(arState.hands.p2, 'p2');
+
+            for(let i=arState.particles.length-1; i>=0; i--) {
+                const p = arState.particles[i]; p.x+=p.vx; p.y+=p.vy; p.alpha-=p.decay;
+                if(p.alpha<=0) arState.particles.splice(i,1);
+                else { ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=12; ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+            }
+            for(let i=arState.floatingTexts.length-1; i>=0; i--) {
+                const ft = arState.floatingTexts[i]; ft.y+=ft.vy; ft.alpha-=0.02;
+                if(ft.alpha<=0) arState.floatingTexts.splice(i,1);
+                else { ctx.save(); ctx.globalAlpha=ft.alpha; ctx.fillStyle=ft.color; ctx.font="900 24px Orbitron"; ctx.textAlign="center"; ctx.shadowColor=ft.color; ctx.shadowBlur=10; ctx.fillText(ft.text,ft.x,ft.y); ctx.restore(); }
+            }
+            arAnimFrameId = requestAnimationFrame(arLoop);
+        }
+
+        function arFinishGame() {
+            arPlayVictory(); document.getElementById("ar-winnerModal").classList.remove("hidden");
+            document.getElementById("ar-finalP1Score").innerText = arState.p1Score; document.getElementById("ar-finalP2Score").innerText = arState.p2Score;
+            const wt = document.getElementById("ar-winnerText"); const wb = document.getElementById("ar-winnerBadge");
+            if(arState.p1Score > arState.p2Score) { wt.innerText="PLAYER 1 MENANG!"; wt.className="font-hud text-3xl font-black text-cyan-400"; wb.innerText="👑"; }
+            else if(arState.p2Score > arState.p1Score) { wt.innerText="PLAYER 2 MENANG!"; wt.className="font-hud text-3xl font-black text-pink-400"; wb.innerText="👑"; }
+            else { wt.innerText="SERI!"; wt.className="font-hud text-3xl font-black text-amber-300"; wb.innerText="🤝"; }
+        }
+
+        const handleARMouseMove = (e) => {
+            if(!arState || !arMouseModeActive) return;
+            const c = document.getElementById("ar-gameCanvas");
+            if(!c) return;
+            const rect = c.getBoundingClientRect();
+            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+            if (x < c.width / 2) {
+                arState.hands.p1 = { x, y, dwellingOn: arState.hands.p1?.dwellingOn, dwellStart: arState.hands.p1?.dwellStart || performance.now() };
+                arUpdateInteraction('p1', arState.hands.p1);
+            } else {
+                arState.hands.p2 = { x, y, dwellingOn: arState.hands.p2?.dwellingOn, dwellStart: arState.hands.p2?.dwellStart || performance.now() };
+                arUpdateInteraction('p2', arState.hands.p2);
+            }
+        };
+
+        function enableARMouseMode() {
+            arMouseModeActive = true; arState.isCameraMode = false;
+            document.getElementById("ar-cameraStatusText").innerText = "Mode Mouse Aktif (Kiri P1, Kanan P2)";
+            document.getElementById("ar-p1HandBadge").innerText = "Mouse Sisi Kiri"; document.getElementById("ar-p2HandBadge").innerText = "Mouse Sisi Kanan";
+            window.addEventListener("mousemove", handleARMouseMove);
+        }
+
+        async function initARCamera() {
+            const txt = document.getElementById("ar-cameraStatusText"); const dot = document.getElementById("ar-cameraStatusDot");
+            txt.innerText = "Meminta Izin Kamera...";
+            try {
+                if(!window.Hands) throw new Error("MediaPipe not loaded yet");
+                arHandsInstance = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+                arHandsInstance.setOptions({ maxNumHands: 4, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+                
+                const vid = document.getElementById("ar-webcam");
+                arHandsInstance.onResults((res) => {
+                    if(!arState) return;
+                    let foundP1=false, foundP2=false; const c = document.getElementById("ar-gameCanvas");
+                    if(res.multiHandLandmarks && c) {
+                        for(let i=0; i<res.multiHandLandmarks.length; i++) {
+                            const idx = res.multiHandLandmarks[i][8];
+                            const sx = (1-idx.x)*c.width; const sy = idx.y*c.height;
+                            if(sx < c.width/2) { arState.hands.p1 = {x:sx, y:sy, dwellingOn:arState.hands.p1?.dwellingOn, dwellStart:arState.hands.p1?.dwellStart||0}; foundP1=true; }
+                            else { arState.hands.p2 = {x:sx, y:sy, dwellingOn:arState.hands.p2?.dwellingOn, dwellStart:arState.hands.p2?.dwellStart||0}; foundP2=true; }
+                        }
+                    }
+                    const b1 = document.getElementById("ar-p1HandBadge"); const b2 = document.getElementById("ar-p2HandBadge");
+                    if(foundP1) { b1.innerText="Tangan Terdeteksi✨"; b1.classList.replace("bg-cyan-950", "bg-cyan-600"); } else { arState.hands.p1=null; b1.innerText="Menunggu Tangan..."; b1.classList.replace("bg-cyan-600", "bg-cyan-950"); }
+                    if(foundP2) { b2.innerText="Tangan Terdeteksi✨"; b2.classList.replace("bg-pink-950", "bg-pink-600"); } else { arState.hands.p2=null; b2.innerText="Menunggu Tangan..."; b2.classList.replace("bg-pink-600", "bg-pink-950"); }
+                    arUpdateInteraction('p1', arState.hands.p1); arUpdateInteraction('p2', arState.hands.p2);
+                });
+
+                arCameraInstance = new Camera(vid, { onFrame: async () => { if(arState && arState.isCameraMode) await arHandsInstance.send({image:vid}); }, width: 1280, height: 720 });
+                await arCameraInstance.start();
+                txt.innerText = "Kamera Aktif • Deteksi Siap"; dot.classList.replace("bg-emerald-400", "bg-cyan-400");
+            } catch(e) {
+                txt.innerText = "Kamera Gagal (Mode Mouse Aktif)"; dot.classList.replace("bg-emerald-400", "bg-amber-400");
+                enableARMouseMode();
+            }
+        }
+
+        function initARDuelUI() {
+            initARDuelState();
+            const c = document.getElementById("ar-gameCanvas");
+            if(c) { c.width = window.innerWidth; c.height = window.innerHeight; }
+
+            document.getElementById("ar-btnStartGame").onclick = async () => {
+                initARAudio(); if(Tone.context.state!=="running") await Tone.start();
+                document.getElementById("ar-startModal").classList.add("hidden");
+                arSetupRound(); await initARCamera();
+            };
+            document.getElementById("ar-btnStartMouse").onclick = async () => {
+                initARAudio(); if(Tone.context.state!=="running") await Tone.start();
+                document.getElementById("ar-startModal").classList.add("hidden");
+                arSetupRound(); enableARMouseMode();
+            };
+            document.getElementById("ar-btnSwitchMouse").onclick = () => { if(!arMouseModeActive) enableARMouseMode(); };
+            document.getElementById("ar-btnRepeatSpeech").onclick = () => { if(arState.activeQuestion) arSpeak(arState.activeQuestion.id); };
+            document.getElementById("ar-btnPlayAgain").onclick = () => {
+                arState.currentRound=1; arState.p1Score=0; arState.p2Score=0; arState.p1Streak=0; arState.p2Streak=0;
+                document.getElementById("ar-p1Score").innerText="0"; document.getElementById("ar-p2Score").innerText="0";
+                document.getElementById("ar-p1Streak").classList.add("hidden"); document.getElementById("ar-p2Streak").classList.add("hidden");
+                document.getElementById("ar-winnerModal").classList.add("hidden"); arSetupRound();
+            };
+            
+            arAnimFrameId = requestAnimationFrame(arLoop);
+        }
+
+        function exitARDuel() {
+            if(arAnimFrameId) cancelAnimationFrame(arAnimFrameId);
+            window.removeEventListener("mousemove", handleARMouseMove);
+            if(arCameraInstance) arCameraInstance.stop();
+            const v = document.getElementById("ar-webcam");
+            if(v && v.srcObject) v.srcObject.getTracks().forEach(t=>t.stop());
+            arState = null; arCameraInstance = null; arHandsInstance = null;
+        }
+        
+        // Listen to resize to keep AR canvas scaled
+        window.addEventListener('resize', () => {
+            if(state.tab === 'ARDuel') {
+                const c = document.getElementById("ar-gameCanvas");
+                if(c) { c.width = window.innerWidth; c.height = window.innerHeight; }
+            }
+        });
+
+        // =====================================================================================
+
+        window.onload = function() { lucide.createIcons(); };
     </script>
 </body>
 </html>
