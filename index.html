@@ -125,7 +125,7 @@
 </head>
 <body class="min-h-screen text-slate-800 flex flex-col justify-between p-3 sm:p-6" onclick="unlockAudioOnce()">
 
-    <!-- Audio Elements: Terhubung ke folder asset/ asli saat di-host -->
+    <!-- Audio Elements: Terhubung ke folder asset/ saat di-host -->
     <audio id="snd-bg" loop src="asset/bg-music.mp3" preload="auto"></audio>
     <audio id="snd-click" src="asset/click.mp3" preload="auto"></audio>
     <audio id="snd-right" src="asset/right.mp3" preload="auto"></audio>
@@ -140,7 +140,11 @@
             </div>
             <div>
                 <h1 class="text-base sm:text-xl font-black font-game text-slate-800 leading-tight tracking-wide">MAHARATI- ENGLISH</h1>
-                <p class="text-[10px] sm:text-[11px] font-bold text-emerald-600 uppercase tracking-wider">SMKN 2 Mantangai Kapuas</p>
+                <p class="text-[10px] sm:text-[11px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                    <span>Gufron Firmansyah, S.Pd</span>
+                    <span>•</span>
+                    <span>SMKN 2 Mantangai Kapuas</span>
+                </p>
             </div>
         </div>
 
@@ -190,7 +194,16 @@
                 <p class="text-xs sm:text-sm text-emerald-50 max-w-lg font-semibold leading-relaxed">
                     Pilih modul di bawah untuk mulai mengasah kemampuan bahasa Inggris, bertanding kuis seru, dan kumpulkan skor XP ke database!
                 </p>
-                <div class="pt-2 flex flex-wrap gap-2 justify-center md:justify-start">
+                
+                <!-- Badge Identitas Pengembang -->
+                <div class="pt-1">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-900/35 border border-emerald-300/30 text-emerald-100 text-[11px] font-bold">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 text-yellow-300"></i>
+                        <span>Pengembang: <b>Gufron Firmansyah, S.Pd</b> • SMKN 2 Mantangai Kapuas</span>
+                    </div>
+                </div>
+
+                <div class="pt-1 flex flex-wrap gap-2 justify-center md:justify-start">
                     <span id="audio-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
                         <i data-lucide="music" class="w-3 h-3 text-emerald-300"></i> Musik: Menyala (50%)
                     </span>
@@ -208,7 +221,7 @@
             </div>
         </div>
 
-        <!-- Panel Pilihan 3 Tingkat Kesulitan (Global Setting untuk Semua Modul) -->
+        <!-- Panel Pilihan 3 Tingkat Kesulitan -->
         <div class="duo-card rounded-3xl p-4 sm:p-5 bg-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm border-emerald-200">
             <div class="flex items-center gap-3 w-full md:w-auto">
                 <div class="w-11 h-11 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-[0_3px_0_0_#fde68a]">
@@ -417,7 +430,7 @@
         </div>
     </div>
 
-    <!-- Modal Leaderboard (Klasemen Supabase) -->
+    <!-- Modal Leaderboard (Klasemen Mandiri) -->
     <div id="modal-leaderboard" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white shadow-2xl">
             <div class="flex items-center justify-between border-b pb-3">
@@ -438,10 +451,13 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="max-w-5xl w-full mx-auto text-center py-6 mt-6 border-t border-slate-200">
-        <p class="text-xs font-black text-slate-400 font-game uppercase tracking-wider">
-            Maharati- English Learning System • SMKN 2 Mantangai Kapuas
+    <!-- Footer Lengkap dengan Identitas Pembuat -->
+    <footer class="max-w-5xl w-full mx-auto text-center py-6 mt-6 border-t border-slate-200 space-y-1">
+        <p class="text-xs font-black text-slate-600 font-game uppercase tracking-wider">
+            Maharati- English Learning System
+        </p>
+        <p class="text-[11px] font-bold text-emerald-700">
+            Pengembang: <b>Gufron Firmansyah, S.Pd</b> — SMKN 2 Mantangai Kapuas
         </p>
     </footer>
 
@@ -514,7 +530,6 @@
             return audioCtx;
         }
 
-        // Sintesis suara procedural (bekerja 100% di dalam tab Preview tanpa butuh file mp3 lokal)
         function playToneSound(freq, duration = 0.08, type = 'sine', gainVal = 0.15) {
             try {
                 const ctx = getAudioContext();
@@ -547,7 +562,6 @@
             playSoundEffect('snd-click', 700);
         }
 
-        // Melodi synthesizer latar jika file bg-music.mp3 belum tersedia
         function startProceduralBGM() {
             stopProceduralBGM();
             const ctx = getAudioContext();
@@ -590,7 +604,6 @@
                         isMusicPlaying = true;
                         updateMusicUI();
                     }).catch(() => {
-                        // Jika autoplay terblokir oleh kebijakan browser, jalankan procedural saat sentuhan pertama
                         startProceduralBGM();
                     });
                 }
@@ -599,7 +612,6 @@
             }
         }
 
-        // Membuka kunci audio otomatis pada interaksi klik pertama siswa
         function unlockAudioOnce() {
             getAudioContext();
             if (isMusicPlaying && !synthBgmTimer) {
@@ -613,7 +625,6 @@
             }
         }
 
-        // Toggle tombol mute/unmute
         function toggleMusicBtn() {
             playClickSound();
             const bgAudio = document.getElementById('snd-bg');
@@ -638,7 +649,6 @@
             updateMusicUI();
         }
 
-        // Penggeser Volume Sound Bar
         function changeMusicVolume(val) {
             currentVolume = parseFloat(val);
             localStorage.setItem('maharati_bgm_volume', currentVolume);
@@ -681,7 +691,6 @@
             lucide.createIcons();
         }
 
-        // Hentikan musik saat siswa masuk ke modul agar tidak menabrak audio game
         function stopMusicBeforeNav() {
             const bgAudio = document.getElementById('snd-bg');
             if (bgAudio) bgAudio.pause();
@@ -694,14 +703,12 @@
         // ==============================================================
         function navigateToModule(e, targetUrl, moduleKey) {
             playClickSound();
-            stopMusicBeforeNav(); // Matikan musik saat masuk modul
+            stopMusicBeforeNav();
             markModuleVisited(moduleKey);
 
-            // Simpan level yang aktif saat ini ke penyimpanan lokal dan URL parameter
             localStorage.setItem('maharati_difficulty', currentDifficulty);
             localStorage.setItem('studentLevel', currentDifficulty);
 
-            // Jika dibuka di lingkungan preview blob/sandbox tanpa subfolder lokal
             const isLocalPreviewSandbox = (window.location.protocol === 'about:' || window.location.href.includes('blob:'));
             if (isLocalPreviewSandbox) {
                 e.preventDefault();
@@ -709,7 +716,6 @@
                 return;
             }
 
-            // Arahkan ke modul dengan menyertakan level yang dipilih
             window.location.href = `${targetUrl}?lvl=${currentDifficulty}`;
         }
 
@@ -721,7 +727,6 @@
             }
         }
 
-        // Pratinjau Cepat Modal (Menyesuaikan dengan Tingkat Kesulitan yang Aktif)
         function testQuickAction(moduleName) {
             playClickSound();
             const modal = document.getElementById('modal-preview-action');
@@ -864,7 +869,6 @@
             document.getElementById('nav-student-name').innerText = name;
             document.getElementById('hero-student-name').innerText = name;
             
-            // Muat akumulasi XP dari penyimpanan lokal
             const totalXP = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
             document.getElementById('nav-xp-score').innerText = `${totalXP} XP`;
 
@@ -900,7 +904,6 @@
             el.innerText = `${newTotal} XP`;
             localStorage.setItem('maharati_student_xp', newTotal);
 
-            // Perbarui juga ke riwayat leaderboard lokal
             saveToLocalLeaderboard(getStudentName(), newTotal);
         }
 
@@ -945,7 +948,7 @@
         }
 
         // ==============================================================
-        // 5. MODAL LEADERBOARD (MENGGUNAKAN LOCALSTORAGE MANDIRI)
+        // 5. MODAL LEADERBOARD (LOCALSTORAGE MANDIRI)
         // ==============================================================
         function openLeaderboardModal() {
             playClickSound();
@@ -958,7 +961,6 @@
                 { name: "Budi Santoso", score: 120 }
             ];
 
-            // Pastikan skor siswa saat ini juga masuk
             const currentName = getStudentName();
             const currentScore = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
             if (currentScore > 0 && currentName !== 'Siswa Baru') {
@@ -988,7 +990,7 @@
         window.onload = () => {
             updateProfileUI();
             updateMusicUI();
-            startBackgroundMusic(); // Otomatis menyalakan musik latar saat dimuat
+            startBackgroundMusic();
             lucide.createIcons();
             
             if (!localStorage.getItem('studentName')) {
@@ -996,7 +998,6 @@
             }
         };
 
-        // Hentikan musik saat jendela atau tab ditutup/berpindah
         window.addEventListener('beforeunload', stopMusicBeforeNav);
     </script>
 </body>
