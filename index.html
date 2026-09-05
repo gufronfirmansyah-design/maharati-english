@@ -83,6 +83,13 @@
             border-bottom-width: 1px;
         }
 
+        /* Tombol Tingkat Kesulitan Aktif */
+        .diff-btn-active {
+            transform: translateY(2px) !important;
+            box-shadow: 0 2px 0 0 rgba(0,0,0,0.15) !important;
+            border-width: 2px !important;
+        }
+
         /* Sound Bar Slider Styling */
         input[type="range"] {
             -webkit-appearance: none;
@@ -187,6 +194,9 @@
                     <span id="audio-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
                         <i data-lucide="music" class="w-3 h-3 text-emerald-300"></i> Musik: Menyala (50%)
                     </span>
+                    <span id="level-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <i data-lucide="gauge" class="w-3 h-3 text-emerald-300"></i> Tingkat: <span id="hero-level-label" class="text-white font-extrabold uppercase">Mudah</span>
+                    </span>
                     <span id="modules-completed-pill" class="text-[10px] font-bold bg-emerald-950/30 text-yellow-200 px-3 py-1 rounded-full flex items-center gap-1.5">
                         <i data-lucide="check-circle" class="w-3 h-3 text-yellow-300"></i> Modul Selesai: <span id="completed-count">0/6</span>
                     </span>
@@ -195,6 +205,32 @@
             
             <div class="w-24 h-24 sm:w-28 sm:h-28 bg-white/15 rounded-3xl flex items-center justify-center p-3 backdrop-blur-sm border-2 border-white/30 animate-float shadow-inner">
                 <i data-lucide="sparkles" class="w-14 h-14 text-yellow-300"></i>
+            </div>
+        </div>
+
+        <!-- Panel Pilihan 3 Tingkat Kesulitan (Global Setting untuk Semua Modul) -->
+        <div class="duo-card rounded-3xl p-4 sm:p-5 bg-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm border-emerald-200">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="w-11 h-11 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-[0_3px_0_0_#fde68a]">
+                    <i data-lucide="gauge" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm sm:text-base font-black font-game text-slate-800 leading-tight">PILIH TINGKAT KESULITAN</h3>
+                    <p class="text-[11px] font-bold text-slate-400">Materi kuis, duel, dan soal di semua modul akan otomatis menyesuaikan</p>
+                </div>
+            </div>
+
+            <!-- 3 Tombol Kesulitan -->
+            <div class="grid grid-cols-3 gap-2 w-full md:w-auto">
+                <button id="btn-diff-easy" onclick="setGlobalDifficulty('easy')" class="px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border-2 border-emerald-500 bg-emerald-50 text-emerald-700 shadow-[0_4px_0_0_#10b981]">
+                    <span>🟢</span> <span>Mudah</span>
+                </button>
+                <button id="btn-diff-medium" onclick="setGlobalDifficulty('medium')" class="px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border-2 border-slate-200 bg-white text-slate-600 shadow-[0_4px_0_0_#cbd5e1]">
+                    <span>🟠</span> <span>Sedang</span>
+                </button>
+                <button id="btn-diff-hard" onclick="setGlobalDifficulty('hard')" class="px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border-2 border-slate-200 bg-white text-slate-600 shadow-[0_4px_0_0_#cbd5e1]">
+                    <span>🔴</span> <span>Sulit</span>
+                </button>
             </div>
         </div>
 
@@ -387,13 +423,13 @@
             <div class="flex items-center justify-between border-b pb-3">
                 <div class="flex items-center gap-2">
                     <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
-                    <h3 class="text-lg font-black font-game text-slate-800 uppercase">Klasemen Top 10 XP</h3>
+                    <h3 class="text-lg font-black font-game text-slate-800 uppercase">Klasemen Top Skor XP</h3>
                 </div>
                 <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
             <div id="leaderboard-list" class="space-y-2 max-h-72 overflow-y-auto pr-1 text-left">
-                <div class="p-4 text-xs font-bold text-slate-400 text-center">Memuat peringkat dari Supabase...</div>
+                <!-- Diisi otomatis dari penyimpanan skor lokal -->
             </div>
 
             <button onclick="closeLeaderboardModal()" class="w-full py-3 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
@@ -411,11 +447,44 @@
 
     <script>
         // ==============================================================
-        // 1. SUPABASE DATABASE CONFIGURATION
+        // 1. SISTEM LEVEL & PENYIMPANAN LOKAL (TANPA SUPABASE)
         // ==============================================================
-        const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
         const MODULE_KEYS = ["Reading", "Speaking", "Cursive", "Roulette", "TarikTambang", "WordClash"];
+        
+        // Ambil tingkat kesulitan tersimpan (default: easy)
+        let currentDifficulty = localStorage.getItem('maharati_difficulty') || 'easy';
+
+        function setGlobalDifficulty(level) {
+            playClickSound();
+            currentDifficulty = level;
+            localStorage.setItem('maharati_difficulty', level);
+            localStorage.setItem('studentLevel', level); // kompatibilitas ke modul-modul lain
+            updateDifficultyUI();
+        }
+
+        function updateDifficultyUI() {
+            const levels = ['easy', 'medium', 'hard'];
+            const labels = {
+                easy: { name: 'Mudah', icon: '🟢', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-500', shadow: '#10b981' },
+                medium: { name: 'Sedang', icon: '🟠', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-400', shadow: '#f59e0b' },
+                hard: { name: 'Sulit', icon: '🔴', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-500', shadow: '#f43f5e' }
+            };
+
+            levels.forEach(lvl => {
+                const btn = document.getElementById(`btn-diff-${lvl}`);
+                if (!btn) return;
+
+                if (lvl === currentDifficulty) {
+                    const cfg = labels[lvl];
+                    btn.className = `px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border-2 ${cfg.border} ${cfg.bg} ${cfg.text} diff-btn-active shadow-[0_2px_0_0_${cfg.shadow}]`;
+                } else {
+                    btn.className = `px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border-2 border-slate-200 bg-white text-slate-600 hover:border-slate-300 shadow-[0_4px_0_0_#cbd5e1]`;
+                }
+            });
+
+            const heroLbl = document.getElementById('hero-level-label');
+            if (heroLbl) heroLbl.innerText = labels[currentDifficulty].name;
+        }
 
         // ==============================================================
         // 2. SISTEM AUDIO & MUSIK LATAR (DENGAN SOUND BAR SLIDER)
@@ -628,7 +697,11 @@
             stopMusicBeforeNav(); // Matikan musik saat masuk modul
             markModuleVisited(moduleKey);
 
-            // Jika dibuka di lingkungan preview tanpa subfolder lokal, tampilkan pratinjau mini
+            // Simpan level yang aktif saat ini ke penyimpanan lokal dan URL parameter
+            localStorage.setItem('maharati_difficulty', currentDifficulty);
+            localStorage.setItem('studentLevel', currentDifficulty);
+
+            // Jika dibuka di lingkungan preview blob/sandbox tanpa subfolder lokal
             const isLocalPreviewSandbox = (window.location.protocol === 'about:' || window.location.href.includes('blob:'));
             if (isLocalPreviewSandbox) {
                 e.preventDefault();
@@ -636,8 +709,8 @@
                 return;
             }
 
-            // Di server asli / localhost / custom domain, langsung berpindah halaman
-            window.location.href = targetUrl;
+            // Arahkan ke modul dengan menyertakan level yang dipilih
+            window.location.href = `${targetUrl}?lvl=${currentDifficulty}`;
         }
 
         function markModuleVisited(key) {
@@ -648,7 +721,7 @@
             }
         }
 
-        // Pratinjau Cepat Modal (Bekerja 100% di dalam tab Preview)
+        // Pratinjau Cepat Modal (Menyesuaikan dengan Tingkat Kesulitan yang Aktif)
         function testQuickAction(moduleName) {
             playClickSound();
             const modal = document.getElementById('modal-preview-action');
@@ -656,67 +729,91 @@
             const body = document.getElementById('quick-body');
             const iconBox = document.getElementById('quick-icon-box');
 
-            title.innerText = `Uji Coba: ${moduleName}`;
+            const lvlBadge = currentDifficulty === 'easy' ? '🟢 Mudah' : (currentDifficulty === 'medium' ? '🟠 Sedang' : '🔴 Sulit');
+            title.innerHTML = `Uji Coba: ${moduleName} <br><span class="text-xs font-bold text-slate-400">Level: ${lvlBadge}</span>`;
             modal.classList.remove('hidden');
 
             if (moduleName === 'Reading') {
                 iconBox.innerHTML = '<i data-lucide="book-open" class="w-8 h-8"></i>';
+                let passage = "";
+                let qText = "";
+                let optA = "";
+                let optB = "";
+
+                if (currentDifficulty === 'easy') {
+                    passage = "Sarah waters the flowers in her garden every morning before school.";
+                    qText = "When does Sarah water the flowers?";
+                    optA = "Every morning";
+                    optB = "At midnight";
+                } else if (currentDifficulty === 'medium') {
+                    passage = "Computer processors generate significant heat, so cooling fans are essential to prevent hardware failure.";
+                    qText = "What is the function of cooling fans?";
+                    optA = "To prevent hardware failure";
+                    optB = "To increase monitor brightness";
+                } else {
+                    passage = "Regular preventive maintenance enhances system reliability and decreases unexpected downtime.";
+                    qText = "What is the antonym of 'decrease'?";
+                    optA = "Increase";
+                    optB = "Reduce";
+                }
+
                 body.innerHTML = `
                     <p class="font-bold text-slate-700 italic border-l-4 border-emerald-500 pl-3">
-                        "Sarah waters the flowers in her garden every morning before school."
+                        "${passage}"
                     </p>
-                    <p class="font-black text-slate-800 mt-2">Pertanyaan: When does Sarah water the flowers?</p>
+                    <p class="font-black text-slate-800 mt-2">Pertanyaan: ${qText}</p>
                     <div class="grid gap-2 pt-1">
-                        <button onclick="answerMiniQuiz(true, 'Reading')" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">A. Every morning</button>
-                        <button onclick="answerMiniQuiz(false, 'Reading')" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">B. At midnight</button>
+                        <button onclick="answerMiniQuiz(true, 'Reading')" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">A. ${optA}</button>
+                        <button onclick="answerMiniQuiz(false, 'Reading')" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">B. ${optB}</button>
                     </div>
                     <div id="mini-quiz-feedback" class="text-xs font-bold text-center pt-1 hidden"></div>
                 `;
             } else if (moduleName === 'Speaking') {
                 iconBox.innerHTML = '<i data-lucide="mic" class="w-8 h-8"></i>';
+                const phrase = currentDifficulty === 'easy' 
+                    ? "Practice makes perfect" 
+                    : (currentDifficulty === 'medium' ? "Always maintain your computer hardware" : "Regular maintenance prevents hardware failure");
                 body.innerHTML = `
-                    <p class="text-slate-500 font-semibold">Frasa latihan pengucapan:</p>
-                    <p class="text-base font-black text-sky-700 italic">"Practice makes perfect"</p>
+                    <p class="text-slate-500 font-semibold">Frasa latihan pengucapan (${lvlBadge}):</p>
+                    <p class="text-base font-black text-sky-700 italic">"${phrase}"</p>
                     <div class="pt-2 flex gap-2">
-                        <button onclick="speakDemoText('Practice makes perfect')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black">
+                        <button onclick="speakDemoText('${phrase}')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black">
                             🔊 Dengarkan Suara
                         </button>
                     </div>
                 `;
             } else if (moduleName === 'Cursive') {
                 iconBox.innerHTML = '<i data-lucide="pen-tool" class="w-8 h-8"></i>';
+                const word = currentDifficulty === 'easy' ? 'Book' : (currentDifficulty === 'medium' ? 'Keyboard' : 'Troubleshoot');
                 body.innerHTML = `
-                    <p class="text-slate-600 font-semibold">Kata contoh tulisan bersambung:</p>
-                    <p class="text-4xl text-center py-2 text-rose-600 font-game font-bold">Keyboard</p>
+                    <p class="text-slate-600 font-semibold">Kata contoh tulisan bersambung (${lvlBadge}):</p>
+                    <p class="text-4xl text-center py-2 text-rose-600 font-game font-bold">${word}</p>
                     <p class="text-[11px] text-slate-400 text-center">Modul Cursive menyediakan kanvas sentuh khusus dengan garis bantu halus.</p>
                 `;
             } else if (moduleName === 'Roulette') {
                 iconBox.innerHTML = '<i data-lucide="refresh-cw" class="w-8 h-8"></i>';
-                const prompts = [
-                    "My favorite hobby after school is...",
-                    "One habit that makes me productive is...",
-                    "In my future career, I want to..."
-                ];
-                const pick = prompts[Math.floor(Math.random() * prompts.length)];
+                const prompt = currentDifficulty === 'easy'
+                    ? "My favorite hobby after school is..."
+                    : (currentDifficulty === 'medium' ? "The most essential computer part is..." : "To prevent unexpected system shutdown, we must...");
                 body.innerHTML = `
-                    <p class="text-slate-500 font-semibold">Template Kalimat Acak:</p>
-                    <p class="text-sm font-black text-purple-700 italic">"${pick}"</p>
+                    <p class="text-slate-500 font-semibold">Template Kalimat Acak (${lvlBadge}):</p>
+                    <p class="text-sm font-black text-purple-700 italic">"${prompt}"</p>
                     <p class="text-[11px] text-slate-400 mt-2">Siswa melanjutkan kalimat ini untuk mendapatkan poin XP.</p>
                 `;
             } else if (moduleName === 'Battle' || moduleName === 'TarikTambang') {
                 iconBox.innerHTML = '<i data-lucide="swords" class="w-8 h-8"></i>';
                 body.innerHTML = `
-                    <p class="text-slate-700 font-bold">🎮 Kuis Duel Tarik Tambang PC</p>
+                    <p class="text-slate-700 font-bold">🎮 Kuis Duel Tarik Tambang PC (${lvlBadge})</p>
                     <p class="text-[11px] text-slate-500 leading-relaxed">
-                        Mendukung mode Solo melawan Overheat AI dan mode 2 Pemain langsung di satu komputer/laptop dengan 75 soal kejuruan.
+                        Mendukung mode Solo melawan Overheat AI dan mode 2 Pemain langsung di satu komputer dengan soal kejuruan sesuai level ${lvlBadge}.
                     </p>
                 `;
             } else {
                 iconBox.innerHTML = '<i data-lucide="hand" class="w-8 h-8"></i>';
                 body.innerHTML = `
-                    <p class="text-slate-700 font-bold">🖐️ Duel AR Gestur Tangan</p>
+                    <p class="text-slate-700 font-bold">🖐️ Duel AR Gestur Tangan (${lvlBadge})</p>
                     <p class="text-[11px] text-slate-500 leading-relaxed">
-                        Menggunakan kecerdasan buatan MediaPipe Hands untuk mendeteksi sentuhan ujung jari telunjuk ke gelembung kata.
+                        Menggunakan kamera gestur MediaPipe untuk menyentuh gelembung kosakata bahasa Inggris tingkat ${lvlBadge}.
                     </p>
                 `;
             }
@@ -756,7 +853,7 @@
         }
 
         // ==============================================================
-        // 4. PROFIL SISWA & SINKRONISASI XP / STATUS
+        // 4. PROFIL SISWA & SISTEM SKOR XP LOKAL
         // ==============================================================
         function getStudentName() {
             return localStorage.getItem('studentName') || 'Siswa Baru';
@@ -766,7 +863,12 @@
             const name = getStudentName();
             document.getElementById('nav-student-name').innerText = name;
             document.getElementById('hero-student-name').innerText = name;
-            fetchStudentTotalXP(name);
+            
+            // Muat akumulasi XP dari penyimpanan lokal
+            const totalXP = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            document.getElementById('nav-xp-score').innerText = `${totalXP} XP`;
+
+            updateDifficultyUI();
             updateModuleBadges();
         }
 
@@ -793,10 +895,31 @@
 
         function addTempScore(pts) {
             const el = document.getElementById('nav-xp-score');
-            const current = parseInt(el.innerText) || 0;
+            const current = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
             const newTotal = current + pts;
             el.innerText = `${newTotal} XP`;
             localStorage.setItem('maharati_student_xp', newTotal);
+
+            // Perbarui juga ke riwayat leaderboard lokal
+            saveToLocalLeaderboard(getStudentName(), newTotal);
+        }
+
+        function saveToLocalLeaderboard(name, score) {
+            let lb = JSON.parse(localStorage.getItem('maharati_local_leaderboard')) || [
+                { name: "Ahmad SMKN 2", score: 180 },
+                { name: "Siti Rahma", score: 145 },
+                { name: "Budi Santoso", score: 120 }
+            ];
+
+            const idx = lb.findIndex(item => item.name.toLowerCase() === name.toLowerCase());
+            if (idx >= 0) {
+                if (score > lb[idx].score) lb[idx].score = score;
+            } else {
+                lb.push({ name, score });
+            }
+
+            lb.sort((a, b) => b.score - a.score);
+            localStorage.setItem('maharati_local_leaderboard', JSON.stringify(lb.slice(0, 10)));
         }
 
         function updateModuleBadges() {
@@ -821,99 +944,37 @@
             if (countEl) countEl.innerText = `${count}/${MODULE_KEYS.length}`;
         }
 
-        // Ambil akumulasi XP dari Supabase
-        async function fetchStudentTotalXP(studentName) {
-            const localXP = localStorage.getItem('maharati_student_xp');
-            if (localXP) {
-                document.getElementById('nav-xp-score').innerText = `${localXP} XP`;
-            }
-
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?name=eq.${encodeURIComponent(studentName)}&select=score,activity`, {
-                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
-                });
-                if (!res.ok) return;
-                const rows = await res.json();
-                
-                if (rows && rows.length > 0) {
-                    const total = rows.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
-                    document.getElementById('nav-xp-score').innerText = `${total} XP`;
-                    localStorage.setItem('maharati_student_xp', total);
-
-                    let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
-                    rows.forEach(r => {
-                        const act = (r.activity || '').toLowerCase();
-                        if (act.includes('reading') && !visited.includes('Reading')) visited.push('Reading');
-                        if (act.includes('speaking') && !visited.includes('Speaking')) visited.push('Speaking');
-                        if (act.includes('cursive') && !visited.includes('Cursive')) visited.push('Cursive');
-                        if (act.includes('roulette') && !visited.includes('Roulette')) visited.push('Roulette');
-                        if (act.includes('tarik') && !visited.includes('TarikTambang')) visited.push('TarikTambang');
-                        if (act.includes('clash') && !visited.includes('WordClash')) visited.push('WordClash');
-                    });
-                    localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
-                    updateModuleBadges();
-                }
-            } catch(e) {}
-        }
-
         // ==============================================================
-        // 5. MODAL LEADERBOARD DARI SUPABASE
+        // 5. MODAL LEADERBOARD (MENGGUNAKAN LOCALSTORAGE MANDIRI)
         // ==============================================================
-        async function openLeaderboardModal() {
+        function openLeaderboardModal() {
             playClickSound();
             document.getElementById('modal-leaderboard').classList.remove('hidden');
             const container = document.getElementById('leaderboard-list');
-            container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400 text-center">Memuat peringkat dari database Supabase...</div>';
 
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?select=name,score`, {
-                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                
-                const scoreMap = {};
-                data.forEach(item => {
-                    const n = (item.name || 'Siswa').trim();
-                    scoreMap[n] = (scoreMap[n] || 0) + (Number(item.score) || 0);
-                });
+            let lb = JSON.parse(localStorage.getItem('maharati_local_leaderboard')) || [
+                { name: "Ahmad SMKN 2", score: 180 },
+                { name: "Siti Rahma", score: 145 },
+                { name: "Budi Santoso", score: 120 }
+            ];
 
-                const sorted = Object.keys(scoreMap).map(name => ({
-                    name, score: scoreMap[name]
-                })).sort((a, b) => b.score - a.score).slice(0, 10);
-
-                if (sorted.length === 0) {
-                    container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400 text-center">Belum ada skor tercatat.</div>';
-                    return;
-                }
-
-                container.innerHTML = sorted.map((s, idx) => `
-                    <div class="flex items-center justify-between p-3 rounded-2xl ${idx === 0 ? 'bg-amber-50 border-2 border-amber-300' : 'bg-slate-50 border border-slate-200'}">
-                        <div class="flex items-center gap-3">
-                            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-400 text-white' : (idx === 1 ? 'bg-slate-300 text-slate-700' : 'bg-slate-200 text-slate-600')}">${idx + 1}</span>
-                            <span class="font-bold text-xs text-slate-800">${s.name}</span>
-                        </div>
-                        <span class="font-black text-xs text-emerald-600">${s.score} XP</span>
-                    </div>
-                `).join('');
-            } catch(e) {
-                container.innerHTML = `
-                    <div class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border-2 border-amber-300">
-                        <div class="flex items-center gap-3">
-                            <span class="w-7 h-7 rounded-xl bg-amber-400 text-white flex items-center justify-center font-black text-xs">1</span>
-                            <span class="font-bold text-xs text-slate-800">Ahmad SMKN 2</span>
-                        </div>
-                        <span class="font-black text-xs text-emerald-600">180 XP</span>
-                    </div>
-                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                        <div class="flex items-center gap-3">
-                            <span class="w-7 h-7 rounded-xl bg-slate-300 text-slate-700 flex items-center justify-center font-black text-xs">2</span>
-                            <span class="font-bold text-xs text-slate-800">Siti Rahma</span>
-                        </div>
-                        <span class="font-black text-xs text-emerald-600">145 XP</span>
-                    </div>
-                `;
+            // Pastikan skor siswa saat ini juga masuk
+            const currentName = getStudentName();
+            const currentScore = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            if (currentScore > 0 && currentName !== 'Siswa Baru') {
+                saveToLocalLeaderboard(currentName, currentScore);
+                lb = JSON.parse(localStorage.getItem('maharati_local_leaderboard'));
             }
+
+            container.innerHTML = lb.map((s, idx) => `
+                <div class="flex items-center justify-between p-3 rounded-2xl ${idx === 0 ? 'bg-amber-50 border-2 border-amber-300' : 'bg-slate-50 border border-slate-200'}">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-400 text-white' : (idx === 1 ? 'bg-slate-300 text-slate-700' : 'bg-slate-200 text-slate-600')}">${idx + 1}</span>
+                        <span class="font-bold text-xs text-slate-800">${s.name}</span>
+                    </div>
+                    <span class="font-black text-xs text-emerald-600">${s.score} XP</span>
+                </div>
+            `).join('');
         }
 
         function closeLeaderboardModal() {
