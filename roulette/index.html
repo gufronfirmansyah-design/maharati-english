@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sentence Roulette - English Maharati</title>
-    <!-- Tailwind CSS -->
+    <title>Sentence Roulette - Maharati- English</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -16,19 +16,24 @@
             --duo-purple-shadow: #a560cc;
             --duo-green: #58cc02;
             --duo-green-shadow: #46a302;
+            --duo-rose: #f43f5e;
+            --duo-rose-shadow: #e11d48;
+            --duo-yellow: #ffc800;
+            --duo-yellow-shadow: #e5a400;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #faf5ff;
             background-image: 
                 radial-gradient(#f3e8ff 2px, transparent 2px),
-                linear-gradient(rgba(250, 245, 255, 0.92), rgba(250, 245, 255, 0.96)),
+                linear-gradient(rgba(250, 245, 255, 0.94), rgba(250, 245, 255, 0.98)),
                 url('../asset/bg-maharati.gif');
             background-size: 24px 24px, cover, cover;
             background-position: 0 0, center, center;
             background-attachment: fixed;
             user-select: none;
             -webkit-user-select: none;
+            overflow: hidden; /* Menjamin zero-scroll pada layar 16:9 */
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
         
@@ -44,19 +49,19 @@
 
         .btn-duo-purple {
             background-color: var(--duo-purple);
-            box-shadow: 0 5px 0 0 var(--duo-purple-shadow);
+            box-shadow: 0 4px 0 0 var(--duo-purple-shadow);
         }
         .btn-duo-purple:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 1px 0 0 var(--duo-purple-shadow);
         }
 
         .btn-duo-green {
             background-color: var(--duo-green);
-            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+            box-shadow: 0 4px 0 0 var(--duo-green-shadow);
         }
         .btn-duo-green:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 1px 0 0 var(--duo-green-shadow);
         }
 
@@ -68,70 +73,87 @@
             transition: all 0.1s ease;
         }
         .btn-duo-white:active {
-            transform: translateY(3px);
-            border-bottom-width: 1px;
+            transform: translateY(2px);
+            border-bottom-width: 2px;
         }
 
         .wheel-rotate {
-            transition: transform 3.8s cubic-bezier(0.18, 0.05, 0.15, 1);
+            transition: transform 3.8s cubic-bezier(0.16, 0.05, 0.12, 1);
+        }
+
+        @keyframes micPulseWave {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.45); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(244, 63, 94, 0); }
+        }
+        .mic-listening {
+            animation: micPulseWave 1.2s infinite ease-in-out;
+            background-color: var(--duo-rose) !important;
+            border-color: #f43f5e !important;
+            color: #ffffff !important;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 text-slate-800">
+<body class="h-screen w-screen flex flex-col justify-between p-2 sm:p-4 text-slate-800">
 
-    <!-- Audio Elements dari folder asset/ induk -->
+    <!-- Audio Elements -->
     <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
     <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
     <audio id="snd-victory" src="../asset/victory.mp3" preload="auto"></audio>
 
-    <!-- Header Navigation -->
-    <header class="max-w-4xl w-full mx-auto flex items-center justify-between pb-4">
-        <!-- Tautan eksplisit ke index.html agar tidak muncul Index of... -->
-        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
+    <!-- HEADER NAVIGATION: MENU, LEVEL SWITCHER, PROFIL, XP -->
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between gap-2 shrink-0 py-1">
+        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 transition">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Menu Utama</span>
+            <span class="hidden sm:inline">Menu Utama</span>
         </a>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-            <div class="px-3.5 py-2 rounded-2xl bg-purple-100 border-2 border-purple-300 font-bold text-xs text-purple-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="user" class="w-4 h-4 text-purple-600"></i>
-                <span id="student-badge" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
+        <!-- Pilihan Tingkat Kesulitan Cepat -->
+        <div class="flex items-center bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-sm gap-1">
+            <button id="tab-lvl-easy" onclick="changeDifficulty('easy')" class="px-3 py-1 rounded-xl font-black text-[11px] uppercase transition bg-emerald-100 text-emerald-800 border-2 border-emerald-400">
+                🟢 Mudah
+            </button>
+            <button id="tab-lvl-medium" onclick="changeDifficulty('medium')" class="px-3 py-1 rounded-xl font-black text-[11px] uppercase transition text-slate-600 hover:bg-slate-100">
+                🟠 Sedang
+            </button>
+            <button id="tab-lvl-hard" onclick="changeDifficulty('hard')" class="px-3 py-1 rounded-xl font-black text-[11px] uppercase transition text-slate-600 hover:bg-slate-100">
+                🔴 Sulit
+            </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <div class="px-3 py-1.5 rounded-xl bg-purple-100 border-2 border-purple-300 font-bold text-xs text-purple-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-purple-600"></i>
+                <span id="student-badge" class="max-w-[80px] sm:max-w-[120px] truncate">Siswa Baru</span>
             </div>
 
-            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
+            <div class="px-3 py-1.5 rounded-xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="flame" class="w-3.5 h-3.5 fill-amber-500 text-amber-500"></i>
                 <span id="score-display">0 XP</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Workspace Container -->
-    <main class="max-w-xl w-full mx-auto my-auto space-y-4">
-        <div class="duo-card p-5 sm:p-7 rounded-[2.5rem] text-center space-y-5 bg-white shadow-sm">
+    <!-- WORKSPACE UTAMA: TAMPILAN BEBAS GULIR 16:9 -->
+    <main class="max-w-2xl w-full mx-auto flex-1 flex flex-col justify-center py-1">
+        <div class="duo-card rounded-[2rem] p-3.5 sm:p-5 bg-white flex flex-col items-center justify-between shadow-md space-y-2.5">
             
-            <!-- Top Card Action Bar -->
-            <div class="flex items-center justify-between border-b border-purple-100 pb-3">
+            <!-- Baris Status Roda & Indikator Ronde -->
+            <div class="w-full flex items-center justify-between border-b border-purple-100 pb-1.5">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-ping"></span>
-                    <span class="text-xs font-black uppercase text-purple-600 tracking-wider font-game">
-                        Sentence Roulette Spin
-                    </span>
+                    <span class="text-xs font-black uppercase text-purple-600 tracking-wider font-game">Sentence Roulette</span>
+                    <span id="level-badge-card" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 uppercase">🟢 Level: Mudah</span>
                 </div>
-
-                <span id="round-counter" class="px-3 py-1 rounded-xl bg-purple-50 border border-purple-200 font-black text-[11px] text-purple-700">
-                    Putaran Ke-1
+                <span id="round-counter" class="px-2.5 py-0.5 rounded-xl bg-slate-100 border border-slate-200 font-black text-[11px] text-slate-700">
+                    Putaran 1 / 20
                 </span>
             </div>
 
-            <!-- Roulette Wheel Visual Container -->
-            <div class="relative w-56 h-56 sm:w-64 sm:h-64 mx-auto my-2">
-                <!-- Jarum Penunjuk Atas (Needle Pointer) -->
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 w-7 h-9 drop-shadow-md" style="clip-path: polygon(50% 100%, 0 0, 100% 0); background-color: #f59e0b;"></div>
-                
-                <!-- Roda Putar 8 Segmen Warna Berbeda -->
-                <div id="roulette-wheel" class="w-full h-full rounded-full border-4 border-slate-800 relative overflow-hidden wheel-rotate shadow-xl bg-slate-900">
+            <!-- Visual Roda Berputar 8 Segmen Warna -->
+            <div class="relative w-32 h-32 sm:w-40 sm:h-40 my-0.5">
+                <div class="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-5 h-6 drop-shadow" style="clip-path: polygon(50% 100%, 0 0, 100% 0); background-color: #f59e0b;"></div>
+                <div id="roulette-wheel" class="w-full h-full rounded-full border-4 border-slate-800 relative overflow-hidden wheel-rotate shadow-lg bg-slate-900">
                     <svg viewBox="0 0 100 100" class="w-full h-full">
-                        <!-- 8 Potongan Segmen Roda (45 derajat tiap slice) -->
                         <path d="M50 50 L50 0 A50 50 0 0 1 85.36 14.64 Z" fill="#58cc02" />
                         <path d="M50 50 L85.36 14.64 A50 50 0 0 1 100 50 Z" fill="#1cb0f6" />
                         <path d="M50 50 L100 50 A50 50 0 0 1 85.36 85.36 Z" fill="#ff9600" />
@@ -140,85 +162,207 @@
                         <path d="M50 50 L14.64 85.36 A50 50 0 0 1 0 50 Z" fill="#06b6d4" />
                         <path d="M50 50 L0 50 A50 50 0 0 1 14.64 14.64 Z" fill="#ffc800" />
                         <path d="M50 50 L14.64 14.64 A50 50 0 0 1 50 0 Z" fill="#ec4899" />
-                        <!-- Titik Poros Tengah -->
-                        <circle cx="50" cy="50" r="13" fill="#ffffff" stroke="#1e293b" stroke-width="2.5" />
-                        <circle cx="50" cy="50" r="5" fill="#a855f7" />
+                        <circle cx="50" cy="50" r="10" fill="#ffffff" stroke="#1e293b" stroke-width="2" />
                     </svg>
                 </div>
             </div>
 
-            <p id="wheel-status-text" class="text-xs font-bold text-slate-400">
-                Tekan tombol di bawah untuk memutar roda ide kalimat!
-            </p>
+            <!-- Area Status & Hasil Template Kalimat -->
+            <div class="w-full space-y-2">
+                <div id="status-prompt-info" class="text-xs font-bold text-slate-400 text-center py-0.5">
+                    Tekan tombol putar di bawah untuk mendapatkan template kalimat acak!
+                </div>
 
-            <!-- Result Box (Muncul setelah roda berhenti) -->
-            <div id="result-box" class="hidden p-4 sm:p-5 rounded-2xl bg-purple-50/70 border-2 border-purple-200 text-left space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-black uppercase text-purple-600 tracking-wider">
-                        ✨ Template Kalimat Terpilih:
-                    </span>
-                    <button onclick="speakCurrentPrompt()" title="Dengarkan Contoh Ucapan" class="p-1.5 rounded-lg bg-purple-200 text-purple-800 hover:bg-purple-300">
-                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                <!-- Kotak Hasil Template, Panduan Tata Bahasa, dan Input Bicara/Ketik -->
+                <div id="result-box" class="hidden p-3 sm:p-4 rounded-2xl bg-purple-50/80 border-2 border-purple-200 text-left space-y-2">
+                    
+                    <!-- Header Template & Tombol Dengar (TTS) -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase text-purple-700 tracking-wider font-game flex items-center gap-1">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Template Kalimat:
+                        </span>
+                        <button onclick="speakCurrentPrompt()" title="Dengarkan pengucapan template" class="px-2.5 py-1 rounded-lg bg-purple-200 hover:bg-purple-300 text-purple-800 text-[11px] font-bold flex items-center gap-1 shadow-sm">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Dengar
+                        </button>
+                    </div>
+                    
+                    <!-- Teks Template Utama -->
+                    <p id="prompt-display" class="text-sm sm:text-base font-black text-slate-800 italic leading-snug">
+                        "Memuat template..."
+                    </p>
+
+                    <!-- Panduan Struktur Tata Bahasa (Grammar Hint: S + V + O) -->
+                    <div class="flex items-start gap-1.5 text-[11px] text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-xl">
+                        <i data-lucide="lightbulb" class="w-4 h-4 shrink-0 text-amber-500 mt-0.5"></i>
+                        <div>
+                            <span class="font-extrabold uppercase text-[10px] tracking-wider text-amber-900 block font-game">💡 Panduan Tata Bahasa:</span>
+                            <span id="grammar-hint-text" class="font-bold text-slate-700 text-xs">Subject + Verb + Object</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Kelanjutan dengan Tombol Speech-to-Text (Bicara / Mic) -->
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="input-continuation" placeholder="Ketik kelanjutan kalimat..." class="flex-1 p-2.5 sm:p-3 rounded-xl border-2 border-slate-200 outline-none font-bold text-xs sm:text-sm bg-white focus:border-purple-500 shadow-inner">
+                            
+                            <!-- Tombol Speech-to-Text (Bicara untuk Mengetik Otomatis) -->
+                            <button id="btn-mic" onclick="toggleSpeechToText()" title="Ucapkan suara untuk mengetik otomatis" class="p-2.5 sm:p-3 rounded-xl btn-duo-white text-slate-700 flex items-center justify-center shrink-0">
+                                <i data-lucide="mic" id="mic-icon" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p id="mic-hint" class="text-[10px] font-semibold text-slate-400 italic">💡 Tips: Kamu bisa mengetik manual atau menekan tombol mikrofon untuk bicara.</p>
+                    </div>
+
+                    <!-- Tombol Simpan Kalimat -->
+                    <button onclick="submitSentence()" class="w-full py-2.5 sm:py-3 rounded-xl btn-duo-green text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm">
+                        <span>Simpan Kalimat (+15 XP)</span>
+                        <i data-lucide="check" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
-                <p id="prompt-display" class="text-base sm:text-lg font-black text-slate-800 italic leading-snug">
-                    "Memuat kalimat..."
-                </p>
-
-                <div class="space-y-2 pt-1">
-                    <label class="text-[11px] font-bold text-slate-500 uppercase">Lanjutkan kalimatmu dalam bahasa Inggris:</label>
-                    <input type="text" id="input-continuation" placeholder="Contoh: because it gives me energy..." class="w-full p-3.5 rounded-xl border-2 border-slate-200 outline-none font-bold text-xs sm:text-sm bg-white focus:border-purple-500 shadow-inner" maxlength="80">
-                </div>
-
-                <button onclick="submitSentence()" class="w-full py-3.5 rounded-xl btn-duo-green text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                    <span>Simpan Kalimat (+15 XP)</span>
-                    <i data-lucide="check" class="w-4 h-4"></i>
-                </button>
             </div>
 
             <!-- Tombol Putar Roda -->
-            <button id="btn-spin" onclick="spinWheel()" class="w-full py-4 rounded-2xl btn-duo-purple text-white font-black text-sm sm:text-base uppercase tracking-wider transition flex items-center justify-center gap-2">
-                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            <button id="btn-spin" onclick="spinWheel()" class="w-full py-3 sm:py-3.5 rounded-xl btn-duo-purple text-white font-black text-xs sm:text-sm uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 <span>PUTAR RODA SEKARANG!</span>
             </button>
         </div>
     </main>
 
     <!-- Feedback Toast -->
-    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all"></div>
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-3 rounded-2xl text-center font-black text-white text-xs shadow-xl z-50 transition-all"></div>
 
-    <!-- Footer -->
-    <footer class="text-center text-xs font-bold text-slate-400 py-3 font-game">
-        Modul /roulette/ • English Maharati Learning System • SMKN 2 Mantangai
-    </footer>
-
-    <!-- Script Logika Permainan -->
     <script>
-        const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
-
-        // Bank Template Kalimat Bahasa Inggris
-        const PROMPTS_BANK = [
-            "My favorite hobby after school is...",
-            "In my future career as a technician, I want to...",
-            "One healthy habit that makes me productive is...",
-            "The most essential computer component for me is...",
-            "When I practice English with my classmates, I feel...",
-            "To prevent hardware failure, we should regularly...",
-            "If I could create my own computer software, it would...",
-            "Every morning before going to vocational school, I..."
-        ];
-
-        let spinCount = 0;
-        let score = 0;
-        let currentPrompt = "";
-        let isSpinning = false;
-        let currentWheelAngle = 0;
-        const studentName = localStorage.getItem('studentName') || "Siswa Baru";
+        // ==============================================================
+        // 1. BANK DATA 60 TEMPLATE KALIMAT LENGKAP & PANDUAN GRAMMAR
+        // ==============================================================
+        const ROULETTE_DATA = {
+            easy: [
+                { template: "My name is ...", hint: "Subject (My name) + Be (is) + [Nama Kamu / Proper Noun]" },
+                { template: "I am ... years old.", hint: "Subject (I) + Be (am) + [Angka Umur] + years old" },
+                { template: "My favorite color is ...", hint: "Subject + Be (is) + [Nama Warna: blue, red, green, etc.]" },
+                { template: "I like to eat ...", hint: "Subject + Verb (like) + to eat + [Nama Makanan / Noun]" },
+                { template: "My favorite drink is ...", hint: "Subject + Be (is) + [Nama Minuman: milk, juice, water, etc.]" },
+                { template: "I live in ...", hint: "Subject + Verb (live) + Preposition (in) + [Nama Kota / Tempat]" },
+                { template: "I go to school by ...", hint: "Subject + Verb (go) + by + [Kendaraan: bus, motorcycle, bicycle, etc.]" },
+                { template: "My favorite animal is ...", hint: "Subject + Be (is) + [Nama Hewan: cat, dog, rabbit, etc.]" },
+                { template: "I like playing ...", hint: "Subject + Verb (like) + Gerund (playing) + [Nama Permainan / Olahraga]" },
+                { template: "My best friend is ...", hint: "Subject + Be (is) + [Nama Teman] + [Kata Sifat: kind, funny, etc.]" },
+                { template: "I usually wake up at ...", hint: "Subject + Adverb (usually) + Verb (wake up) + at + [Waktu / Jam: 5 A.M.]" },
+                { template: "I have ... brothers and sisters.", hint: "Subject + Verb (have) + [Jumlah Angka] + brothers and sisters" },
+                { template: "My favorite subject is ...", hint: "Subject + Be (is) + [Mata Pelajaran: English, Math, IT, etc.]" },
+                { template: "I like watching ...", hint: "Subject + Verb (like) + Gerund (watching) + [Tontonan: movies, cartoons]" },
+                { template: "After school, I usually ...", hint: "Prepositional Phrase + Subject + Adverb + [Verb 1: rest, study, play]" },
+                { template: "On Sunday, I usually ...", hint: "Time Clause + Subject + Adverb + [Verb 1 + Object: clean my room]" },
+                { template: "My favorite food is ...", hint: "Subject + Be (is) + [Nama Makanan: fried rice, noodles, etc.]" },
+                { template: "I feel happy when ...", hint: "Subject + Verb (feel happy) + when + [Subject + Verb: I meet my friends]" },
+                { template: "In my bag, I have ...", hint: "Prepositional Phrase + Subject + Verb (have) + [Benda / Object List]" },
+                { template: "Today, I feel ...", hint: "Time Adverb + Subject + Verb (feel) + [Adjective: happy, energetic, excited]" }
+            ],
+            medium: [
+                { template: "A place that I really want to visit one day is ...", hint: "Relative Clause + Be (is) + [Nama Tempat] + because [Alasan]" },
+                { template: "Every Sunday morning, my family and I usually ...", hint: "Time Adverb + Compound Subject (We) + [Verb 1 + Object: cook breakfast]" },
+                { template: "I feel very proud of myself when I ...", hint: "Main Clause + Conjunction (when) + [Subject + Verb 1 / 2 + Achievement]" },
+                { template: "I like listening to music because it makes me feel ...", hint: "Clause + Conjunction (because) + it makes me feel + [Adjective: relaxed]" },
+                { template: "I really like Indonesian food, especially ...", hint: "Subject + Verb + Object + Adverb (especially) + [Contoh Makanan Favorit]" },
+                { template: "I think my hometown is famous for its ...", hint: "Opinion Clause + Subject + is famous for + [Noun: culinary, culture]" },
+                { template: "I think technology is very helpful for students because ...", hint: "Opinion Clause + Conjunction (because) + [Subject + can + Verb: find info]" },
+                { template: "I usually go to school by using ...", hint: "Subject + Adverb + Verb + by using + [Noun / Transportasi + Alasan]" },
+                { template: "I would like to tell you about my hobby. It is ...", hint: "Polite Modal (would like to) + Subject (It) + is + [Gerund / Noun: cycling]" },
+                { template: "If I could have one superpower, I would choose to ...", hint: "Conditional Type 2: If + Past Tense, Subject + would + [Verb 1: teleport]" },
+                { template: "If I could travel anywhere in the world, I would go to ...", hint: "Conditional Type 2: If + Past, Subject + would go to + [Negara / Tempat]" },
+                { template: "If I had a lot of money, I would buy ...", hint: "Conditional Type 2: If + had + Noun, Subject + would buy + [Benda Impian]" },
+                { template: "In my free time, I usually enjoy ...", hint: "Time Preposition + Subject + Verb (enjoy) + [Gerund / V-ing + Object]" },
+                { template: "Last weekend, I went to a place called ...", hint: "Past Time Adverb + Subject + Verb 2 (went) + [Nama Tempat + Aktivitas]" },
+                { template: "Learning English is important because ...", hint: "Gerund Subject + is important + because + [Subject + Verb + Complement]" },
+                { template: "My best friend is a person who is ...", hint: "Subject + Be + Noun + Relative Pronoun (who is) + [Adjectives: trustworthy]" },
+                { template: "My dream for the future is to become a ...", hint: "Subject + is to become a + [Nama Profesi / Karir Impian: technician]" },
+                { template: "My favorite subject at school is science because ...", hint: "Subject + is + Noun + because + [Subject + Verb: we do experiments]" },
+                { template: "One thing that makes me feel nervous is ...", hint: "Complex Subject + Be (is) + [Gerund / Noun: public speaking]" },
+                { template: "To stay healthy, I always try to ...", hint: "Infinitive of Purpose (To stay healthy) + Subject + try to + [Verb 1 + Object]" }
+            ],
+            hard: [
+                { template: "If I were the principal of my school, I would ...", hint: "Second Conditional: If + were, Subject + would + [Verb 1 + Complex Policy]" },
+                { template: "One problem in my community that I would like to solve is ... because ...", hint: "Subject + would like to solve is + [Masalah] + because + [Argumen & Solusi]" },
+                { template: "I believe that technology can change education by ...", hint: "Opinion Clause + Subject + can change + by + [Gerund / V-ing: providing access]" },
+                { template: "If I could change one thing about my school, I would ...", hint: "Conditional Type 2: If + could + Verb 1, Subject + would + [Verb 1 + Reformasi]" },
+                { template: "The most important lesson I have learned from my mistakes is ...", hint: "Superlative Subject + Present Perfect + is that + [Subject + should + Verb 1]" },
+                { template: "If I had the opportunity to study in another country, I would ...", hint: "Conditional Type 2: If + had + Noun, Subject + would + [Verb 1 + Jurusan/Tujuan]" },
+                { template: "In my opinion, students should learn English because ...", hint: "Prepositional Opinion + Modal (should) + because + [Global Opportunities]" },
+                { template: "One environmental problem that concerns me is ...", hint: "Relative Subject + is + [Isu Lingkungan] + which can be reduced by [Solusi]" },
+                { template: "If I could invent something to help people, I would create ...", hint: "Conditional Clause + Subject + would create + [Nama Inovasi + Manfaat]" },
+                { template: "A person becomes successful when ...", hint: "Subject + Verb + Adjective + when + [Subject + works hard and stays resilient]" },
+                { template: "If I had to live without my smartphone for a month, I would ...", hint: "Conditional Type 2: If + had to live, Subject + would + [Aktivitas Alternatif]" },
+                { template: "The biggest challenge I have ever faced was ... and I ...", hint: "Past Challenge: was + [Tantangan Lampau] + and I overcame it by [Cara]" },
+                { template: "I think social media can be useful, but it can also ...", hint: "Compound Sentence: [Dampak Positif], but it can also + [Dampak Negatif: distract]" },
+                { template: "If I could give advice to my younger self, I would say ...", hint: "Conditional Advice: Subject + would say + [Pesan Bijak / Quote Motivasi]" },
+                { template: "In the future, I believe artificial intelligence will ...", hint: "Future Prediction: Subject + will + [Verb 1: automate repetitive tasks]" },
+                { template: "A good leader should be someone who ...", hint: "Modal Subject (should be) + Relative Clause (who listens, guides, and inspires)" },
+                { template: "If everyone in my school worked together to protect the environment, we could ...", hint: "Second Conditional: If + worked together, we could + [Verb 1: reduce plastic]" },
+                { template: "The most important quality of a good friend is ... because ...", hint: "Superlative Subject + is + [Kualitas: loyalty] + because + [Alasan Mendalam]" },
+                { template: "If I could travel back in time, I would go to ... because ...", hint: "Counterfactual Conditional: Subject + would go to + [Masa Lalu + Alasan Sejarah]" },
+                { template: "My biggest dream for the future is ... and I plan to achieve it by ...", hint: "Compound Goal: is + [Visi Karir] + and I plan to achieve it by + [Langkah Konkret]" }
+            ]
+        };
 
         // ==============================================================
-        // AUDIO EFFECT ENGINE (FILE + PROCEDURAL FALLBACK)
+        // 2. STATE DAN PERSISTENSI TINGKAT KESULITAN
+        // ==============================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentDifficulty = urlParams.get('lvl') || localStorage.getItem('maharati_difficulty') || 'easy';
+        currentDifficulty = currentDifficulty.toLowerCase();
+        if (!['easy', 'medium', 'hard'].includes(currentDifficulty)) currentDifficulty = 'easy';
+
+        let spinIndex = 0;
+        let score = 0;
+        let currentItem = null;
+        let isSpinning = false;
+        let currentWheelAngle = 0;
+        let isRecording = false;
+        let recognition = null;
+
+        const studentName = localStorage.getItem('studentName') || "Siswa Baru";
+
+        function changeDifficulty(lvl) {
+            playClickSound();
+            currentDifficulty = lvl;
+            localStorage.setItem('maharati_difficulty', lvl);
+            localStorage.setItem('studentLevel', lvl);
+            updateDifficultyUI();
+            resetRouletteSession();
+        }
+
+        function updateDifficultyUI() {
+            const levels = ['easy', 'medium', 'hard'];
+            levels.forEach(t => {
+                const btn = document.getElementById(`tab-lvl-${t}`);
+                if (!btn) return;
+                if (t === currentDifficulty) {
+                    btn.className = `px-3 py-1 rounded-xl font-black text-[11px] uppercase transition ${t === 'easy' ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-400' : (t === 'medium' ? 'bg-amber-100 text-amber-800 border-2 border-amber-400' : 'bg-rose-100 text-rose-800 border-2 border-rose-400')}`;
+                } else {
+                    btn.className = "px-3 py-1 rounded-xl font-black text-[11px] uppercase transition text-slate-600 hover:bg-slate-100";
+                }
+            });
+
+            const cardBadge = document.getElementById('level-badge-card');
+            if (cardBadge) {
+                const labels = { easy: '🟢 Level: Mudah', medium: '🟠 Level: Sedang', hard: '🔴 Level: Sulit' };
+                cardBadge.innerText = labels[currentDifficulty];
+            }
+        }
+
+        function resetRouletteSession() {
+            spinIndex = 0;
+            document.getElementById('round-counter').innerText = `Putaran 1 / 20`;
+            document.getElementById('result-box').classList.add('hidden');
+            const spinBtn = document.getElementById('btn-spin');
+            spinBtn.classList.remove('hidden', 'opacity-50');
+            spinBtn.disabled = false;
+            document.getElementById('status-prompt-info').innerText = "Tekan tombol putar di bawah untuk mendapatkan template kalimat acak!";
+        }
+
+        // ==============================================================
+        // 3. AUDIO ENGINE PROCEDURAL (WEB AUDIO FALLBACK)
         // ==============================================================
         let audioCtx = null;
         function getAudioContext() {
@@ -226,9 +370,7 @@
                 const Cls = window.AudioContext || window.webkitAudioContext;
                 if (Cls) audioCtx = new Cls();
             }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
@@ -240,7 +382,7 @@
                 const gain = ctx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.setValueAtTime(0.16, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -262,7 +404,7 @@
         function playClickSound() { playSound('snd-click', 650); }
 
         // ==============================================================
-        // GAMEPLAY & ROULETTE LOGIC
+        // 4. LOGIKA PUTARAN RODA & SPEECH-TO-TEXT (MIC)
         // ==============================================================
         function spinWheel() {
             if (isSpinning) return;
@@ -271,7 +413,7 @@
 
             const wheel = document.getElementById('roulette-wheel');
             const spinBtn = document.getElementById('btn-spin');
-            const statusText = document.getElementById('wheel-status-text');
+            const statusText = document.getElementById('status-prompt-info');
             const resultBox = document.getElementById('result-box');
 
             resultBox.classList.add('hidden');
@@ -279,101 +421,153 @@
             spinBtn.classList.add('opacity-50');
             statusText.innerText = "🌀 Roda sedang berputar...";
 
-            // Putaran acak minimal 4-6 putaran penuh + sudut acak
             const randomExtraDeg = Math.floor(Math.random() * 360);
             currentWheelAngle += 1440 + randomExtraDeg;
             wheel.style.transform = `rotate(${currentWheelAngle}deg)`;
 
-            // Suara ticking berirama selama roda berputar
             let tickCount = 0;
             const tickInterval = setInterval(() => {
-                playTone(700 + (tickCount % 4) * 80, 0.03, 'triangle');
+                playTone(640 + (tickCount % 4) * 80, 0.03, 'triangle');
                 tickCount++;
                 if (tickCount > 18) clearInterval(tickInterval);
             }, 180);
 
             setTimeout(() => {
                 isSpinning = false;
-                spinCount++;
-                document.getElementById('round-counter').innerText = `Putaran Ke-${spinCount}`;
+                spinIndex++;
+                if (spinIndex > 20) spinIndex = 1;
+                document.getElementById('round-counter').innerText = `Putaran ${spinIndex} / 20`;
 
-                // Pilih acak kalimat dari bank soal
-                currentPrompt = PROMPTS_BANK[Math.floor(Math.random() * PROMPTS_BANK.length)];
-                document.getElementById('prompt-display').innerText = `"${currentPrompt}"`;
+                const pool = ROULETTE_DATA[currentDifficulty] || ROULETTE_DATA.easy;
+                currentItem = pool[Math.floor(Math.random() * pool.length)];
+                
+                document.getElementById('prompt-display').innerText = `"${currentItem.template}"`;
+                document.getElementById('grammar-hint-text').innerText = currentItem.hint;
                 document.getElementById('input-continuation').value = '';
 
                 resultBox.classList.remove('hidden');
                 spinBtn.classList.add('hidden');
-                statusText.innerText = "Lanjutkan kalimat di atas dan kumpulkan XP!";
+                statusText.innerText = "Lengkapi kalimat di atas dengan mengetik atau berbicara!";
                 
                 playSound('snd-right', 880);
                 speakCurrentPrompt();
-                lucide.createIcons();
-            }, 3900);
+                if (window.lucide && lucide.createIcons) lucide.createIcons();
+            }, 3800);
+        }
+
+        // Web Speech API - Speech to Text (Mikrofon Suara ke Tulisan)
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
+            recognition = new SpeechRec();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const spoken = event.results[0][0].transcript;
+                const inputField = document.getElementById('input-continuation');
+                inputField.value = inputField.value ? inputField.value + " " + spoken : spoken;
+                stopSpeechToText();
+            };
+
+            recognition.onerror = () => stopSpeechToText();
+            recognition.onend = () => stopSpeechToText();
+        }
+
+        function toggleSpeechToText() {
+            playClickSound();
+            if (!recognition) {
+                showToast("⚠️ Browser belum mendukung Speech-to-Text. Gunakan browser Google Chrome.", false);
+                return;
+            }
+
+            const micBtn = document.getElementById('btn-mic');
+            const micHint = document.getElementById('mic-hint');
+
+            if (isRecording) {
+                recognition.stop();
+                stopSpeechToText();
+            } else {
+                try {
+                    recognition.start();
+                    isRecording = true;
+                    micBtn.classList.add('mic-listening');
+                    micHint.innerText = "🔴 Mendengarkan suara... Ucapkan kelanjutan kalimatmu sekarang!";
+                    micHint.className = "text-[10px] font-black text-rose-600 italic";
+                } catch(e) {
+                    stopSpeechToText();
+                }
+            }
+        }
+
+        function stopSpeechToText() {
+            isRecording = false;
+            const micBtn = document.getElementById('btn-mic');
+            const micHint = document.getElementById('mic-hint');
+            if (micBtn) micBtn.classList.remove('mic-listening');
+            if (micHint) {
+                micHint.innerText = "💡 Tips: Kamu bisa mengetik manual atau menekan tombol mikrofon untuk bicara.";
+                micHint.className = "text-[10px] font-semibold text-slate-400 italic";
+            }
         }
 
         function submitSentence() {
-            const inputVal = document.getElementById('input-continuation').value.trim();
-            if (inputVal.length < 3) {
-                showToast("⚠️ Tuliskan minimal beberapa kata kelanjutan ya!", false);
+            const val = document.getElementById('input-continuation').value.trim();
+            if (val.length < 2) {
+                showToast("⚠️ Lengkapi dulu kalimatmu sebelum menyimpan!", false);
                 return;
             }
 
             playSound('snd-victory', 900);
-            score += 15;
-            document.getElementById('score-display').innerText = `${score} XP`;
-            showToast("✨ Kalimat tersimpan! (+15 XP)", true);
-            saveScoreToSupabase(15);
+            addStudentXP(15);
+            showToast("✨ Kalimat berhasil disimpan! (+15 XP)", true);
 
             document.getElementById('result-box').classList.add('hidden');
             const spinBtn = document.getElementById('btn-spin');
+            spinBtn.classList.remove('hidden', 'opacity-50');
             spinBtn.disabled = false;
-            spinBtn.classList.remove('opacity-50', 'hidden');
-            document.getElementById('wheel-status-text').innerText = "Siap untuk putaran berikutnya!";
+            document.getElementById('status-prompt-info').innerText = "Siap untuk putaran berikutnya!";
         }
 
-        // ==============================================================
-        // SPEECH SYNTHESIS (TTS)
-        // ==============================================================
         function speakCurrentPrompt() {
             playClickSound();
-            if ('speechSynthesis' in window && currentPrompt) {
+            if ('speechSynthesis' in window && currentItem) {
                 window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(currentPrompt);
+                const u = new SpeechSynthesisUtterance(currentItem.template.replace("...", ""));
                 u.lang = 'en-US';
                 u.rate = 0.88;
                 window.speechSynthesis.speak(u);
             }
         }
 
+        function addStudentXP(pts) {
+            const current = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            const newTotal = current + pts;
+            localStorage.setItem('maharati_student_xp', newTotal);
+            document.getElementById('score-display').innerText = `${newTotal} XP`;
+
+            let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+            if (!visited.includes('Roulette')) {
+                visited.push('Roulette');
+                localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
+            }
+        }
+
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('toast');
-            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all ${isSuccess ? 'bg-purple-600' : 'bg-amber-500'}`;
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-3 rounded-2xl text-center font-black text-white text-xs shadow-xl z-50 transition-all ${isSuccess ? 'bg-purple-600' : 'bg-rose-600'}`;
             toast.innerText = msg;
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 2200);
         }
 
-        // ==============================================================
-        // SUPABASE DATABASE SYNC
-        // ==============================================================
-        async function saveScoreToSupabase(pts) {
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
-                    method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Content-Type": "application/json",
-                        "Prefer": "return=minimal"
-                    },
-                    body: JSON.stringify([{ name: studentName, activity: "Roulette", level: "Easy", score: pts }])
-                });
-            } catch(e) {}
-        }
-
+        // Inisialisasi awal saat window selesai dimuat
         window.onload = () => {
             document.getElementById('student-badge').innerText = studentName;
-            lucide.createIcons();
+            const currentXP = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            document.getElementById('score-display').innerText = `${currentXP} XP`;
+            updateDifficultyUI();
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
         };
     </script>
 </body>
