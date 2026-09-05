@@ -155,6 +155,7 @@
         <div class="glass-panel px-4 sm:px-6 py-2 sm:py-3 rounded-2xl border border-amber-400/50 shadow-[0_0_25px_rgba(251,191,36,0.25)] text-center w-full">
           <div class="flex items-center justify-center gap-2 text-[10px] sm:text-xs text-amber-300 tracking-wider uppercase font-bold font-game">
             <span>⚔️ AR WORD CLASH</span>
+            <span id="levelBadgeHUD" class="font-hud bg-emerald-500/20 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-500/30 text-[10px]">🟢 MUDAH</span>
             <span id="roundIndicator" class="font-hud bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded-full border border-amber-500/30 text-[10px]">RONDE 1/10</span>
           </div>
           
@@ -261,7 +262,25 @@
         </ul>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+      <!-- Pemilihan Tingkat Kesulitan (Easy, Medium, Hard) -->
+      <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+        <span class="text-xs font-black font-game text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="gauge" class="w-4 h-4 text-amber-400"></i> Tingkat Kesulitan:
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" id="btnLvlEasy" onclick="selectDifficulty('Easy')" class="btn-duo btn-duo-green px-3.5 py-1.5 text-xs font-bold rounded-xl shadow-sm">
+            🟢 Mudah
+          </button>
+          <button type="button" id="btnLvlMedium" onclick="selectDifficulty('Medium')" class="btn-duo btn-duo-white px-3.5 py-1.5 text-xs font-bold rounded-xl">
+            🟠 Sedang
+          </button>
+          <button type="button" id="btnLvlHard" onclick="selectDifficulty('Hard')" class="btn-duo btn-duo-white px-3.5 py-1.5 text-xs font-bold rounded-xl">
+            🔴 Sulit
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-1">
         <button id="btnStartGame" class="flex-1 py-3.5 px-6 rounded-2xl btn-duo btn-duo-green text-white font-black text-sm shadow-[0_0_20px_rgba(88,204,2,0.4)]">
           <i data-lucide="camera" class="w-4 h-4"></i> AKTIFKAN KAMERA & MAIN
         </button>
@@ -314,36 +333,91 @@
     const studentName = localStorage.getItem('studentName') || "PLAYER 1";
 
     /* =========================================================
-       2. BANK KOSAKATA BAHASA INGGRIS (BILINGUAL VOCAB BANK)
+       2. BANK KOSAKATA BAHASA INGGRIS (3 LEVEL: 75 KOSAKATA LENGKAP)
        ========================================================= */
-    const VOCAB_BANK = [
-      { id: "Kucing", en: "Cat", decoys: ["Dog", "Tiger", "Bird"] },
-      { id: "Anjing", en: "Dog", decoys: ["Wolf", "Fox", "Bear"] },
-      { id: "Matahari", en: "Sun", decoys: ["Moon", "Star", "Cloud"] },
-      { id: "Bulan", en: "Moon", decoys: ["Sun", "Planet", "Sky"] },
-      { id: "Buku", en: "Book", decoys: ["Pen", "Paper", "Desk"] },
-      { id: "Rumah", en: "House", decoys: ["School", "Office", "Building"] },
-      { id: "Apel", en: "Apple", decoys: ["Banana", "Grape", "Orange"] },
-      { id: "Mobil", en: "Car", decoys: ["Train", "Plane", "Bicycle"] },
-      { id: "Pintu", en: "Door", decoys: ["Window", "Floor", "Wall"] },
-      { id: "Air Minum", en: "Water", decoys: ["Fire", "Earth", "Wind"] },
-      { id: "Pohon", en: "Tree", decoys: ["Flower", "Grass", "Forest"] },
-      { id: "Ikan", en: "Fish", decoys: ["Crab", "Whale", "Duck"] },
-      { id: "Burung", en: "Bird", decoys: ["Eagle", "Bat", "Fly"] },
-      { id: "Sekolah", en: "School", decoys: ["Market", "Hospital", "Store"] },
-      { id: "Guru", en: "Teacher", decoys: ["Doctor", "Nurse", "Pilot"] },
-      { id: "Hujan", en: "Rain", decoys: ["Snow", "Storm", "Thunder"] },
-      { id: "Bintang", en: "Star", decoys: ["Comet", "Sky", "Galaxy"] },
-      { id: "Sepatu", en: "Shoes", decoys: ["Socks", "Shirt", "Pants"] },
-      { id: "Meja", en: "Table", decoys: ["Chair", "Sofa", "Bed"] },
-      { id: "Kursi", en: "Chair", decoys: ["Table", "Bench", "Stool"] },
-      { id: "Makanan", en: "Food", decoys: ["Drink", "Snack", "Fruit"] },
-      { id: "Tidur", en: "Sleep", decoys: ["Wake", "Dream", "Rest"] },
-      { id: "Cepat", en: "Fast", decoys: ["Slow", "Quick", "Early"] },
-      { id: "Lambat", en: "Slow", decoys: ["Fast", "Late", "Lazy"] },
-      { id: "Papan Ketik", en: "Keyboard", decoys: ["Mouse", "Screen", "Cable"] },
-      { id: "Layar Tampilan", en: "Screen", decoys: ["Key", "Mouse", "Box"] }
-    ];
+    const VOCAB_BANK = {
+      Easy: [
+        { id: "Buku", en: "Book", decoys: ["Pen", "Paper", "Desk"] },
+        { id: "Kucing", en: "Cat", decoys: ["Dog", "Tiger", "Bird"] },
+        { id: "Kecil", en: "Small", decoys: ["Big", "Tall", "Long"] },
+        { id: "Kuning", en: "Yellow", decoys: ["Red", "Blue", "Green"] },
+        { id: "Makan", en: "Eat", decoys: ["Drink", "Sleep", "Run"] },
+        { id: "Delapan", en: "Eight", decoys: ["Seven", "Nine", "Ten"] },
+        { id: "Sekolah", en: "School", decoys: ["Hospital", "Market", "Office"] },
+        { id: "Air Minum", en: "Water", decoys: ["Fire", "Earth", "Wind"] },
+        { id: "Dingin", en: "Cold", decoys: ["Hot", "Warm", "Dry"] },
+        { id: "Pulpen", en: "Pen", decoys: ["Eraser", "Ruler", "Book"] },
+        { id: "Keluarga", en: "Family", decoys: ["Neighbor", "Teacher", "Friend"] },
+        { id: "Rumah", en: "House", decoys: ["Bridge", "Street", "Garden"] },
+        { id: "Lambat", en: "Slow", decoys: ["Fast", "Quick", "Early"] },
+        { id: "Tidur", en: "Sleep", decoys: ["Wake", "Sit", "Stand"] },
+        { id: "Guru", en: "Teacher", decoys: ["Doctor", "Pilot", "Nurse"] },
+        { id: "Matahari", en: "Sun", decoys: ["Moon", "Star", "Cloud"] },
+        { id: "Sedih", en: "Sad", decoys: ["Happy", "Glad", "Brave"] },
+        { id: "Teman", en: "Friend", decoys: ["Enemy", "Stranger", "Boss"] },
+        { id: "Hijau", en: "Green", decoys: ["Brown", "Purple", "Black"] },
+        { id: "Jendela", en: "Window", decoys: ["Door", "Roof", "Floor"] },
+        { id: "Minum", en: "Drink", decoys: ["Eat", "Cook", "Wash"] },
+        { id: "Dua Puluh", en: "Twenty", decoys: ["Twelve", "Thirty", "Ten"] },
+        { id: "Sepatu", en: "Shoes", decoys: ["Socks", "Sandals", "Hat"] },
+        { id: "Anjing", en: "Dog", decoys: ["Wolf", "Fox", "Bear"] },
+        { id: "Bulan", en: "Moon", decoys: ["Sun", "Planet", "Sky"] }
+      ],
+      Medium: [
+        { id: "Pintar", en: "Clever", decoys: ["Lazy", "Slow", "Angry"] },
+        { id: "Papan Ketik", en: "Keyboard", decoys: ["Screen", "Mouse", "Cable"] },
+        { id: "Layar Tampilan", en: "Screen", decoys: ["Battery", "Engine", "Button"] },
+        { id: "Kamus Bahasa", en: "Dictionary", decoys: ["Novel", "Magazine", "Diary"] },
+        { id: "Pergi (V2)", en: "Went", decoys: ["Gone", "Goes", "Going"] },
+        { id: "Tetikus PC", en: "Mouse", decoys: ["Keyboard", "Speaker", "Printer"] },
+        { id: "Meningkatkan", en: "Improve", decoys: ["Decrease", "Damage", "Forget"] },
+        { id: "Aman", en: "Safe", decoys: ["Risky", "Dark", "Noisy"] },
+        { id: "Peralatan", en: "Equipment", decoys: ["Room", "Instructor", "Guest"] },
+        { id: "Anak-anak", en: "Children", decoys: ["Childs", "Childes", "Childies"] },
+        { id: "Berhati-hati", en: "Careful", decoys: ["Careless", "Hurried", "Angry"] },
+        { id: "Jadwal", en: "Timetable", decoys: ["Scoreboard", "Notebook", "Task"] },
+        { id: "Membeli (V2)", en: "Bought", decoys: ["Bring", "Buyed", "Brought"] },
+        { id: "Melindungi", en: "Protect", decoys: ["Delete", "Hack", "Spread"] },
+        { id: "Mencegah", en: "Prevent", decoys: ["Allow", "Add", "Close"] },
+        { id: "Cepat", en: "Quick", decoys: ["Late", "Quiet", "Heavy"] },
+        { id: "Pemeliharaan", en: "Maintenance", decoys: ["Selling", "Theft", "Dumping"] },
+        { id: "Menghubungkan", en: "Connect", decoys: ["Disconnect", "Reject", "Erase"] },
+        { id: "Murah", en: "Cheap", decoys: ["Costly", "Valuable", "Rich"] },
+        { id: "Penyimpanan", en: "Storage", decoys: ["Cable", "Fan", "Lamp"] },
+        { id: "Menulis (V2)", en: "Wrote", decoys: ["Written", "Writing", "Writes"] },
+        { id: "Bermanfaat", en: "Useful", decoys: ["Dangerous", "Useless", "Boring"] },
+        { id: "Mudah", en: "Easy", decoys: ["Hard", "Tough", "Heavy"] },
+        { id: "Bahaya", en: "Danger", decoys: ["Safe", "Peace", "Calm"] },
+        { id: "Pohon", en: "Tree", decoys: ["Grass", "Flower", "Forest"] }
+      ],
+      Hard: [
+        { id: "Sangat Mudah", en: "Piece of cake", decoys: ["Hard nut", "Sweet candy", "Cold day"] },
+        { id: "Akurat", en: "Precise", decoys: ["Careless", "Doubtful", "False"] },
+        { id: "Berbicara (V3)", en: "Spoken", decoys: ["Spoke", "Speaks", "Speaking"] },
+        { id: "Mematikan", en: "Turn off", decoys: ["Turn on", "Speed up", "Repair"] },
+        { id: "Semoga Sukses", en: "Break a leg", decoys: ["Hit the road", "Rest well", "Help me"] },
+        { id: "Sementara", en: "Temporary", decoys: ["Constant", "Eternal", "Stable"] },
+        { id: "Atasi Masalah", en: "Troubleshoot", decoys: ["Overheat", "Corrupt", "Delete"] },
+        { id: "Kerusakan", en: "Failure", decoys: ["Success", "Progress", "Speed"] },
+        { id: "Merawat", en: "Look after", decoys: ["Look at", "Search for", "Ignore"] },
+        { id: "Penting Sekali", en: "Significant", decoys: ["Minor", "Useless", "Tiny"] },
+        { id: "Memilih (V3)", en: "Chosen", decoys: ["Chose", "Choosed", "Choosing"] },
+        { id: "Penyebab", en: "Cause", decoys: ["Prevent", "Speed", "Forbid"] },
+        { id: "Sangat Jarang", en: "Once in a blue moon", decoys: ["Every night", "Full moon", "Always"] },
+        { id: "Mengurangi", en: "Decrease", decoys: ["Expand", "Enlarge", "Develop"] },
+        { id: "Produktivitas", en: "Productivity", decoys: ["Salary", "Lateness", "Fatigue"] },
+        { id: "Mengemudi (V3)", en: "Driven", decoys: ["Drove", "Drives", "Driving"] },
+        { id: "Melaksanakan", en: "Carry out", decoys: ["Cancel", "Take away", "Give up"] },
+        { id: "Sangat Penting", en: "Crucial", decoys: ["Optional", "Careless", "Weak"] },
+        { id: "Memastikan", en: "Ensure", decoys: ["Guess", "Try", "Ignore"] },
+        { id: "Kegagalan", en: "Failure", decoys: ["Victory", "Triumph", "Glory"] },
+        { id: "Pencapaian", en: "Achievement", decoys: ["Shortage", "Homework", "Warning"] },
+        { id: "Memulai (V3)", en: "Begun", decoys: ["Began", "Begins", "Beginning"] },
+        { id: "Kerja Sama", en: "Collaboration", decoys: ["Competition", "Solitude", "Debate"] },
+        { id: "Kurang Sehat", en: "Under the weather", decoys: ["Heavy rain", "Very happy", "Outdoor"] },
+        { id: "Menyalakan", en: "Turn on", decoys: ["Turn off", "Put off", "Take off"] }
+      ]
+    };
 
     /* =========================================================
        3. EFEK AUDIO ASSET + PROCEDURAL FALLBACK (TONE.JS)
@@ -459,6 +533,7 @@
 
     let gameState = {
       isCameraMode: true,
+      level: 'Easy',
       currentRound: 1,
       maxRounds: TOTAL_ROUNDS,
       activeQuestion: null,
@@ -488,6 +563,7 @@
     const p2HandBadge = document.getElementById("p2HandBadge");
     const targetWordEl = document.getElementById("targetWord");
     const roundIndicatorEl = document.getElementById("roundIndicator");
+    const levelBadgeHUD = document.getElementById("levelBadgeHUD");
     const cameraStatusText = document.getElementById("cameraStatusText");
     const cameraStatusDot = document.getElementById("cameraStatusDot");
     const startModal = document.getElementById("startModal");
@@ -504,6 +580,36 @@
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
+
+    /* =========================================================
+       4.1 PEMILIHAN TINGKAT KESULITAN
+       ========================================================= */
+    function selectDifficulty(lvl) {
+      playClick();
+      gameState.level = lvl;
+
+      const btnEasy = document.getElementById("btnLvlEasy");
+      const btnMed = document.getElementById("btnLvlMedium");
+      const btnHard = document.getElementById("btnLvlHard");
+
+      [btnEasy, btnMed, btnHard].forEach(b => {
+        b.className = "btn-duo btn-duo-white px-3.5 py-1.5 text-xs font-bold rounded-xl";
+      });
+
+      if (lvl === 'Easy') {
+        btnEasy.className = "btn-duo btn-duo-green px-3.5 py-1.5 text-xs font-bold rounded-xl shadow-sm";
+        levelBadgeHUD.innerText = "🟢 MUDAH";
+        levelBadgeHUD.className = "font-hud bg-emerald-500/20 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-500/30 text-[10px]";
+      } else if (lvl === 'Medium') {
+        btnMed.className = "btn-duo btn-duo-yellow px-3.5 py-1.5 text-xs font-bold rounded-xl shadow-sm text-slate-950";
+        levelBadgeHUD.innerText = "🟠 SEDANG";
+        levelBadgeHUD.className = "font-hud bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded-full border border-amber-500/30 text-[10px]";
+      } else {
+        btnHard.className = "btn-duo px-3.5 py-1.5 text-xs font-bold rounded-xl shadow-sm text-white bg-rose-600 border-b-4 border-rose-800";
+        levelBadgeHUD.innerText = "🔴 SULIT";
+        levelBadgeHUD.className = "font-hud bg-rose-500/20 text-rose-200 px-2 py-0.5 rounded-full border border-rose-500/30 text-[10px]";
+      }
+    }
 
     /* =========================================================
        5. KELAS GELEMBUNG (SLOW-FLOATING & ANTI-OVERLAP)
@@ -690,8 +796,10 @@
 
       gameState.isRoundCooldown = false;
 
-      const randomIndex = Math.floor(Math.random() * VOCAB_BANK.length);
-      const q = VOCAB_BANK[randomIndex];
+      // Ambil soal berdasarkan level yang dipilih (Easy, Medium, Hard)
+      const currentList = VOCAB_BANK[gameState.level] || VOCAB_BANK.Easy;
+      const randomIndex = Math.floor(Math.random() * currentList.length);
+      const q = currentList[randomIndex];
       gameState.activeQuestion = q;
 
       targetWordEl.innerText = `"${q.id.toUpperCase()}"`;
@@ -1146,7 +1254,7 @@
           body: JSON.stringify([{
             name: winnerPlayer,
             activity: "Word Clash AR",
-            level: "Easy",
+            level: gameState.level,
             score: winScore
           }])
         });
