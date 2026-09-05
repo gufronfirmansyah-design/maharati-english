@@ -2,462 +2,1427 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Maharati - Portal Belajar</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Battle Tarik Tambang - English Maharati</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ═══════════════════════════════════════════
+           🎨 DUOLINGO PLAYFUL THEME STYLING
+           ═══════════════════════════════════════════ */
         :root {
             --duo-green: #58cc02;
             --duo-green-shadow: #46a302;
             --duo-blue: #1cb0f6;
             --duo-blue-shadow: #1899d6;
+            --duo-yellow: #ffc800;
+            --duo-yellow-shadow: #e5a400;
+            --duo-rose: #f43f5e;
+            --duo-rose-shadow: #e11d48;
+            --duo-orange: #ff9600;
+            --duo-orange-shadow: #cc7800;
         }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f0fdf4;
-            background-image: linear-gradient(rgba(240, 253, 244, 0.90), rgba(240, 253, 244, 0.95)), url('asset/bg-maharati.gif');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             user-select: none;
             -webkit-user-select: none;
         }
-        .font-game { font-family: 'Fredoka', sans-serif; }
         
-        .duo-card {
-            background: #ffffff;
-            border: 3px solid #e5e7eb;
-            border-bottom-width: 6px;
-            transition: all 0.15s ease-in-out;
-        }
-        .duo-card:hover {
-            transform: translateY(-3px);
-            border-color: #cbd5e1;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f0fdf4;
+            background-image: 
+                radial-gradient(#dcfce7 2px, transparent 2px),
+                linear-gradient(rgba(240, 253, 244, 0.92), rgba(240, 253, 244, 0.96)),
+                url('../asset/bg-maharati.gif');
+            background-size: 24px 24px, cover, cover;
+            background-position: 0 0, center, center;
+            background-attachment: fixed;
+            overflow: hidden;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
         }
 
-        .btn-duo-green {
-            background-color: var(--duo-green);
-            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+        .font-game { font-family: 'Fredoka', sans-serif; }
+
+        /* Container utama game - Dikunci rasio 16:9 yang adaptif */
+        #app {
+            width: 100vw;
+            height: calc(100vw * 9 / 16);
+            max-height: 100dvh;
+            max-width: calc(100dvh * 16 / 9);
+            position: relative;
+            background: #ffffff;
+            border: clamp(3px, 0.6vw, 8px) solid #bbf7d0;
+            border-bottom-width: clamp(6px, 1vw, 12px);
+            border-radius: clamp(16px, 2.5vw, 36px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 16px 36px -10px rgba(16, 185, 129, 0.25);
         }
-        .btn-duo-green:active {
+
+        .hidden { display: none !important; }
+        
+        /* 3D Chunky Buttons ala Duolingo */
+        .btn-duo {
+            background-color: var(--duo-green);
+            color: #ffffff;
+            border: none;
+            border-bottom: 5px solid var(--duo-green-shadow);
+            border-radius: 18px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+            padding: clamp(8px, 1.3vw, 14px) clamp(16px, 2.5vw, 28px);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-duo:active {
             transform: translateY(4px);
-            box-shadow: 0 1px 0 0 var(--duo-green-shadow);
+            border-bottom-width: 1px;
         }
 
         .btn-duo-blue {
             background-color: var(--duo-blue);
-            box-shadow: 0 5px 0 0 var(--duo-blue-shadow);
+            border-bottom-color: var(--duo-blue-shadow);
         }
-        .btn-duo-blue:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 0 var(--duo-blue-shadow);
+
+        .btn-duo-yellow {
+            background-color: var(--duo-yellow);
+            color: #78350f;
+            border-bottom-color: var(--duo-yellow-shadow);
+        }
+
+        .btn-duo-rose {
+            background-color: var(--duo-rose);
+            border-bottom-color: var(--duo-rose-shadow);
         }
 
         .btn-duo-white {
+            background-color: #ffffff;
+            color: #334155;
+            border: 2px solid #e2e8f0;
+            border-bottom: 5px solid #cbd5e1;
+        }
+        .btn-duo-white:active {
+            transform: translateY(3px);
+            border-bottom-width: 2px;
+        }
+
+        .btn-duo.active-select {
+            background-color: #fef08a !important;
+            color: #854d0e !important;
+            border-color: #fde047 !important;
+            border-bottom: 5px solid #ca8a04 !important;
+            transform: translateY(2px);
+        }
+
+        /* Top Bar Header */
+        #top-bar { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5% 2.5%;
+            z-index: 25; 
+        }
+
+        /* Layar Utama Screens */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: inherit;
+            z-index: 5;
+            padding: 2.5%;
+        }
+
+        /* Lapangan Tarik Tambang (Arena) */
+        #arena {
+            width: 94%; 
+            height: 27%;
+            min-height: 85px;
+            background-color: #86efac;
+            background-image: 
+                url('asset/bg_arena.png'),
+                repeating-linear-gradient(90deg, #86efac 0px, #86efac 40px, #4ade80 40px, #4ade80 80px);
+            background-position: center;
+            background-size: cover;
+            border: clamp(3px, 0.5vw, 6px) solid #15803d;
+            border-radius: 24px;
+            position: relative;
+            margin: 0.5% auto 1.5% auto;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 6px 12px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(22, 101, 52, 0.15);
+        }
+
+        .zone-left {
+            position: absolute;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: rgba(6, 182, 212, 0.08);
+            border-right: 3px dashed rgba(255, 255, 255, 0.7);
+        }
+        .zone-right {
+            position: absolute;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: rgba(244, 63, 94, 0.08);
+        }
+
+        .rope { 
+            width: 100%;
+            height: 16%;
+            min-height: 12px;
+            background-image: url('asset/rope_texture.png'), repeating-linear-gradient(90deg, #b45309, #b45309 16px, #d97706 16px, #d97706 32px);
+            background-position: center;
+            background-size: contain;
+            background-repeat: repeat-x;
+            position: absolute;
+            z-index: 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .marker {
+            width: 8%;
+            height: 85%;
+            max-width: 60px;
+            background-image: url('asset/rope_marker.png');
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .marker-fallback {
+            width: 22px;
+            height: 38px;
+            background: #ef4444;
+            border: 3px solid #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.6);
+        }
+
+        .avatar { 
+            height: 85%;
+            width: 16%;
+            object-fit: contain;
+            pointer-events: none;
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.2s ease;
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.18));
+        }
+        #avatar-left { left: 4%; }
+        #avatar-right { right: 4%; }
+
+        /* Gameplay Info Card Bar */
+        #game-info {
+            width: 94%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8%;
+            z-index: 6;
+        }
+
+        .player-pill {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1.4vw, 14px);
+            background: #ffffff;
+            padding: clamp(4px, 0.8vw, 8px) clamp(10px, 1.8vw, 18px);
+            border: 2px solid #e2e8f0;
+            border-bottom: 4px solid #cbd5e1;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+        }
+        .player-pill.reverse { flex-direction: row-reverse; }
+
+        .score-box {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 800;
+            font-size: clamp(0.85rem, 1.6vw, 1.15rem);
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+        .score-blue { background: #e0f2fe; color: #0369a1; border: 1.5px solid #bae6fd; }
+        .score-red { background: #ffe4e6; color: #be123c; border: 1.5px solid #fecdd3; }
+
+        #timer-box {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 800;
+            color: #d97706;
+            background: #fef3c7;
+            border: 2px solid #fde68a;
+            border-bottom: 5px solid #f59e0b;
+            padding: 0 clamp(16px, 2.5vw, 28px);
+            border-radius: 22px;
+            line-height: 1.2;
+            box-shadow: 0 4px 8px rgba(217, 119, 6, 0.15);
+        }
+        .timer-warning {
+            color: #e11d48 !important;
+            background: #ffe4e6 !important;
+            border-color: #fecdd3 !important;
+            border-bottom-color: #e11d48 !important;
+            animation: pulseWarning 0.5s infinite alternate;
+        }
+        @keyframes pulseWarning {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+
+        /* Question Panels (Split / Solo) */
+        #questions-wrapper {
+            width: 94%;
+            display: flex;
+            gap: 2%;
+            flex-grow: 1;
+            margin-bottom: 1.5%;
+            z-index: 6;
+            min-height: 0;
+        }
+
+        .q-panel {
+            flex: 1;
+            background: #ffffff;
+            padding: 2%;
+            border: 2px solid #e2e8f0;
+            border-bottom: 5px solid #cbd5e1;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            overflow-y: auto;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.04);
+        }
+
+        .q-text {
+            font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+            font-weight: 700;
+            color: #1e293b;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            padding: 2.5%;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            margin-bottom: 2%;
+            line-height: 1.35;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2%;
+        }
+
+        .option-btn {
             background: #ffffff;
             border: 2px solid #e2e8f0;
             border-bottom: 4px solid #cbd5e1;
             color: #334155;
+            padding: clamp(8px, 1.3vw, 14px);
+            font-size: clamp(0.75rem, 1.4vw, 0.95rem);
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn-duo-white:active {
-            transform: translateY(3px);
+        .option-btn:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(2px);
             border-bottom-width: 1px;
         }
 
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+        .option-btn.correct {
+            background: #dcfce7 !important;
+            border-color: #4ade80 !important;
+            border-bottom: 4px solid #16a34a !important;
+            color: #166534 !important;
         }
-        .animate-float {
-            animation: floatSlow 3.2s ease-in-out infinite;
+        .option-btn.wrong {
+            background: #ffe4e6 !important;
+            border-color: #fb7185 !important;
+            border-bottom: 4px solid #e11d48 !important;
+            color: #9f1239 !important;
+        }
+
+        /* Virtual Keyboard (Duolingo Style Chunky Blocks) */
+        #virtual-keyboard {
+            width: 100%;
+            max-width: 620px;
+            margin-top: 1.5%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            z-index: 20;
+        }
+        .vk-row { display: flex; gap: 5px; justify-content: center; width: 100%; flex-wrap: wrap; }
+        .vk-key {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-bottom: 4px solid #cbd5e1;
+            color: #334155;
+            padding: clamp(4px, 0.9vw, 8px) clamp(8px, 1.4vw, 14px);
+            font-size: clamp(0.8rem, 1.4vw, 1rem);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            font-weight: 800;
+            font-family: 'Fredoka', sans-serif;
+        }
+        .vk-key:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+        .vk-key:active { transform: translateY(2px); border-bottom-width: 1px; }
+        .vk-key.wide { padding: clamp(4px, 0.9vw, 8px) clamp(14px, 2.2vw, 24px); }
+
+        .name-input-group { display: flex; gap: 2%; margin-bottom: 2%; justify-content: center; }
+        .name-input-box {
+            background: #ffffff;
+            border: 3px solid #e2e8f0;
+            border-bottom: 5px solid #cbd5e1;
+            color: #64748b;
+            padding: 2% 4%;
+            font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+            font-weight: 800;
+            text-align: center;
+            min-width: 150px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+        }
+        .name-input-box.active {
+            border-color: #38bdf8;
+            border-bottom: 5px solid #0284c7;
+            color: #0369a1;
+            background: #f0f9ff;
+        }
+
+        /* Modal Teacher / Dialog */
+        .duo-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            border: 4px solid #bbf7d0;
+            border-bottom: 8px solid #86efac;
+            padding: clamp(16px, 3vw, 28px);
+            border-radius: 28px;
+            z-index: 100;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            width: 88%;
+            max-width: 460px;
+        }
+
+        /* Leaderboard Table */
+        .leaderboard-table {
+            width: 100%;
+            max-width: 620px;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            margin-top: 2%;
+            font-size: clamp(0.85rem, 1.6vw, 1.1rem);
+        }
+        .leaderboard-table th {
+            padding: 8px;
+            color: #64748b;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .leaderboard-table td {
+            padding: 10px;
+            background: #ffffff;
+            border-top: 2px solid #f1f5f9;
+            border-bottom: 3px solid #e2e8f0;
+            text-align: center;
+            font-weight: 700;
+        }
+        .leaderboard-table tr td:first-child { border-radius: 14px 0 0 14px; border-left: 2px solid #f1f5f9; }
+        .leaderboard-table tr td:last-child { border-radius: 0 14px 14px 0; border-right: 2px solid #f1f5f9; }
+        .leaderboard-table tr:nth-child(1) td { color: #d97706; background: #fefce8; border-color: #fef08a; }
+        
+        .shake { animation: shake 0.35s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 10;
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col justify-between p-3 sm:p-6" onclick="unlockAudioOnce()">
+<body>
 
-    <!-- Audio Elements dari folder asset/ -->
-    <audio id="snd-bg" loop preload="auto">
-        <source src="asset/bg-music.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="snd-click" preload="auto">
-        <source src="asset/click.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="snd-right" preload="auto">
-        <source src="asset/right.mp3" type="audio/mpeg">
-    </audio>
+    <!-- Audio Elements: Terhubung ke folder asset/ induk -->
+    <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
+    <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
+    <audio id="snd-wrong" src="../asset/wrong.mp3" preload="auto"></audio>
+    <audio id="snd-victory" src="../asset/victory.mp3" preload="auto"></audio>
 
-    <!-- Top Navigation Bar -->
-    <nav class="max-w-5xl w-full mx-auto duo-card rounded-3xl p-3 sm:p-4 flex items-center justify-between mb-6 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 sm:w-12 sm:h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-[0_4px_0_0_#059669]">
-                <i data-lucide="languages" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h1 class="text-lg sm:text-xl font-black font-game text-slate-800 leading-tight tracking-wide">ENGLISH MAHARATI</h1>
-                <p class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">SMKN 2 Mantangai</p>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2 sm:gap-3">
-            <!-- Profil Siswa -->
-            <button onclick="openNameModal()" class="btn-duo-white px-3 py-2 rounded-2xl flex items-center gap-1.5 text-xs font-bold transition">
-                <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
-                <span id="nav-student-name" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
-                <i data-lucide="edit-3" class="w-3 h-3 text-slate-400 ml-0.5"></i>
-            </button>
-
-            <!-- Skor XP -->
-            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
-                <span id="nav-xp-score">0 XP</span>
-            </div>
-
-            <!-- Tombol Musik -->
-            <button id="btn-music" onclick="toggleMusic(event)" title="Nyalakan/Matikan Musik" class="btn-duo-white p-2.5 rounded-2xl transition">
-                <i data-lucide="volume-x" id="icon-music" class="w-4 h-4 text-slate-400"></i>
-            </button>
-
-            <!-- Tombol Leaderboard -->
-            <button onclick="openLeaderboardModal()" title="Papan Peringkat" class="btn-duo-white p-2.5 rounded-2xl transition">
-                <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Main Content Container -->
-    <main class="max-w-5xl w-full mx-auto space-y-6">
-        
-        <!-- Hero Banner Greeting -->
-        <div class="duo-card rounded-[2.5rem] p-6 sm:p-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-600 border-b-[7px] flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
-            <div class="space-y-2 text-center md:text-left">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-black uppercase tracking-wider backdrop-blur-sm">
-                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
-                    Pembelajaran Interaktif
-                </div>
-                <h2 class="text-2xl sm:text-4xl font-black font-game tracking-tight">
-                    Halo, <span id="hero-student-name">Siswa</span>! 👋
-                </h2>
-                <p class="text-xs sm:text-sm text-emerald-50 max-w-lg font-semibold leading-relaxed">
-                    Pilih modul di bawah untuk meningkatkan kemampuan bahasa Inggris dan mengumpulkan XP sebanyak-banyaknya!
-                </p>
+    <div id="app">
+        <!-- TOP BAR DENGAN NAVIGASI AMAN -->
+        <div id="top-bar">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <!-- Tombol kembali langsung ke ../index.html agar tidak muncul layar Index of... -->
+                <a href="../index.html" onclick="playClick()" class="btn-duo-white px-3.5 py-1.5 rounded-2xl text-xs font-black flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" style="width:16px; height:16px;"></i>
+                    <span class="hidden sm:inline">MENU UTAMA</span>
+                </a>
+                <button class="btn-duo-white px-3.5 py-1.5 rounded-2xl text-xs font-black flex items-center gap-1.5" id="btn-back" onclick="goBack()" style="visibility: hidden;">
+                    <i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>
+                    <span>MENU GAME</span>
+                </button>
             </div>
             
-            <div class="w-24 h-24 sm:w-28 sm:h-28 bg-white/15 rounded-3xl flex items-center justify-center p-3 backdrop-blur-sm border-2 border-white/30 animate-float shadow-inner">
-                <i data-lucide="sparkles" class="w-14 h-14 text-yellow-300"></i>
+            <div id="status-icons" style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-duo-white px-3 py-1.5 rounded-2xl text-xs font-black flex items-center gap-1" id="btn-audio" onclick="toggleAudio()">
+                    <i data-lucide="volume-2" id="audio-icon" class="w-4 h-4 text-slate-600"></i>
+                    <span id="audio-txt">AUDIO</span>
+                </button>
+                <button class="btn-duo-white px-3 py-1.5 rounded-2xl text-xs font-black flex items-center gap-1" id="btn-fullscreen" onclick="toggleFullscreen()">
+                    <i data-lucide="maximize" class="w-4 h-4 text-slate-600"></i>
+                </button>
             </div>
         </div>
 
-        <!-- 6 Modul Utama (Path Lengkap index.html) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <!-- 1. SPLASH / MAIN MENU -->
+        <div id="screen-menu" class="screen">
+            <div id="game-title" style="cursor: pointer; text-align: center; margin-bottom: 2%;">
+                <!-- Logo Game dengan fallback visual jika belum ada gambar -->
+                <img src="asset/game_logo.png" onerror="this.style.display='none'; document.getElementById('logo-fallback-banner').style.display='block';" alt="BATTLE TARIK TAMBANG" style="max-width: 75%; max-height: 26vh; object-fit: contain; pointer-events: none; display: block; margin: 0 auto;">
+                
+                <div id="logo-fallback-banner" style="display:none;" class="p-3 bg-emerald-500 text-white rounded-3xl border-b-4 border-emerald-700 shadow-md">
+                    <h1 class="text-2xl sm:text-4xl font-black font-game tracking-wider">⚔️ BATTLE TARIK TAMBANG</h1>
+                </div>
+            </div>
+
+            <p class="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-100 border-2 border-emerald-200 px-4 py-1.5 rounded-full mb-4 shadow-sm">
+                Modul: English Vocabulary Mastery • SMKN 2 Mantangai
+            </p>
             
-            <!-- 1. Reading -->
-            <a href="reading/index.html" onclick="handleNav(event, 'reading/index.html')" class="duo-card rounded-3xl p-5 block group border-emerald-200 hover:border-emerald-400">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0] group-hover:scale-105 transition-transform">
-                        <i data-lucide="book-open" class="w-7 h-7"></i>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">Membaca</span>
-                </div>
-                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">Reading Comprehension</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pahami paragraf pendek dan jawab soal pilihan ganda.</p>
-                <div class="w-full py-2.5 rounded-xl btn-duo-green text-white font-black text-xs text-center uppercase tracking-wider">
-                    Mulai Belajar ➔
-                </div>
-            </a>
-
-            <!-- 2. Speaking -->
-            <a href="speaking/index.html" onclick="handleNav(event, 'speaking/index.html')" class="duo-card rounded-3xl p-5 block group border-sky-200 hover:border-sky-400">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-sky-600 shadow-[0_4px_0_0_#bae6fd] group-hover:scale-105 transition-transform">
-                        <i data-lucide="mic" class="w-7 h-7"></i>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[10px] font-black uppercase">Bicara</span>
-                </div>
-                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">Speaking Practice</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Latihan melafalkan kalimat bahasa Inggris langsung lewat mikrofon.</p>
-                <div class="w-full py-2.5 rounded-xl btn-duo-blue text-white font-black text-xs text-center uppercase tracking-wider">
-                    Mulai Bicara ➔
-                </div>
-            </a>
-
-            <!-- 3. Cursive Board -->
-            <a href="cursive/index.html" onclick="handleNav(event, 'cursive/index.html')" class="duo-card rounded-3xl p-5 block group border-rose-200 hover:border-rose-400">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shadow-[0_4px_0_0_#fecdd3] group-hover:scale-105 transition-transform">
-                        <i data-lucide="pen-tool" class="w-7 h-7"></i>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-black uppercase">Menulis</span>
-                </div>
-                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-rose-600 transition-colors">Cursive Board</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Papan tulis interaktif menulis huruf tegak bersambung indah.</p>
-                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#e11d48]" style="background-color: #f43f5e;">
-                    Buka Papan ➔
-                </div>
-            </a>
-
-            <!-- 4. Roulette Sentence -->
-            <a href="roulette/index.html" onclick="handleNav(event, 'roulette/index.html')" class="duo-card rounded-3xl p-5 block group border-purple-200 hover:border-purple-400">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-[0_4px_0_0_#e9d5ff] group-hover:scale-105 transition-transform">
-                        <i data-lucide="refresh-cw" class="w-7 h-7"></i>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-purple-50 text-purple-700 text-[10px] font-black uppercase">Spin Ide</span>
-                </div>
-                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">Sentence Roulette</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Putar roda keberuntungan dan buat kalimat kreatif bahasa Inggris.</p>
-                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#9333ea]" style="background-color: #a855f7;">
-                    Putar Roda ➔
-                </div>
-            </a>
-
-            <!-- 5. Tarik Tambang -->
-            <a href="tarik-tambang/index.html" onclick="handleNav(event, 'tarik-tambang/index.html')" class="duo-card rounded-3xl p-5 block group border-amber-200 hover:border-amber-400">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-[0_4px_0_0_#fde68a] group-hover:scale-105 transition-transform">
-                        <i data-lucide="swords" class="w-7 h-7"></i>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 text-[10px] font-black uppercase">Duel Seru</span>
-                </div>
-                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">Battle Tarik Tambang</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Kuis tarik tambang solo atau 2 pemain tentang perawatan PC & kuis.</p>
-                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#d97706]" style="background-color: #f59e0b;">
-                    Mainkan Battle ➔
-                </div>
-            </a>
-
-            <!-- 6. Duel AR -->
-            <a href="duel-ar/index.html" onclick="handleNav(event, 'duel-ar/index.html')" class="duo-card rounded-3xl p-5 block group border-cyan-200 hover:border-cyan-400">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-cyan-100 flex items-center justify-center text-cyan-600 shadow-[0_4px_0_0_#a5f3fc] group-hover:scale-105 transition-transform">
-                        <i data-lucide="hand" class="w-7 h-7"></i>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-cyan-50 text-cyan-700 text-[10px] font-black uppercase">Augmented Reality</span>
-                </div>
-                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-cyan-600 transition-colors">Word Clash AR (2 Player)</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pukul gelembung kata dengan kamera gestur tangan MediaPipe.</p>
-                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#0891b2]" style="background-color: #06b6d4;">
-                    Aktifkan AR ➔
-                </div>
-            </a>
-
-        </div>
-    </main>
-
-    <!-- Modal Ubah Nama Siswa -->
-    <div id="modal-name" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="duo-card rounded-[2.5rem] max-w-sm w-full p-6 text-center space-y-4 bg-white">
-            <div class="w-16 h-16 bg-emerald-100 rounded-3xl mx-auto flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0]">
-                <i data-lucide="user-check" class="w-8 h-8"></i>
+            <div class="flex gap-3 flex-wrap justify-center">
+                <button class="btn-duo" onclick="showScreen('screen-mode')">
+                    <i data-lucide="play" class="w-5 h-5"></i> Mulai Bermain
+                </button>
+                <button class="btn-duo btn-duo-yellow" onclick="showLeaderboard()">
+                    <i data-lucide="trophy" class="w-5 h-5"></i> Papan Skor
+                </button>
             </div>
-            <h3 class="text-xl font-black font-game text-slate-800">Siapa Nama Kamu?</h3>
-            <p class="text-xs font-bold text-slate-400">Nama ini akan digunakan untuk mencatat skor XP kamu di setiap modul.</p>
-            <input type="text" id="input-new-name" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 text-center font-bold text-base outline-none focus:border-emerald-500 shadow-inner" placeholder="Ketik nama lengkap..." maxlength="25">
+            
+            <p style="margin-top: 3.5%; color: #94a3b8; font-size: clamp(0.65rem, 0.95vw, 0.8rem); font-weight: 700;">
+                *Tahan judul game selama 3 detik untuk membuka Mode Guru*
+            </p>
+        </div>
+
+        <!-- 2. MODE SELECT -->
+        <div id="screen-mode" class="screen hidden">
+            <h2 class="text-2xl sm:text-4xl font-black font-game text-slate-800 mb-4">Pilih Mode Pemain</h2>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button class="btn-duo" onclick="selectMode('solo')">
+                    <i data-lucide="user" class="w-5 h-5"></i> Solo (Lawan Komputer AI)
+                </button>
+                <button class="btn-duo btn-duo-blue" onclick="selectMode('2p')">
+                    <i data-lucide="users" class="w-5 h-5"></i> 2 Pemain (Duel 1 vs 1)
+                </button>
+            </div>
+        </div>
+
+        <!-- 2.5 NAME INPUT VIRTUAL KEYBOARD -->
+        <div id="screen-name" class="screen hidden">
+            <h2 class="text-xl sm:text-3xl font-black font-game text-slate-800 mb-2">MASUKKAN NAMA</h2>
+            
+            <div class="name-input-group" id="name-inputs-container">
+                <div class="name-input-box active" id="input-p1" onclick="setActiveInput('p1')">PLAYER 1_</div>
+                <div class="name-input-box hidden" id="input-p2" onclick="setActiveInput('p2')">PLAYER 2</div>
+            </div>
+
+            <!-- Virtual Keyboard -->
+            <div id="virtual-keyboard">
+                <div class="vk-row">
+                    <button class="vk-key" onclick="vkPress('Q')">Q</button>
+                    <button class="vk-key" onclick="vkPress('W')">W</button>
+                    <button class="vk-key" onclick="vkPress('E')">E</button>
+                    <button class="vk-key" onclick="vkPress('R')">R</button>
+                    <button class="vk-key" onclick="vkPress('T')">T</button>
+                    <button class="vk-key" onclick="vkPress('Y')">Y</button>
+                    <button class="vk-key" onclick="vkPress('U')">U</button>
+                    <button class="vk-key" onclick="vkPress('I')">I</button>
+                    <button class="vk-key" onclick="vkPress('O')">O</button>
+                    <button class="vk-key" onclick="vkPress('P')">P</button>
+                </div>
+                <div class="vk-row">
+                    <button class="vk-key" onclick="vkPress('A')">A</button>
+                    <button class="vk-key" onclick="vkPress('S')">S</button>
+                    <button class="vk-key" onclick="vkPress('D')">D</button>
+                    <button class="vk-key" onclick="vkPress('F')">F</button>
+                    <button class="vk-key" onclick="vkPress('G')">G</button>
+                    <button class="vk-key" onclick="vkPress('H')">H</button>
+                    <button class="vk-key" onclick="vkPress('J')">J</button>
+                    <button class="vk-key" onclick="vkPress('K')">K</button>
+                    <button class="vk-key" onclick="vkPress('L')">L</button>
+                </div>
+                <div class="vk-row">
+                    <button class="vk-key" onclick="vkPress('Z')">Z</button>
+                    <button class="vk-key" onclick="vkPress('X')">X</button>
+                    <button class="vk-key" onclick="vkPress('C')">C</button>
+                    <button class="vk-key" onclick="vkPress('V')">V</button>
+                    <button class="vk-key" onclick="vkPress('B')">B</button>
+                    <button class="vk-key" onclick="vkPress('N')">N</button>
+                    <button class="vk-key" onclick="vkPress('M')">M</button>
+                    <button class="vk-key wide btn-duo-rose" onclick="vkPress('DEL')">⬅ HAPUS</button>
+                </div>
+                <div class="vk-row">
+                    <button class="vk-key wide" onclick="vkPress('SPACE')" style="width: 50%; min-width: 230px;">[ SPASI ]</button>
+                </div>
+            </div>
+            <p class="text-[11px] font-bold text-slate-400 mt-2">*Bisa juga langsung mengetik menggunakan keyboard fisik</p>
+            
+            <button class="btn-duo mt-2 px-8" onclick="confirmNames()">LANJUT ➔</button>
+        </div>
+
+        <!-- 3. LEVEL & TIME SELECT -->
+        <div id="screen-settings" class="screen hidden">
+            <h2 class="text-2xl sm:text-3xl font-black font-game text-slate-800">Pengaturan Sesi</h2>
+            
+            <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-3">Tingkat Kesulitan:</p>
+            <div style="display:flex; gap:10px; margin-top:1%;">
+                <button class="btn-duo btn-duo-white active-select" id="lvl-easy" onclick="selectLevel('easy')">🟢 Mudah</button>
+                <button class="btn-duo btn-duo-white" id="lvl-medium" onclick="selectLevel('medium')">🟠 Sedang</button>
+                <button class="btn-duo btn-duo-white" id="lvl-hard" onclick="selectLevel('hard')">🔴 Sulit</button>
+            </div>
+
+            <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-3">Waktu Pertandingan:</p>
+            <div style="display:flex; gap:10px; margin-top:1%;">
+                <button class="btn-duo btn-duo-rose" id="time-30" onclick="selectTime(30)">⏱️ 30s</button>
+                <button class="btn-duo btn-duo-rose" id="time-45" onclick="selectTime(45)">⏱️ 45s</button>
+                <button class="btn-duo btn-duo-rose active-select" id="time-60" onclick="selectTime(60)">⏱️ 60s</button>
+            </div>
+
+            <button class="btn-duo mt-5 px-10 py-3.5" onclick="startGame()">
+                <i data-lucide="swords" class="w-5 h-5"></i> MULAI BERTANDING!
+            </button>
+        </div>
+
+        <!-- 4. GAMEPLAY -->
+        <div id="screen-game" class="screen hidden" style="justify-content: flex-start; padding-top: clamp(45px, 8.5%, 80px);">
+            
+            <!-- INFO BAR: Pemain Kiri, Timer, Pemain Kanan -->
+            <div id="game-info">
+                <div class="player-pill" id="info-left">
+                    <span id="turn-ind-left" class="font-game font-black text-xs sm:text-sm text-sky-700">PLAYER 1</span>
+                    <div class="score-box score-blue"><span id="score-left">0</span> XP</div>
+                </div>
+
+                <div id="timer-box">60</div>
+
+                <div class="player-pill reverse" id="info-right">
+                    <span id="turn-ind-right" class="font-game font-black text-xs sm:text-sm text-rose-700">PLAYER 2</span>
+                    <div class="score-box score-red"><span id="score-right">0</span> XP</div>
+                </div>
+            </div>
+
+            <!-- LAPANGAN TARIK TAMBANG -->
+            <div id="arena">
+                <div class="zone-left"></div>
+                <div class="zone-right"></div>
+                <div class="rope"></div>
+                
+                <!-- Avatar Kiri -->
+                <img src="asset/player_left.png" id="avatar-left" class="avatar" onerror="this.src='https://placehold.co/120x120/1cb0f6/ffffff?text=P1';" alt="P1">
+                
+                <!-- Marker Pita Tengah -->
+                <div class="marker" id="rope-marker">
+                    <div class="marker-fallback" id="marker-fallback-el"></div>
+                </div>
+                
+                <!-- Avatar Kanan / AI -->
+                <img src="asset/enemy_ai.png" id="avatar-right" class="avatar" onerror="this.src='https://placehold.co/120x120/f43f5e/ffffff?text=P2/AI';" alt="P2/AI">
+            </div>
+
+            <!-- PERTANYAAN KUIS KIRI & KANAN -->
+            <div id="questions-wrapper">
+                <!-- Panel Kiri -->
+                <div id="panel-left" class="q-panel">
+                    <div id="q-text-left" class="q-text">Memuat pertanyaan...</div>
+                    <div class="options-grid">
+                        <button class="option-btn" onclick="checkAnswer('left', 0)" id="opt-left-0">A.</button>
+                        <button class="option-btn" onclick="checkAnswer('left', 1)" id="opt-left-1">B.</button>
+                        <button class="option-btn" onclick="checkAnswer('left', 2)" id="opt-left-2">C.</button>
+                        <button class="option-btn" onclick="checkAnswer('left', 3)" id="opt-left-3">D.</button>
+                    </div>
+                </div>
+                <!-- Panel Kanan -->
+                <div id="panel-right" class="q-panel">
+                    <div id="q-text-right" class="q-text">Memuat pertanyaan...</div>
+                    <div class="options-grid">
+                        <button class="option-btn" onclick="checkAnswer('right', 0)" id="opt-right-0">A.</button>
+                        <button class="option-btn" onclick="checkAnswer('right', 1)" id="opt-right-1">B.</button>
+                        <button class="option-btn" onclick="checkAnswer('right', 2)" id="opt-right-2">C.</button>
+                        <button class="option-btn" onclick="checkAnswer('right', 3)" id="opt-right-3">D.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. HASIL AKHIR / SELESAI -->
+        <div id="screen-result" class="screen hidden">
+            <img src="asset/trophy.png" onerror="this.style.display='none';" alt="Trophy" style="height: 14vh; object-fit: contain; margin-bottom: 2%;">
+            <h1 class="text-xl sm:text-2xl font-black font-game text-slate-500 uppercase" id="result-title">WAKTU HABIS!</h1>
+            <h2 id="result-winner" class="text-2xl sm:text-4xl font-black font-game text-emerald-600 my-2">Player 1 Menang!</h2>
+            
+            <div style="font-size: clamp(0.9rem, 2vw, 1.2rem); margin-bottom: 4%; display:flex; gap: 3vw;">
+                <div class="score-box score-blue">Skor Kiri: <span id="final-score-left">0</span></div>
+                <div class="score-box score-red">Skor Kanan: <span id="final-score-right">0</span></div>
+            </div>
+
+            <div class="flex gap-3 flex-wrap justify-center">
+                <button class="btn-duo" onclick="showScreen('screen-menu')">🏠 Menu Game</button>
+                <a href="../index.html" class="btn-duo btn-duo-white">🚪 Portal Utama</a>
+                <button class="btn-duo btn-duo-yellow" onclick="showLeaderboard()">🏆 Papan Skor</button>
+            </div>
+        </div>
+
+        <!-- 6. LEADERBOARD -->
+        <div id="screen-leaderboard" class="screen hidden">
+            <h2 class="text-xl sm:text-3xl font-black font-game text-emerald-600 mb-2">🏆 KLASEMEN TOP 10 MASTER VOCABULARY 🏆</h2>
+            <div style="width: 100%; max-width: 620px; max-height: 55vh; overflow-y: auto;">
+                <table class="leaderboard-table" id="lb-table">
+                    <tr><th>Peringkat</th><th>Nama/Tim</th><th>Skor</th></tr>
+                </table>
+            </div>
+            <div class="flex gap-3 mt-4">
+                <button class="btn-duo" onclick="showScreen('screen-menu')">🏠 Menu Game</button>
+                <a href="../index.html" class="btn-duo btn-duo-white">🚪 Portal Utama</a>
+            </div>
+        </div>
+
+        <!-- MODAL GURU -->
+        <div id="modal-teacher" class="duo-modal hidden">
+            <h2 class="text-xl font-black font-game text-slate-800">🔒 MODE GURU</h2>
+            <p class="text-xs font-bold text-slate-400 mt-1">Masukkan PIN 4 angka:</p>
+            <input type="password" id="pin-input" maxlength="4" class="w-full p-3 rounded-2xl border-2 border-slate-200 text-center font-black text-xl my-4 outline-none focus:border-emerald-500">
             <div class="flex gap-2">
-                <button onclick="saveStudentName()" class="flex-1 py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
-                    Simpan Nama
-                </button>
-                <button onclick="closeNameModal()" class="px-4 py-3.5 rounded-2xl btn-duo-white text-slate-600 font-black text-xs uppercase">
-                    Batal
-                </button>
+                <button class="btn-duo flex-1" onclick="checkPIN()">Masuk</button>
+                <button class="btn-duo btn-duo-rose" onclick="closeTeacherModal()">Batal</button>
             </div>
         </div>
-    </div>
 
-    <!-- Modal Leaderboard -->
-    <div id="modal-leaderboard" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white">
-            <div class="flex items-center justify-between border-b pb-3">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
-                    <h3 class="text-lg font-black font-game text-slate-800 uppercase">Klasemen Top 10 XP</h3>
-                </div>
-                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div id="modal-dashboard" class="duo-modal hidden" style="width: 90%; max-width: 540px; max-height: 80vh; overflow-y: auto;">
+            <h2 class="text-xl font-black font-game text-emerald-600">🛠️ DASHBOARD GURU</h2>
+            <p class="text-xs text-slate-500 my-2">Bank Soal terintegrasi otomatis dengan penyimpanan nilai Supabase & LocalStorage.</p>
+            
+            <div class="flex gap-2 justify-center my-3">
+                <button class="btn-duo btn-duo-rose text-xs py-2 px-4" id="btn-reset" onclick="resetLeaderboard()">🗑️ Reset Skor Lokal</button>
+                <button class="btn-duo btn-duo-white text-xs py-2 px-4" onclick="closeTeacherModal()">Tutup</button>
             </div>
             
-            <div id="leaderboard-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-                <div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>
+            <div class="text-left bg-slate-50 p-4 rounded-2xl border border-slate-200 font-mono text-xs">
+                <p class="font-bold text-slate-700">Status Soal Aktif:</p>
+                <ul id="stats-soal" class="mt-2 space-y-1 text-slate-600"></ul>
             </div>
-
-            <button onclick="closeLeaderboardModal()" class="w-full py-3 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
-                Tutup Papan Skor
-            </button>
         </div>
+
     </div>
 
-    <!-- Footer -->
-    <footer class="max-w-5xl w-full mx-auto text-center py-6 mt-6 border-t border-slate-200">
-        <p class="text-xs font-black text-slate-400 font-game uppercase tracking-wider">
-            English Maharati Learning System • SMKN 2 Mantangai Kapuas
-        </p>
-    </footer>
-
+    <!-- SCRIPT LOGIKA PERMAINAN & BANK SOAL LENGKAP -->
     <script>
+        // ═══════════════════════════════════════════
+        // 📝 KONFIGURASI SUPABASE & PIN GURU
+        // ═══════════════════════════════════════════
         const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
+        const PIN_GURU = "1234";
 
-        let isMusicPlaying = false;
-        let audioUnlocked = false;
+        // Bank Soal Lengkap 75 Soal Kosakata Bahasa Inggris (Easy, Medium, Hard)
+        const BANK_SOAL = [
+            // 🟢 EASY (25 Soal: Kata Dasar, Benda Sehari-hari, Warna, Angka, Antonim Dasar)
+            { level: "easy", soal: "Apa arti dari kata 'Book' dalam bahasa Indonesia?", pilihan: ["Buku", "Meja", "Pensil", "Pintu"], jawaban: "Buku" },
+            { level: "easy", soal: "Apa bahasa Inggris dari hewan 'Kucing'?", pilihan: ["Cat", "Dog", "Duck", "Cow"], jawaban: "Cat" },
+            { level: "easy", soal: "Lawan kata (antonym) dari 'Big' (besar) adalah...", pilihan: ["Small", "Tall", "Long", "Huge"], jawaban: "Small" },
+            { level: "easy", soal: "Warna 'Yellow' dalam bahasa Indonesia berarti warna...", pilihan: ["Kuning", "Merah", "Biru", "Hijau"], jawaban: "Kuning" },
+            { level: "easy", soal: "Apa arti dari kata kerja 'Eat'?", pilihan: ["Makan", "Minum", "Tidur", "Lari"], jawaban: "Makan" },
+            { level: "easy", soal: "Bahasa Inggris dari angka 'Delapan' adalah...", pilihan: ["Eight", "Seven", "Nine", "Ten"], jawaban: "Eight" },
+            { level: "easy", soal: "Tempat siswa menuntut ilmu adalah 'School', artinya...", pilihan: ["Sekolah", "Rumah Sakit", "Pasar", "Kantor"], jawaban: "Sekolah" },
+            { level: "easy", soal: "Apa bahasa Inggris dari 'Air Minum'?", pilihan: ["Water", "Fire", "Earth", "Wind"], jawaban: "Water" },
+            { level: "easy", soal: "Lawan kata (antonym) dari 'Hot' (panas) adalah...", pilihan: ["Cold", "Warm", "Dry", "Clean"], jawaban: "Cold" },
+            { level: "easy", soal: "Ungkapan salam 'Good morning' diucapkan pada...", pilihan: ["Pagi hari", "Malam hari", "Sore hari", "Siang hari"], jawaban: "Pagi hari" },
+            { level: "easy", soal: "Alat tulis bertinta cair disebut 'Pen', artinya...", pilihan: ["Pulpen", "Penghapus", "Penggaris", "Buku Tulis"], jawaban: "Pulpen" },
+            { level: "easy", soal: "Apa arti dari kata 'Family'?", pilihan: ["Keluarga", "Tetangga", "Guru", "Sahabat"], jawaban: "Keluarga" },
+            { level: "easy", soal: "Apa bahasa Inggris dari bangunan 'Rumah'?", pilihan: ["House", "Bridge", "Street", "Garden"], jawaban: "House" },
+            { level: "easy", soal: "Lawan kata dari 'Fast' (cepat) adalah...", pilihan: ["Slow", "Quick", "Early", "Hard"], jawaban: "Slow" },
+            { level: "easy", soal: "Kata kerja 'Sleep' memiliki arti...", pilihan: ["Tidur", "Bangun", "Duduk", "Berdiri"], jawaban: "Tidur" },
+            { level: "easy", soal: "Orang yang mengajar di kelas adalah 'Teacher', artinya...", pilihan: ["Guru", "Dokter", "Polisi", "Petani"], jawaban: "Guru" },
+            { level: "easy", soal: "Benda langit yang bersinar di siang hari adalah 'Sun', artinya...", pilihan: ["Matahari", "Bulan", "Bintang", "Awan"], jawaban: "Matahari" },
+            { level: "easy", soal: "Ungkapan 'Thank you' digunakan saat kita ingin menyampaikan...", pilihan: ["Terima kasih", "Minta maaf", "Selamat tinggal", "Permisi"], jawaban: "Terima kasih" },
+            { level: "easy", soal: "Lawan kata (antonym) dari kata 'Happy' (senang) adalah...", pilihan: ["Sad", "Glad", "Brave", "Kind"], jawaban: "Sad" },
+            { level: "easy", soal: "Kata 'Friend' dalam bahasa Indonesia berarti...", pilihan: ["Teman", "Musuh", "Orang Asing", "Saudara"], jawaban: "Teman" },
+            { level: "easy", soal: "Warna 'Green' melambangkan warna daun segar, yaitu...", pilihan: ["Hijau", "Cokelat", "Ungu", "Hitam"], jawaban: "Hijau" },
+            { level: "easy", soal: "Apa bahasa Inggris dari 'Jendela'?", pilihan: ["Window", "Door", "Roof", "Floor"], jawaban: "Window" },
+            { level: "easy", soal: "Kata kerja 'Drink' artinya...", pilihan: ["Minum", "Makan", "Memasak", "Mencuci"], jawaban: "Minum" },
+            { level: "easy", soal: "Angka 'Twenty' dalam bahasa Indonesia adalah...", pilihan: ["Dua Puluh", "Dua Belas", "Tiga Puluh", "Sepuluh"], jawaban: "Dua Puluh" },
+            { level: "easy", soal: "Alas kaki yang kita pakai saat sekolah adalah 'Shoes', artinya...", pilihan: ["Sepatu", "Kaus Kaki", "Sandal", "Topi"], jawaban: "Sepatu" },
 
-        // Buka blokir audio browser saat klik pertama kali di mana saja
-        function unlockAudioOnce() {
-            if (audioUnlocked) return;
-            const bg = document.getElementById('snd-bg');
-            if (bg) {
-                bg.load();
+            // 🟠 MEDIUM (25 Soal: Kosakata Kejuruan/Teknologi, Sinonim, Antonim, Tenses Dasar)
+            { level: "medium", soal: "Apa sinonim (persamaan kata) dari kata 'Smart'?", pilihan: ["Clever", "Lazy", "Slow", "Angry"], jawaban: "Clever" },
+            { level: "medium", soal: "Perangkat keras 'Keyboard' pada komputer berarti...", pilihan: ["Papan Ketik", "Layar Tampilan", "Tetikus", "Kabel Daya"], jawaban: "Papan Ketik" },
+            { level: "medium", soal: "Lengkapi kalimat: 'She ... to school every Monday.'", pilihan: ["goes", "go", "gone", "going"], jawaban: "goes" },
+            { level: "medium", soal: "Lawan kata (antonym) dari kata 'Difficult' adalah...", pilihan: ["Easy", "Hard", "Tough", "Heavy"], jawaban: "Easy" },
+            { level: "medium", soal: "Kata 'Screen' pada perangkat komputer atau HP berarti...", pilihan: ["Layar", "Baterai", "Mesin", "Tombol"], jawaban: "Layar" },
+            { level: "medium", soal: "Apa bahasa Inggris dari buku petunjuk kata 'Kamus'?", pilihan: ["Dictionary", "Novel", "Magazine", "Newspaper"], jawaban: "Dictionary" },
+            { level: "medium", soal: "Bentuk lampau (Past Tense / V2) dari kata kerja 'Go' adalah...", pilihan: ["Went", "Gone", "Goes", "Going"], jawaban: "Went" },
+            { level: "medium", soal: "Alat penggerak kursor 'Mouse' dalam istilah bahasa Indonesia adalah...", pilihan: ["Tetikus", "Papan Tombol", "Pengeras Suara", "Pencetak"], jawaban: "Tetikus" },
+            { level: "medium", soal: "Kata kerja 'Improve' dalam proses belajar memiliki arti...", pilihan: ["Meningkatkan", "Mengurangi", "Merusak", "Melupakan"], jawaban: "Meningkatkan" },
+            { level: "medium", soal: "Lawan kata (antonym) dari 'Danger' (bahaya) adalah...", pilihan: ["Safe", "Risky", "Dark", "Noisy"], jawaban: "Safe" },
+            { level: "medium", soal: "Kata 'Equipment' dalam laboratorium praktik kejuruan artinya...", pilihan: ["Peralatan", "Ruangan", "Instruktur", "Buku Tamu"], jawaban: "Peralatan" },
+            { level: "medium", soal: "Bentuk jamak (plural) yang benar dari kata 'Child' adalah...", pilihan: ["Children", "Childs", "Childes", "Childies"], jawaban: "Children" },
+            { level: "medium", soal: "Apa arti dari kata sifat 'Careful'?", pilihan: ["Berhati-hati", "Ceroboh", "Tergesa-gesa", "Marah"], jawaban: "Berhati-hati" },
+            { level: "medium", soal: "Apa bahasa Inggris dari istilah 'Jadwal Pelajaran'?", pilihan: ["Timetable", "Scoreboard", "Notebook", "Homework"], jawaban: "Timetable" },
+            { level: "medium", soal: "Bentuk lampau (Past Tense / V2) dari kata kerja 'Buy' (membeli) adalah...", pilihan: ["Bought", "Bring", "Buyed", "Brought"], jawaban: "Bought" },
+            { level: "medium", soal: "Kata kerja 'Protect' pada antivirus komputer artinya...", pilihan: ["Melindungi", "Menghapus", "Meretas", "Menyebarkan"], jawaban: "Melindungi" },
+            { level: "medium", soal: "Kata kerja 'Prevent' dalam perawatan perangkat artinya...", pilihan: ["Mencegah", "Membiarkan", "Menambah", "Menutup"], jawaban: "Mencegah" },
+            { level: "medium", soal: "Apa sinonim (persamaan kata) dari kata 'Fast'?", pilihan: ["Quick", "Late", "Quiet", "Heavy"], jawaban: "Quick" },
+            { level: "medium", soal: "Kata 'Maintenance' pada perangkat PC diterjemahkan sebagai...", pilihan: ["Pemeliharaan", "Penjualan", "Pencurian", "Pembongkaran"], jawaban: "Pemeliharaan" },
+            { level: "medium", soal: "Pertanyaan 'Where is the computer lab?' menanyakan tentang...", pilihan: ["Lokasi laboratorium", "Harga komputer", "Warna meja", "Nama pengajar"], jawaban: "Lokasi laboratorium" },
+            { level: "medium", soal: "Kata kerja 'Connect' pada jaringan komputer artinya...", pilihan: ["Menghubungkan", "Memutuskan", "Menolak", "Menghapus"], jawaban: "Menghubungkan" },
+            { level: "medium", soal: "Lawan kata (antonym) dari kata 'Expensive' (mahal) adalah...", pilihan: ["Cheap", "Costly", "Valuable", "Rich"], jawaban: "Cheap" },
+            { level: "medium", soal: "Istilah 'Storage' dalam teknologi komputer berarti...", pilihan: ["Media Penyimpanan", "Kabel Listrik", "Kipas Angin", "Lampu Layar"], jawaban: "Media Penyimpanan" },
+            { level: "medium", soal: "Bentuk lampau (Past Tense / V2) dari kata 'Write' (menulis) adalah...", pilihan: ["Wrote", "Written", "Writing", "Writes"], jawaban: "Wrote" },
+            { level: "medium", soal: "Kata sifat 'Useful' artinya...", pilihan: ["Bermanfaat", "Berbahaya", "Tidak berguna", "Membosankan"], jawaban: "Bermanfaat" },
+
+            // 🔴 HARD (25 Soal: Idiom, Phrasal Verbs, Past Participle V3, Kosakata Kejuruan Lanjut)
+            { level: "hard", soal: "Apa arti dari idiom bahasa Inggris 'A piece of cake'?", pilihan: ["Sangat mudah", "Sangat manis", "Membuat kue", "Harganya mahal"], jawaban: "Sangat mudah" },
+            { level: "hard", soal: "Sinonim kata yang paling tepat untuk 'Accurate' adalah...", pilihan: ["Precise", "Careless", "Doubtful", "False"], jawaban: "Precise" },
+            { level: "hard", soal: "Bentuk Past Participle (V3) dari kata kerja 'Speak' adalah...", pilihan: ["Spoken", "Spoke", "Speaks", "Speaking"], jawaban: "Spoken" },
+            { level: "hard", soal: "Phrasal verb 'Turn off' pada perangkat elektronik bermakna...", pilihan: ["Mematikan", "Menyalakan", "Memperbesar", "Memperbaiki"], jawaban: "Mematikan" },
+            { level: "hard", soal: "Ungkapan 'Break a leg' dalam percakapan sering digunakan untuk...", pilihan: ["Mendoakan sukses", "Mengejek teman", "Menyuruh istirahat", "Meminta bantuan"], jawaban: "Mendoakan sukses" },
+            { level: "hard", soal: "Lawan kata (antonym) dari kata 'Permanent' adalah...", pilihan: ["Temporary", "Constant", "Eternal", "Stable"], jawaban: "Temporary" },
+            { level: "hard", soal: "Lengkapi kalimat: 'If I study diligently, I ... pass the test.'", pilihan: ["will", "did", "was", "have"], jawaban: "will" },
+            { level: "hard", soal: "Kata kerja teknis 'Troubleshoot' dalam bidang komputer berarti...", pilihan: ["Mengatasi masalah", "Menambah virus", "Membeli perangkat", "Menghapus data"], jawaban: "Mengatasi masalah" },
+            { level: "hard", soal: "Istilah 'Hardware failure' dapat diterjemahkan sebagai...", pilihan: ["Kerusakan perangkat keras", "Kegagalan sistem jaringan", "Pencurian akun", "Kecepatan internet"], jawaban: "Kerusakan perangkat keras" },
+            { level: "hard", soal: "Phrasal verb 'Look after' memiliki makna yang sama dengan...", pilihan: ["Take care of (Merawat)", "Look at (Melihat)", "Search (Mencari)", "Ignore (Mengabaikan)"], jawaban: "Take care of (Merawat)" },
+            { level: "hard", soal: "Sinonim formal dari kata 'Significant' adalah...", pilihan: ["Important", "Minor", "Useless", "Tiny"], jawaban: "Important" },
+            { level: "hard", soal: "Bentuk Past Participle (V3) dari kata kerja 'Choose' adalah...", pilihan: ["Chosen", "Chose", "Choosed", "Choosing"], jawaban: "Chosen" },
+            { level: "hard", soal: "'Overheating can cause unexpected system shutdown.' Kata 'cause' bermakna...", pilihan: ["Menyebabkan", "Mencegah", "Mempercepat", "Melarang"], jawaban: "Menyebabkan" },
+            { level: "hard", soal: "Idiom 'Once in a blue moon' menggambarkan kejadian yang...", pilihan: ["Sangat jarang terjadi", "Terjadi setiap malam", "Bulan purnama", "Selalu berulang"], jawaban: "Sangat jarang terjadi" },
+            { level: "hard", soal: "Lawan kata (antonym) dari kata 'Increase' (meningkatkan) adalah...", pilihan: ["Decrease", "Expand", "Enlarge", "Develop"], jawaban: "Decrease" },
+            { level: "hard", soal: "Kata benda 'Productivity' dalam dunia kerja berarti...", pilihan: ["Produktivitas", "Penghasilan", "Keterlambatan", "Kelelahan"], jawaban: "Produktivitas" },
+            { level: "hard", soal: "Bentuk Past Participle (V3) dari kata kerja 'Drive' adalah...", pilihan: ["Driven", "Drove", "Drives", "Driving"], jawaban: "Driven" },
+            { level: "hard", soal: "Phrasal verb 'Carry out' (misal: carry out the task) artinya...", pilihan: ["Melaksanakan", "Membatalkan", "Membawa pergi", "Menyerah"], jawaban: "Melaksanakan" },
+            { level: "hard", soal: "Sinonim yang paling tepat untuk kata 'Essential' adalah...", pilihan: ["Crucial", "Optional", "Careless", "Weak"], jawaban: "Crucial" },
+            { level: "hard", soal: "'Ensure the power cord is disconnected.' Kata kerja 'Ensure' artinya...", pilihan: ["Memastikan", "Menebak", "Mencoba", "Mengabaikan"], jawaban: "Memastikan" },
+            { level: "hard", soal: "Lawan kata (antonym) dari kata 'Success' adalah...", pilihan: ["Failure", "Victory", "Triumph", "Glory"], jawaban: "Failure" },
+            { level: "hard", soal: "Kata benda 'Achievement' dalam prestasi belajar artinya...", pilihan: ["Pencapaian / Prestasi", "Kekurangan", "Tugas Rumah", "Peringatan"], jawaban: "Pencapaian / Prestasi" },
+            { level: "hard", soal: "Bentuk Past Participle (V3) dari kata kerja 'Begin' adalah...", pilihan: ["Begun", "Began", "Begins", "Beginning"], jawaban: "Begun" },
+            { level: "hard", soal: "Istilah 'Collaboration' dalam proyek tim bermakna...", pilihan: ["Kerja sama bersama", "Persaingan sendiri", "Bekerja mandiri", "Perdebatan sengit"], jawaban: "Kerja sama bersama" },
+            { level: "hard", soal: "Idiom 'Under the weather' menggambarkan kondisi seseorang yang...", pilihan: ["Kurang enak badan / Sakit", "Kena hujan lebat", "Sangat bahagia", "Berada di luar ruangan"], jawaban: "Kurang enak badan / Sakit" }
+        ];
+
+        // State Utama Permainan
+        let gameState = {
+            mode: 'solo',
+            level: 'easy',
+            timeTotal: 60,
+            timeLeft: 60,
+            scoreLeft: 0,
+            scoreRight: 0,
+            ropePos: 50,
+            qLeft: null,
+            qRight: null,
+            pool: [],
+            timerInterval: null,
+            aiInterval: null,
+            isPlaying: false,
+            p1Name: localStorage.getItem('studentName') || "PLAYER 1",
+            p2Name: "PLAYER 2",
+            activeInput: 'p1'
+        };
+
+        // Audio Engine (File Asset + Web Audio Procedural Fallback)
+        let audioCtx = null;
+        let isAudioMuted = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const Cls = window.AudioContext || window.webkitAudioContext;
+                if (Cls) audioCtx = new Cls();
             }
-            audioUnlocked = true;
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playSoundEffect(elementId) {
-            const audio = document.getElementById(elementId);
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-            }
-        }
-
-        function playClickSound() {
-            playSoundEffect('snd-click');
-        }
-
-        function toggleMusic(e) {
-            if (e) e.stopPropagation();
-            const bgAudio = document.getElementById('snd-bg');
-            const icon = document.getElementById('icon-music');
-            if (!bgAudio) return;
-
-            if (isMusicPlaying) {
-                bgAudio.pause();
-                isMusicPlaying = false;
-                icon.setAttribute('data-lucide', 'volume-x');
-                icon.classList.remove('text-emerald-600');
-                icon.classList.add('text-slate-400');
-            } else {
-                bgAudio.volume = 0.35;
-                bgAudio.play().then(() => {
-                    isMusicPlaying = true;
-                    icon.setAttribute('data-lucide', 'volume-2');
-                    icon.classList.remove('text-slate-400');
-                    icon.classList.add('text-emerald-600');
-                }).catch(err => {
-                    alert("Klik di sembarang tempat pada layar terlebih dahulu, lalu klik tombol musik lagi.");
-                });
-            }
-            lucide.createIcons();
-        }
-
-        function getStudentName() {
-            return localStorage.getItem('studentName') || 'Siswa Baru';
-        }
-
-        function updateProfileUI() {
-            const name = getStudentName();
-            document.getElementById('nav-student-name').innerText = name;
-            document.getElementById('hero-student-name').innerText = name;
-            fetchStudentTotalXP(name);
-        }
-
-        function openNameModal() {
-            playClickSound();
-            document.getElementById('input-new-name').value = getStudentName() === 'Siswa Baru' ? '' : getStudentName();
-            document.getElementById('modal-name').classList.remove('hidden');
-        }
-
-        function closeNameModal() {
-            playClickSound();
-            document.getElementById('modal-name').classList.add('hidden');
-        }
-
-        function saveStudentName() {
-            const input = document.getElementById('input-new-name').value.trim();
-            if (input) {
-                localStorage.setItem('studentName', input);
-                playSoundEffect('snd-right');
-                updateProfileUI();
-            }
-            closeNameModal();
-        }
-
-        async function fetchStudentTotalXP(studentName) {
+        function playSynthFallback(type) {
+            initAudio();
+            if (!audioCtx) return;
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?name=eq.${encodeURIComponent(studentName)}&select=score`, {
-                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
-                });
-                if (!res.ok) return;
-                const rows = await res.json();
-                const total = rows.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
-                document.getElementById('nav-xp-score').innerText = `${total} XP`;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(650, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+                } else if (type === 'right' || type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'victory' || type === 'win') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+                }
             } catch(e) {}
         }
 
-        async function openLeaderboardModal() {
-            playClickSound();
-            document.getElementById('modal-leaderboard').classList.remove('hidden');
-            const container = document.getElementById('leaderboard-list');
-            container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>';
-
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?select=name,score`, {
-                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                
-                const scoreMap = {};
-                data.forEach(item => {
-                    const n = (item.name || 'Siswa').trim();
-                    scoreMap[n] = (scoreMap[n] || 0) + (Number(item.score) || 0);
-                });
-
-                const sorted = Object.keys(scoreMap).map(name => ({
-                    name, score: scoreMap[name]
-                })).sort((a, b) => b.score - a.score).slice(0, 10);
-
-                if (sorted.length === 0) {
-                    container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Belum ada skor tercatat di database.</div>';
-                    return;
-                }
-
-                container.innerHTML = sorted.map((s, idx) => `
-                    <div class="flex items-center justify-between p-3 rounded-2xl ${idx === 0 ? 'bg-amber-50 border-2 border-amber-300' : 'bg-slate-50 border border-slate-200'}">
-                        <div class="flex items-center gap-3">
-                            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-400 text-white' : (idx === 1 ? 'bg-slate-300 text-slate-700' : 'bg-slate-200 text-slate-600')}">${idx + 1}</span>
-                            <span class="font-bold text-xs text-slate-800">${s.name}</span>
-                        </div>
-                        <span class="font-black text-xs text-emerald-600">${s.score} XP</span>
-                    </div>
-                `).join('');
-            } catch(e) {
-                container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Data offline / gagal terhubung ke database.</div>';
+        function playSound(type) {
+            if (isAudioMuted) return;
+            const elId = type === 'click' ? 'snd-click' : (type === 'right' || type === 'correct' ? 'snd-right' : (type === 'wrong' ? 'snd-wrong' : 'snd-victory'));
+            const el = document.getElementById(elId);
+            if (el && el.readyState >= 2) {
+                el.currentTime = 0;
+                el.play().catch(() => playSynthFallback(type));
+            } else {
+                playSynthFallback(type);
             }
         }
 
-        function closeLeaderboardModal() {
-            playClickSound();
-            document.getElementById('modal-leaderboard').classList.add('hidden');
+        function playClick() { playSound('click'); }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            document.getElementById('audio-txt').innerText = isAudioMuted ? 'MUTE' : 'AUDIO';
+            const icon = document.getElementById('audio-icon');
+            if (isAudioMuted) icon.setAttribute('data-lucide', 'volume-x');
+            else icon.setAttribute('data-lucide', 'volume-2');
+            lucide.createIcons();
         }
 
-        function handleNav(e, fileUrl) {
-            e.preventDefault();
-            playClickSound();
-            setTimeout(() => {
-                window.location.href = fileUrl;
-            }, 100);
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        // Navigasi Screen
+        function showScreen(id) {
+            playClick();
+            document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('btn-back').style.visibility = (id === 'screen-menu') ? 'hidden' : 'visible';
+            if (id === 'screen-menu') stopGame();
+            lucide.createIcons();
+        }
+
+        function goBack() { showScreen('screen-menu'); }
+
+        function selectMode(mode) {
+            playClick();
+            gameState.mode = mode;
+            gameState.p1Name = localStorage.getItem('studentName') || "PLAYER 1";
+            gameState.p2Name = "PLAYER 2";
+
+            if (mode === 'solo') {
+                document.getElementById('input-p2').classList.add('hidden');
+                document.getElementById('input-p1').innerText = gameState.p1Name + "_";
+                setActiveInput('p1');
+            } else {
+                document.getElementById('input-p2').classList.remove('hidden');
+                document.getElementById('input-p1').innerText = gameState.p1Name + "_";
+                document.getElementById('input-p2').innerText = "PLAYER 2";
+                setActiveInput('p1');
+            }
+            showScreen('screen-name');
+        }
+
+        function setActiveInput(player) {
+            playClick();
+            gameState.activeInput = player;
+            document.getElementById('input-p1').classList.remove('active');
+            document.getElementById('input-p2').classList.remove('active');
+            document.getElementById(`input-${player}`).classList.add('active');
+
+            let txt1 = gameState.p1Name || "PLAYER 1";
+            let txt2 = gameState.p2Name || "PLAYER 2";
+            document.getElementById('input-p1').innerText = (player === 'p1') ? txt1 + "_" : txt1;
+            document.getElementById('input-p2').innerText = (player === 'p2') ? txt2 + "_" : txt2;
+        }
+
+        function vkPress(char) {
+            playClick();
+            let currentName = gameState[gameState.activeInput + 'Name'];
+            if (char === 'DEL') {
+                gameState[gameState.activeInput + 'Name'] = currentName.slice(0, -1);
+            } else if (char === 'SPACE') {
+                if (currentName.length < 12) gameState[gameState.activeInput + 'Name'] += " ";
+            } else {
+                if (currentName.length < 12) gameState[gameState.activeInput + 'Name'] += char;
+            }
+
+            let displayTxt = gameState[gameState.activeInput + 'Name'];
+            if (displayTxt === "") displayTxt = (gameState.activeInput === 'p1') ? "PLAYER 1" : "PLAYER 2";
+            document.getElementById(`input-${gameState.activeInput}`).innerText = displayTxt + "_";
+        }
+
+        // Listener Keyboard Fisik
+        document.addEventListener('keydown', function(event) {
+            if (!document.getElementById('screen-name').classList.contains('hidden')) {
+                const key = event.key.toUpperCase();
+                if (key >= 'A' && key <= 'Z' && key.length === 1) {
+                    vkPress(key);
+                } else if (event.key === 'Backspace' || event.key === 'Delete') {
+                    vkPress('DEL');
+                } else if (event.key === ' ') {
+                    event.preventDefault();
+                    vkPress('SPACE');
+                } else if (event.key === 'Enter') {
+                    confirmNames();
+                }
+            }
+        });
+
+        function confirmNames() {
+            playClick();
+            if (gameState.p1Name.trim() === "") gameState.p1Name = "PLAYER 1";
+            if (gameState.mode === '2p' && gameState.p2Name.trim() === "") gameState.p2Name = "PLAYER 2";
+            showScreen('screen-settings');
+        }
+
+        function selectLevel(lvl) {
+            playClick();
+            gameState.level = lvl;
+            ['easy','medium','hard'].forEach(l => document.getElementById(`lvl-${l}`).classList.remove('active-select'));
+            document.getElementById(`lvl-${lvl}`).classList.add('active-select');
+        }
+
+        function selectTime(t) {
+            playClick();
+            gameState.timeTotal = t;
+            [30,45,60].forEach(tx => document.getElementById(`time-${tx}`).classList.remove('active-select'));
+            document.getElementById(`time-${t}`).classList.add('active-select');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function buildPool() {
+            let pool = BANK_SOAL.filter(s => s.level === gameState.level);
+            if (pool.length === 0) pool = BANK_SOAL;
+            return shuffleArray([...pool]);
+        }
+
+        function startGame() {
+            playClick();
+            gameState.pool = buildPool();
+            gameState.scoreLeft = 0;
+            gameState.scoreRight = 0;
+            gameState.ropePos = 50;
+            gameState.timeLeft = gameState.timeTotal;
+            gameState.isPlaying = true;
+
+            let p1Name = gameState.p1Name.toUpperCase();
+            let p2Name = gameState.p2Name.toUpperCase();
+
+            // Set Gambar Avatar Sesuai Mode
+            const avatarLeft = document.getElementById('avatar-left');
+            const avatarRight = document.getElementById('avatar-right');
+            avatarLeft.src = "asset/player_left.png";
+
+            if (gameState.mode === 'solo') {
+                p2Name = "OVERHEAT (AI)";
+                avatarRight.src = "asset/enemy_ai.png";
+            } else {
+                avatarRight.src = "asset/player_right.png";
+            }
+
+            document.getElementById('turn-ind-left').innerText = p1Name;
+            document.getElementById('turn-ind-right').innerText = p2Name;
+
+            if (gameState.mode === 'solo') {
+                document.getElementById('panel-right').style.display = 'none';
+                document.getElementById('info-right').style.visibility = 'hidden';
+                document.getElementById('panel-left').style.display = 'flex';
+                document.getElementById('panel-left').style.maxWidth = '780px';
+                document.getElementById('panel-left').style.margin = '0 auto';
+                loadQuestion('left');
+            } else {
+                document.getElementById('panel-right').style.display = 'flex';
+                document.getElementById('info-right').style.visibility = 'visible';
+                document.getElementById('panel-left').style.display = 'flex';
+                document.getElementById('panel-left').style.maxWidth = 'none';
+                document.getElementById('panel-left').style.margin = '0';
+                loadQuestion('left');
+                loadQuestion('right');
+            }
+
+            updateVisuals();
+            showScreen('screen-game');
+
+            // Hitung Mundur Waktu
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                const tb = document.getElementById('timer-box');
+                tb.innerText = gameState.timeLeft;
+
+                if (gameState.timeLeft <= 10) {
+                    playSound('click');
+                    tb.classList.add('timer-warning');
+                } else {
+                    tb.classList.remove('timer-warning');
+                }
+
+                if (gameState.timeLeft <= 0) endGame("timeout");
+            }, 1000);
+
+            // AI Penarik Tali Mode Solo
+            clearInterval(gameState.aiInterval);
+            if (gameState.mode === 'solo') {
+                gameState.aiInterval = setInterval(() => {
+                    if (gameState.isPlaying) {
+                        gameState.ropePos += 1.4; // AI Overheat menarik perlahan ke kanan
+                        updateVisuals();
+                        if (gameState.ropePos >= 100) endGame("ko-right");
+                    }
+                }, 1000);
+            }
+        }
+
+        function loadQuestion(side) {
+            if (!gameState.isPlaying) return;
+            if (gameState.pool.length === 0) gameState.pool = buildPool();
+
+            const q = gameState.pool.pop();
+            if (side === 'left') gameState.qLeft = q;
+            else gameState.qRight = q;
+
+            document.getElementById(`q-text-${side}`).innerText = q.soal;
+            let opts = shuffleArray([...q.pilihan]);
+
+            for (let i = 0; i < 4; i++) {
+                let btn = document.getElementById(`opt-${side}-${i}`);
+                btn.innerHTML = `<span class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-600">${String.fromCharCode(65 + i)}</span> <span>${opts[i]}</span>`;
+                btn.dataset.text = opts[i];
+                btn.className = "option-btn";
+                btn.disabled = false;
+            }
+        }
+
+        function checkAnswer(side, idx) {
+            if (!gameState.isPlaying) return;
+            let btn = document.getElementById(`opt-${side}-${idx}`);
+            let ans = btn.dataset.text;
+            let currentQ = side === 'left' ? gameState.qLeft : gameState.qRight;
+            let isCorrect = (ans === currentQ.jawaban);
+
+            for (let i = 0; i < 4; i++) document.getElementById(`opt-${side}-${i}`).disabled = true;
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                playSound('right');
+                createParticles(btn, '#10b981');
+
+                if (side === 'left') {
+                    gameState.scoreLeft += 100;
+                    gameState.ropePos -= 10; // Tarik ke kiri
+                } else {
+                    gameState.scoreRight += 100;
+                    gameState.ropePos += 10; // Tarik ke kanan
+                }
+            } else {
+                btn.classList.add('wrong');
+                playSound('wrong');
+                createParticles(btn, '#f43f5e');
+
+                let panel = document.getElementById(`panel-${side}`);
+                panel.classList.add('shake');
+                setTimeout(() => panel.classList.remove('shake'), 400);
+
+                for (let i = 0; i < 4; i++) {
+                    let optBtn = document.getElementById(`opt-${side}-${i}`);
+                    if (optBtn.dataset.text === currentQ.jawaban) optBtn.classList.add('correct');
+                }
+
+                if (side === 'left') {
+                    gameState.scoreLeft = Math.max(0, gameState.scoreLeft - 50);
+                    gameState.ropePos += (gameState.mode === 'solo' ? 14 : 5);
+                } else {
+                    gameState.scoreRight = Math.max(0, gameState.scoreRight - 50);
+                    gameState.ropePos -= 5;
+                }
+            }
+
+            gameState.ropePos = Math.max(0, Math.min(100, gameState.ropePos));
+            updateVisuals();
+
+            if (gameState.ropePos <= 0) { endGame("ko-left"); return; }
+            if (gameState.ropePos >= 100) { endGame("ko-right"); return; }
+
+            setTimeout(() => { loadQuestion(side); }, 1300);
+        }
+
+        function updateVisuals() {
+            document.getElementById('score-left').innerText = gameState.scoreLeft;
+            document.getElementById('score-right').innerText = gameState.scoreRight;
+            document.getElementById('rope-marker').style.left = `${gameState.ropePos}%`;
+        }
+
+        function endGame(reason) {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timerInterval);
+            clearInterval(gameState.aiInterval);
+            playSound('victory');
+
+            let title = "WAKTU HABIS!";
+            if (reason === "ko-left") title = "INSTANT KO! TIM KIRI MENANG!";
+            if (reason === "ko-right") title = "INSTANT KO! TIM KANAN MENANG!";
+
+            document.getElementById('result-title').innerText = title;
+            document.getElementById('final-score-left').innerText = gameState.scoreLeft;
+            document.getElementById('final-score-right').innerText = gameState.scoreRight;
+
+            let winnerText = "";
+            let p1 = gameState.p1Name.toUpperCase();
+            let p2 = (gameState.mode === 'solo') ? "OVERHEAT" : gameState.p2Name.toUpperCase();
+
+            if (gameState.ropePos < 50) {
+                winnerText = `${p1} MENANG! 🏆`;
+                saveScoreToSupabase(gameState.p1Name, gameState.scoreLeft);
+            } else if (gameState.ropePos > 50) {
+                winnerText = `${p2} MENANG! 💥`;
+                if (gameState.mode === '2p') saveScoreToSupabase(gameState.p2Name, gameState.scoreRight);
+            } else {
+                winnerText = "PERTANDINGAN SERI! 🤝";
+            }
+
+            const winEl = document.getElementById('result-winner');
+            winEl.innerText = winnerText;
+            winEl.style.color = (gameState.ropePos < 50) ? "#0284c7" : (gameState.ropePos > 50 ? "#e11d48" : "#16a34a");
+
+            if (gameState.scoreLeft > 0) saveLeaderboardLocal(gameState.p1Name, gameState.scoreLeft);
+            if (gameState.mode === '2p' && gameState.scoreRight > 0) saveLeaderboardLocal(gameState.p2Name, gameState.scoreRight);
+
+            setTimeout(() => showScreen('screen-result'), 1000);
+        }
+
+        function stopGame() {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timerInterval);
+            clearInterval(gameState.aiInterval);
+        }
+
+        // ==============================================================
+        // SINKRONISASI DATABASE SUPABASE
+        // ==============================================================
+        async function saveScoreToSupabase(studentName, score) {
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
+                    method: "POST",
+                    headers: {
+                        "apikey": SUPABASE_ANON_KEY,
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal"
+                    },
+                    body: JSON.stringify([{
+                        name: studentName,
+                        activity: "Battle Tarik Tambang",
+                        level: gameState.level,
+                        score: score
+                    }])
+                });
+            } catch(e) {}
+        }
+
+        function saveLeaderboardLocal(playerName, score) {
+            if (score <= 0) return;
+            let lb = JSON.parse(localStorage.getItem('arcade_edu_lb')) || [];
+            lb.push({ name: playerName.toUpperCase(), score: score });
+            lb.sort((a, b) => b.score - a.score);
+            lb = lb.slice(0, 10);
+            localStorage.setItem('arcade_edu_lb', JSON.stringify(lb));
+        }
+
+        function showLeaderboard() {
+            let lb = JSON.parse(localStorage.getItem('arcade_edu_lb')) || [];
+            let table = document.getElementById('lb-table');
+            table.innerHTML = "<tr><th>Peringkat</th><th>Nama/Tim</th><th>Skor</th></tr>";
+            
+            if (lb.length === 0) {
+                table.innerHTML += "<tr><td colspan='3'>Belum ada catatan skor. Mainkan sekarang!</td></tr>";
+            } else {
+                lb.forEach((entry, i) => {
+                    table.innerHTML += `<tr><td>#${i + 1}</td><td>${entry.name}</td><td>${entry.score} XP</td></tr>`;
+                });
+            }
+            showScreen('screen-leaderboard');
+        }
+
+        // Mode Guru
+        let logoTimer;
+        const titleEl = document.getElementById('game-title');
+        titleEl.addEventListener('mousedown', () => {
+            logoTimer = setTimeout(() => { document.getElementById('modal-teacher').classList.remove('hidden'); }, 3000);
+        });
+        titleEl.addEventListener('mouseup', () => clearTimeout(logoTimer));
+        titleEl.addEventListener('mouseleave', () => clearTimeout(logoTimer));
+        titleEl.addEventListener('touchstart', () => {
+            logoTimer = setTimeout(() => { document.getElementById('modal-teacher').classList.remove('hidden'); }, 3000);
+        });
+        titleEl.addEventListener('touchend', () => clearTimeout(logoTimer));
+
+        function checkPIN() {
+            if (document.getElementById('pin-input').value === PIN_GURU) {
+                document.getElementById('modal-teacher').classList.add('hidden');
+                document.getElementById('modal-dashboard').classList.remove('hidden');
+                document.getElementById('pin-input').value = "";
+
+                let easyCount = BANK_SOAL.filter(s => s.level === 'easy').length;
+                let medCount = BANK_SOAL.filter(s => s.level === 'medium').length;
+                let hardCount = BANK_SOAL.filter(s => s.level === 'hard').length;
+                document.getElementById('stats-soal').innerHTML = `
+                    <li>🟢 Mudah: ${easyCount} Soal</li>
+                    <li>🟠 Sedang: ${medCount} Soal</li>
+                    <li>🔴 Sulit: ${hardCount} Soal</li>
+                    <li><b>Total: ${BANK_SOAL.length} Soal Kosakata Bahasa Inggris</b></li>
+                `;
+            } else {
+                document.getElementById('pin-input').value = "";
+                document.getElementById('pin-input').placeholder = "PIN SALAH!";
+                setTimeout(() => document.getElementById('pin-input').placeholder = "", 2000);
+            }
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('modal-teacher').classList.add('hidden');
+            document.getElementById('modal-dashboard').classList.add('hidden');
+            document.getElementById('pin-input').value = "";
+        }
+
+        function resetLeaderboard() {
+            localStorage.removeItem('arcade_edu_lb');
+            let btn = document.getElementById('btn-reset');
+            btn.innerText = "✅ Berhasil Direset";
+            setTimeout(() => btn.innerText = "🗑️ Reset Skor Lokal", 2000);
+        }
+
+        // Efek Partikel Ceria
+        function createParticles(element, color) {
+            const rect = element.getBoundingClientRect();
+            for (let i = 0; i < 14; i++) {
+                let p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = (rect.left + rect.width / 2) + 'px';
+                p.style.top = (rect.top + rect.height / 2) + 'px';
+                let size = Math.random() * 8 + 4;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.backgroundColor = color;
+                
+                let angle = Math.random() * Math.PI * 2;
+                let speed = Math.random() * 5 + 2;
+                let vx = Math.cos(angle) * speed;
+                let vy = Math.sin(angle) * speed;
+                document.body.appendChild(p);
+                
+                let opacity = 1;
+                let anim = setInterval(() => {
+                    let l = parseFloat(p.style.left);
+                    let t = parseFloat(p.style.top);
+                    p.style.left = (l + vx) + 'px';
+                    p.style.top = (t + vy) + 'px';
+                    opacity -= 0.035;
+                    p.style.opacity = opacity;
+                    if (opacity <= 0) { clearInterval(anim); p.remove(); }
+                }, 16);
+            }
         }
 
         window.onload = () => {
-            updateProfileUI();
             lucide.createIcons();
-            
-            if (!localStorage.getItem('studentName')) {
-                openNameModal();
-            }
         };
     </script>
 </body>
