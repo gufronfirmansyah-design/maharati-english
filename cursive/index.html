@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cursive Board - English Maharati</title>
-    <!-- Tailwind CSS -->
+    <title>Cursive Board - Maharati- English</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
@@ -16,19 +16,22 @@
             --duo-rose-shadow: #e11d48;
             --duo-green: #58cc02;
             --duo-green-shadow: #46a302;
+            --duo-blue: #1cb0f6;
+            --duo-blue-shadow: #1899d6;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #fff1f2;
             background-image: 
                 radial-gradient(#fecdd3 2px, transparent 2px),
-                linear-gradient(rgba(255, 241, 242, 0.92), rgba(255, 241, 242, 0.96)),
+                linear-gradient(rgba(255, 241, 242, 0.94), rgba(255, 241, 242, 0.98)),
                 url('../asset/bg-maharati.gif');
             background-size: 24px 24px, cover, cover;
             background-position: 0 0, center, center;
             background-attachment: fixed;
             user-select: none;
             -webkit-user-select: none;
+            overflow: hidden; /* Zero scroll layout pada layar 16:9 */
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
         .font-cursive { font-family: 'Dancing Script', cursive; }
@@ -39,25 +42,22 @@
             border-bottom-width: 6px;
             transition: all 0.15s ease-in-out;
         }
-        .duo-card:hover {
-            border-color: #fda4af;
-        }
 
         .btn-duo-rose {
             background-color: var(--duo-rose);
-            box-shadow: 0 5px 0 0 var(--duo-rose-shadow);
+            box-shadow: 0 4px 0 0 var(--duo-rose-shadow);
         }
         .btn-duo-rose:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 1px 0 0 var(--duo-rose-shadow);
         }
 
         .btn-duo-green {
             background-color: var(--duo-green);
-            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+            box-shadow: 0 4px 0 0 var(--duo-green-shadow);
         }
         .btn-duo-green:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 1px 0 0 var(--duo-green-shadow);
         }
 
@@ -69,165 +69,270 @@
             transition: all 0.1s ease;
         }
         .btn-duo-white:active {
-            transform: translateY(3px);
-            border-bottom-width: 1px;
+            transform: translateY(2px);
+            border-bottom-width: 2px;
         }
 
         #draw-canvas {
             touch-action: none;
             cursor: crosshair;
         }
+
+        /* Bayangan Huruf Sambung untuk Dijiplak (Tracing Guide) */
+        .ghost-trace {
+            font-family: 'Dancing Script', cursive;
+            user-select: none;
+            pointer-events: none;
+            color: rgba(225, 29, 72, 0.16);
+            letter-spacing: 2px;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 text-slate-800">
+<body class="h-screen w-screen flex flex-col justify-between p-2 sm:p-4 text-slate-800">
 
-    <!-- Audio Elements: Menggunakan file di folder asset/ induk -->
+    <!-- Audio Elements -->
     <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
     <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
     <audio id="snd-victory" src="../asset/victory.mp3" preload="auto"></audio>
 
-    <!-- Header Navigation -->
-    <header class="max-w-4xl w-full mx-auto flex items-center justify-between pb-4">
-        <!-- SOLUSI: Mengarah langsung ke ../index.html agar tidak muncul Index of... -->
-        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
+    <!-- HEADER NAVIGATION -->
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between gap-2 shrink-0 py-1">
+        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 transition">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Menu Utama</span>
+            <span class="hidden sm:inline">Menu Utama</span>
         </a>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-            <div class="px-3.5 py-2 rounded-2xl bg-rose-100 border-2 border-rose-300 font-bold text-xs text-rose-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="user" class="w-4 h-4 text-rose-600"></i>
-                <span id="student-badge" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
+        <!-- Selector Tingkat Kesulitan -->
+        <div class="flex items-center bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-sm gap-1">
+            <button id="tab-lvl-easy" onclick="changeDifficulty('easy')" class="px-3 py-1 rounded-xl font-black text-[11px] uppercase transition bg-emerald-100 text-emerald-800 border-2 border-emerald-400">
+                🟢 Mudah
+            </button>
+            <button id="tab-lvl-medium" onclick="changeDifficulty('medium')" class="px-3 py-1 rounded-xl font-black text-[11px] uppercase transition text-slate-600 hover:bg-slate-100">
+                🟠 Sedang
+            </button>
+            <button id="tab-lvl-hard" onclick="changeDifficulty('hard')" class="px-3 py-1 rounded-xl font-black text-[11px] uppercase transition text-slate-600 hover:bg-slate-100">
+                🔴 Sulit
+            </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <div class="px-3 py-1.5 rounded-xl bg-rose-100 border-2 border-rose-300 font-bold text-xs text-rose-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-rose-600"></i>
+                <span id="student-badge" class="max-w-[80px] sm:max-w-[120px] truncate">Siswa Baru</span>
             </div>
 
-            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
+            <div class="px-3 py-1.5 rounded-xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="flame" class="w-3.5 h-3.5 fill-amber-500 text-amber-500"></i>
                 <span id="score-display">0 XP</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Workspace Container -->
-    <main class="max-w-3xl w-full mx-auto my-auto space-y-4">
-        <div class="duo-card p-5 sm:p-7 rounded-[2.5rem] space-y-5 bg-white shadow-sm">
+    <!-- WORKSPACE UTAMA: TAMPILAN BEBAS GULIR 16:9 -->
+    <main class="max-w-3xl w-full mx-auto flex-1 flex flex-col justify-center py-1">
+        <div class="duo-card rounded-[2rem] p-3.5 sm:p-5 bg-white flex flex-col justify-between shadow-md space-y-2">
             
-            <!-- Top Card Action Bar -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-rose-100 pb-3">
+            <!-- Baris Status & Tindakan Cepat -->
+            <div class="flex items-center justify-between border-b border-rose-100 pb-2">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-                    <span class="text-xs font-black uppercase text-rose-600 tracking-wider font-game">
-                        Cursive Handwriting Board
-                    </span>
+                    <span class="text-xs font-black uppercase text-rose-600 tracking-wider font-game">Cursive Board</span>
+                    <span id="level-badge-card" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 uppercase">🟢 Level: Mudah</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <!-- Tombol Dengarkan Suara Pengucapan -->
-                    <button onclick="speakCurrentWord()" title="Dengarkan Cara Membaca" class="btn-duo-white px-3 py-2 rounded-xl text-xs font-bold text-indigo-600 flex items-center gap-1.5">
-                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                    <span id="round-indicator" class="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 font-black text-[11px] text-slate-700">
+                        Kata 1 / 5
+                    </span>
+                    <!-- Tombol Pelafalan Suara (TTS) -->
+                    <button onclick="speakCurrentWord()" title="Dengarkan Pengucapan Kata" class="btn-duo-white px-2.5 py-1 rounded-xl text-xs font-bold text-rose-600 flex items-center gap-1">
+                        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
                         <span class="hidden sm:inline">Bunyi</span>
                     </button>
-                    <!-- Tombol Hapus Kanvas -->
-                    <button onclick="clearCanvas()" title="Hapus Tulisan" class="btn-duo-white px-3 py-2 rounded-xl text-xs font-bold text-rose-600 flex items-center gap-1.5">
-                        <i data-lucide="eraser" class="w-4 h-4"></i>
+                    <!-- Tombol Panduan Jiplak Huruf (Ghost Tracing) -->
+                    <button id="btn-toggle-ghost" onclick="toggleGhostGuide()" title="Sembunyikan / Tampilkan Panduan Bayangan Huruf" class="btn-duo-white px-2.5 py-1 rounded-xl text-xs font-bold text-amber-600 flex items-center gap-1">
+                        <i data-lucide="eye" id="icon-ghost" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Pola Jiplak</span>
+                    </button>
+                    <!-- Tombol Bersihkan Kanvas -->
+                    <button onclick="clearCanvas()" title="Hapus Goresan" class="btn-duo-white px-2.5 py-1 rounded-xl text-xs font-bold text-slate-600 flex items-center gap-1">
+                        <i data-lucide="eraser" class="w-3.5 h-3.5"></i>
                         <span>Hapus</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Target Word Banner -->
-            <div class="text-center py-2 bg-gradient-to-b from-rose-50/70 to-transparent rounded-2xl relative">
-                <p class="text-[11px] font-bold text-rose-400 uppercase tracking-widest mb-1 font-game">Tulis Ulang Kata Ini:</p>
-                <div id="target-word-display" class="text-6xl sm:text-7xl font-cursive text-slate-800 drop-shadow-sm tracking-wide">
-                    Keyboard
+            <!-- Banner Kata Target & Arti -->
+            <div class="text-center py-1 bg-gradient-to-b from-rose-50/70 to-transparent rounded-2xl relative">
+                <div class="flex items-center justify-center gap-3">
+                    <h2 id="target-word-display" class="text-4xl sm:text-5xl font-cursive text-slate-800 drop-shadow-sm tracking-wide">
+                        Cat
+                    </h2>
+                    <span id="target-meaning-display" class="text-xs sm:text-sm font-bold text-slate-500 italic bg-white px-2.5 py-1 rounded-xl border border-rose-200">
+                        (Kucing)
+                    </span>
                 </div>
-                <p id="target-meaning-display" class="text-xs font-semibold text-slate-500 italic mt-1">
-                    (Papan Ketik Komputer)
-                </p>
             </div>
 
-            <!-- Drawing Area With Ruled Lines -->
+            <!-- AREA KANVAS DENGAN 3 GARIS BUKU HALUS & GHOST TRACING -->
             <div class="relative w-full rounded-2xl border-2 border-slate-300 bg-white overflow-hidden shadow-inner flex flex-col justify-center">
-                <!-- Garis Bantu 3 Baris Buku Halus (Notebook Ruled Guide Lines) -->
-                <div class="absolute inset-0 pointer-events-none flex flex-col justify-around py-6 px-4 opacity-40">
+                
+                <!-- 3 Garis Bantu Buku Halus (Notebook Ruled Guide Lines) -->
+                <div class="absolute inset-0 pointer-events-none flex flex-col justify-around py-5 px-4 opacity-35 z-0">
                     <div class="w-full border-b border-dashed border-rose-400"></div>
                     <div class="w-full border-b-2 border-rose-500"></div>
                     <div class="w-full border-b border-dashed border-rose-400"></div>
                 </div>
 
-                <canvas id="draw-canvas" class="w-full h-56 sm:h-64 z-10"></canvas>
+                <!-- Bayangan Pola Jiplak di Belakang Kanvas (Ghost Tracing Guide) -->
+                <div id="ghost-trace-container" class="absolute inset-0 flex items-center justify-center z-0">
+                    <span id="ghost-trace-text" class="ghost-trace text-5xl sm:text-6xl md:text-7xl font-cursive">
+                        Cat
+                    </span>
+                </div>
+
+                <!-- Kanvas Menggambar Sentuh / Mouse -->
+                <canvas id="draw-canvas" class="w-full h-44 sm:h-52 z-10"></canvas>
             </div>
 
-            <!-- Tool Options: Pilihan Warna Pena & Ketebalan -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
-                <div class="flex items-center gap-2">
+            <!-- PALET WARNA PENA & KETEBALAN -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-xs">
+                <div class="flex items-center gap-1.5">
                     <span class="font-bold text-slate-500 text-[11px] uppercase">Warna:</span>
-                    <button onclick="setPenColor('#e11d48')" class="w-7 h-7 rounded-full bg-rose-600 border-2 border-white shadow-sm ring-2 ring-rose-400 focus:scale-110 transition-transform" title="Merah Mawar"></button>
-                    <button onclick="setPenColor('#2563eb')" class="w-7 h-7 rounded-full bg-blue-600 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Biru Tinta"></button>
-                    <button onclick="setPenColor('#0f172a')" class="w-7 h-7 rounded-full bg-slate-900 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Hitam"></button>
-                    <button onclick="setPenColor('#16a34a')" class="w-7 h-7 rounded-full bg-emerald-600 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Hijau"></button>
+                    <button onclick="setPenColor('#e11d48')" class="w-6 h-6 rounded-full bg-rose-600 border-2 border-white shadow-sm ring-2 ring-rose-400 focus:scale-110 transition-transform" title="Merah Mawar"></button>
+                    <button onclick="setPenColor('#2563eb')" class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Biru Tinta"></button>
+                    <button onclick="setPenColor('#0f172a')" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Hitam"></button>
+                    <button onclick="setPenColor('#16a34a')" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Hijau"></button>
+                    <button onclick="setPenColor('#7c3aed')" class="w-6 h-6 rounded-full bg-purple-600 border-2 border-white shadow-sm hover:scale-105 transition-transform" title="Ungu"></button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <span class="font-bold text-slate-500 text-[11px] uppercase">Ukuran Pena:</span>
-                    <button onclick="setPenSize(3)" class="px-2.5 py-1 rounded-lg border border-slate-200 font-bold hover:bg-slate-100">Halus</button>
-                    <button onclick="setPenSize(5)" class="px-2.5 py-1 rounded-lg border-2 border-rose-300 bg-rose-50 text-rose-700 font-black">Sedang</button>
-                    <button onclick="setPenSize(8)" class="px-2.5 py-1 rounded-lg border border-slate-200 font-bold hover:bg-slate-100">Tebal</button>
+                <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-slate-500 text-[11px] uppercase">Pena:</span>
+                    <button id="size-btn-3" onclick="setPenSize(3)" class="px-2 py-0.5 rounded-lg border border-slate-200 font-bold hover:bg-slate-100">Halus</button>
+                    <button id="size-btn-5" onclick="setPenSize(5)" class="px-2 py-0.5 rounded-lg border-2 border-rose-300 bg-rose-50 text-rose-700 font-black">Sedang</button>
+                    <button id="size-btn-8" onclick="setPenSize(8)" class="px-2 py-0.5 rounded-lg border border-slate-200 font-bold hover:bg-slate-100">Tebal</button>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <button onclick="finishWord()" class="w-full py-4 rounded-2xl btn-duo-rose text-white font-black text-sm sm:text-base uppercase tracking-wider transition flex items-center justify-center gap-2">
-                <span>SELESAI & SIMPAN NILAI (+15 XP)</span>
-                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            <!-- Tombol Selesai & Lanjut Kata Berikutnya -->
+            <button id="btn-submit-word" onclick="finishWord()" class="w-full py-2.5 sm:py-3 rounded-xl btn-duo-rose text-white font-black text-xs sm:text-sm uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-sm">
+                <span id="btn-submit-text">SELESAI & SIMPAN KATA (+15 XP)</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </button>
         </div>
     </main>
 
+    <!-- Modal Rekapitulasi Selesai 5 Kata -->
+    <div id="session-summary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white shadow-2xl">
+            <div class="w-16 h-16 bg-rose-100 rounded-3xl mx-auto flex items-center justify-center text-rose-600 shadow-[0_4px_0_0_#fecdd3]">
+                <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-600 font-game">Sesi Latihan Selesai!</span>
+                <h3 class="text-2xl font-black font-game text-slate-800 mt-1">Hasil Menulis Indah Cursive</h3>
+                <p id="summary-level-tag" class="text-xs font-bold text-slate-400 mt-0.5">Tingkat: 🟢 Mudah</p>
+            </div>
+            
+            <div class="p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl flex justify-around items-center">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Kata Diselesaikan</p>
+                    <p id="summary-completed-count" class="text-2xl font-black text-rose-600 font-game">5 / 5</p>
+                </div>
+                <div class="w-px h-10 bg-slate-200"></div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Perolehan XP</p>
+                    <p id="summary-xp-earned" class="text-2xl font-black text-amber-500 font-game">+75 XP</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                <button onclick="startNewCursiveSession()" class="flex-1 py-3.5 rounded-2xl btn-duo-rose text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>5 Kata Acak Baru</span>
+                </button>
+                <a href="../index.html" class="px-5 py-3.5 rounded-2xl btn-duo-white text-slate-700 font-black text-xs uppercase flex items-center justify-center gap-1">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    <span>Menu</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Feedback Toast -->
-    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all"></div>
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-3 rounded-2xl text-center font-black text-white text-xs shadow-xl z-50 transition-all"></div>
 
-    <!-- Footer -->
-    <footer class="text-center text-xs font-bold text-slate-400 py-3 font-game">
-        Modul /cursive/ • English Maharati Learning System • SMKN 2 Mantangai
-    </footer>
-
-    <!-- Script Logika Pembelajaran & Kanvas -->
     <script>
-        const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
+        // ==============================================================
+        // 1. BANK DATA LENGKAP 90 KATA (30 EASY, 30 MEDIUM, 30 HARD)
+        // ==============================================================
+        const CURSIVE_DATABASE = {
+            easy: [
+                { word: "Cat", id: "Kucing" }, { word: "Sun", id: "Matahari" }, { word: "Pen", id: "Pulpen" },
+                { word: "Dog", id: "Anjing" }, { word: "Cup", id: "Cangkir" }, { word: "Red", id: "Merah" },
+                { word: "Sky", id: "Langit" }, { word: "Boy", id: "Anak Laki-laki" }, { word: "Bat", id: "Kelelawar" },
+                { word: "Hat", id: "Topi" }, { word: "Bed", id: "Tempat Tidur" }, { word: "Box", id: "Kotak" },
+                { word: "Egg", id: "Telur" }, { word: "Fly", id: "Terbang" }, { word: "Ice", id: "Es" },
+                { word: "Jam", id: "Selai" }, { word: "Key", id: "Kunci" }, { word: "Leg", id: "Kaki" },
+                { word: "Map", id: "Peta" }, { word: "Net", id: "Jaring" }, { word: "Owl", id: "Burung Hantu" },
+                { word: "Pig", id: "Babi" }, { word: "Run", id: "Berlari" }, { word: "Tea", id: "Teh" },
+                { word: "Van", id: "Mobil Van" }, { word: "Wet", id: "Basah" }, { word: "Zoo", id: "Kebun Binatang" },
+                { word: "Bee", id: "Lebah" }, { word: "Ant", id: "Semut" }, { word: "Joy", id: "Sukacita" }
+            ],
+            medium: [
+                { word: "Apple", id: "Apel" }, { word: "Bread", id: "Roti" }, { word: "Cloud", id: "Awan" },
+                { word: "Dream", id: "Mimpi" }, { word: "Earth", id: "Bumi" }, { word: "Flower", id: "Bunga" },
+                { word: "Garden", id: "Taman" }, { word: "House", id: "Rumah" }, { word: "Island", id: "Pulau" },
+                { word: "Jungle", id: "Hutan Rimba" }, { word: "Kitten", id: "Anak Kucing" }, { word: "Lemon", id: "Lemon" },
+                { word: "Morning", id: "Pagi Hari" }, { word: "Nature", id: "Alam" }, { word: "Orange", id: "Jeruk" },
+                { word: "Purple", id: "Ungu" }, { word: "Queen", id: "Ratu" }, { word: "Rabbit", id: "Kelinci" },
+                { word: "Silver", id: "Perak" }, { word: "Tiger", id: "Harimau" }, { word: "Umbrella", id: "Payung" },
+                { word: "Violet", id: "Lembayung" }, { word: "Winter", id: "Musim Dingin" }, { word: "Yellow", id: "Kuning" },
+                { word: "Zebra", id: "Zebra" }, { word: "Bridge", id: "Jembatan" }, { word: "Coffee", id: "Kopi" },
+                { word: "Doctor", id: "Dokter" }, { word: "Energy", id: "Energi" }, { word: "Family", id: "Keluarga" }
+            ],
+            hard: [
+                { word: "Beautiful", id: "Indah / Cantik" }, { word: "Butterfly", id: "Kupu-kupu" }, { word: "Champion", id: "Juara" },
+                { word: "Dangerous", id: "Berbahaya" }, { word: "Education", id: "Pendidikan" }, { word: "Fantastic", id: "Luar Biasa" },
+                { word: "Gratitude", id: "Rasa Syukur" }, { word: "Happiness", id: "Kebahagiaan" }, { word: "Important", id: "Penting" },
+                { word: "Knowledge", id: "Pengetahuan" }, { word: "Lightning", id: "Petir" }, { word: "Mountain", id: "Gunung" },
+                { word: "Notebook", id: "Buku Catatan" }, { word: "Orchestra", id: "Orkestra" }, { word: "Platinum", id: "Platinum" },
+                { word: "Question", id: "Pertanyaan" }, { word: "Rainfall", id: "Curah Hujan" }, { word: "Sunshine", id: "Sinar Mentari" },
+                { word: "Together", id: "Bersama-sama" }, { word: "Universe", id: "Alam Semesta" }, { word: "Vacation", id: "Liburan" },
+                { word: "Wildlife", id: "Satwa Liar" }, { word: "Yesterday", id: "Kemarin" }, { word: "Adventure", id: "Petualangan" },
+                { word: "Brilliant", id: "Cemerlang" }, { word: "Celebrate", id: "Merayakan" }, { word: "Discovery", id: "Penemuan" },
+                { word: "Elephant", id: "Gajah" }, { word: "Frequency", id: "Frekuensi" }, { word: "Geography", id: "Geografi" }
+            ]
+        };
 
-        const CURSIVE_VOCAB = [
-            { word: "Keyboard", meaning: "Papan Ketik Komputer" },
-            { word: "Monitor", meaning: "Layar Tampilan" },
-            { word: "Network", meaning: "Jaringan Komputer" },
-            { word: "Hardware", meaning: "Perangkat Keras" },
-            { word: "Software", meaning: "Perangkat Lunak" },
-            { word: "Internet", meaning: "Jaringan Global" },
-            { word: "Processor", meaning: "Otak Pemroses Data" },
-            { word: "Motherboard", meaning: "Papan Sirkuit Utama" }
-        ];
+        // ==============================================================
+        // 2. STATE DAN PERSISTENSI TINGKAT KESULITAN
+        // ==============================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentDifficulty = urlParams.get('lvl') || localStorage.getItem('maharati_difficulty') || 'easy';
+        currentDifficulty = currentDifficulty.toLowerCase();
+        if (!['easy', 'medium', 'hard'].includes(currentDifficulty)) currentDifficulty = 'easy';
 
-        let wordIndex = 0;
-        let score = 0;
-        let strokeCount = 0;
+        const SESSION_WORD_COUNT = 5;
+        let sessionWords = [];
+        let sessionIndex = 0;
+        let strokePoints = 0;
+        let showGhostGuide = true;
+
         const studentName = localStorage.getItem('studentName') || "Siswa Baru";
 
-        // ==============================================================
-        // AUDIO EFFECT ENGINE (FILE + PROCEDURAL FALLBACK)
-        // ==============================================================
+        // Audio Engine Procedural
         let audioCtx = null;
         function getAudioContext() {
             if (!audioCtx) {
                 const Cls = window.AudioContext || window.webkitAudioContext;
                 if (Cls) audioCtx = new Cls();
             }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
-        function playTone(freq, dur = 0.08, type = 'sine') {
+        function playTone(freq, dur = 0.08, type = 'sine', gainVal = 0.16) {
             try {
                 const ctx = getAudioContext();
                 if (!ctx) return;
@@ -235,7 +340,7 @@
                 const gain = ctx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -254,10 +359,65 @@
             }
         }
 
-        function playClickSound() { playSound('snd-click', 600); }
+        function playClickSound() { playSound('snd-click', 650); }
 
         // ==============================================================
-        // CANVAS DRAWING ENGINE (HIGH DPI & SMOOTH TOUCH)
+        // 3. PENGACAKAN 5 KATA DARI 30 BANK KATA
+        // ==============================================================
+        function shuffleArray(arr) {
+            const copied = [...arr];
+            for (let i = copied.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copied[i], copied[j]] = [copied[j], copied[i]];
+            }
+            return copied;
+        }
+
+        function changeDifficulty(lvl) {
+            playClickSound();
+            currentDifficulty = lvl;
+            localStorage.setItem('maharati_difficulty', lvl);
+            localStorage.setItem('studentLevel', lvl);
+            updateDifficultyTabsUI();
+            startNewCursiveSession();
+        }
+
+        function updateDifficultyTabsUI() {
+            const tabs = ['easy', 'medium', 'hard'];
+            const labels = {
+                easy: { name: '🟢 Level: Mudah', border: 'border-emerald-300', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+                medium: { name: '🟠 Level: Sedang', border: 'border-amber-300', bg: 'bg-amber-50', text: 'text-amber-800' },
+                hard: { name: '🔴 Level: Sulit', border: 'border-rose-300', bg: 'bg-rose-50', text: 'text-rose-800' }
+            };
+
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-lvl-${t}`);
+                if (!btn) return;
+                if (t === currentDifficulty) {
+                    btn.className = `px-3 py-1 rounded-xl font-black text-[11px] uppercase transition shadow-sm ${t === 'easy' ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-400' : (t === 'medium' ? 'bg-amber-100 text-amber-800 border-2 border-amber-400' : 'bg-rose-100 text-rose-800 border-2 border-rose-400')}`;
+                } else {
+                    btn.className = "px-3 py-1 rounded-xl font-black text-[11px] uppercase transition text-slate-600 hover:bg-slate-100";
+                }
+            });
+
+            const cardBadge = document.getElementById('level-badge-card');
+            if (cardBadge) {
+                const cfg = labels[currentDifficulty];
+                cardBadge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text} border ${cfg.border} uppercase`;
+                cardBadge.innerText = cfg.name;
+            }
+        }
+
+        function startNewCursiveSession() {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            const pool = CURSIVE_DATABASE[currentDifficulty] || CURSIVE_DATABASE.easy;
+            sessionWords = shuffleArray(pool).slice(0, SESSION_WORD_COUNT);
+            sessionIndex = 0;
+            loadCurrentWord();
+        }
+
+        // ==============================================================
+        // 4. ENGINE KANVAS TULISAN TANGAN (HIGH DPR & SMOOTH TOUCH)
         // ==============================================================
         const canvas = document.getElementById('draw-canvas');
         const ctx = canvas.getContext('2d');
@@ -289,7 +449,7 @@
 
         function startDrawing(e) {
             isPainting = true;
-            strokeCount++;
+            strokePoints++;
             const pt = getCanvasPoint(e);
             ctx.beginPath();
             ctx.moveTo(pt.x, pt.y);
@@ -297,6 +457,7 @@
 
         function draw(e) {
             if (!isPainting) return;
+            strokePoints++;
             const pt = getCanvasPoint(e);
             ctx.lineTo(pt.x, pt.y);
             ctx.strokeStyle = penColor;
@@ -308,7 +469,6 @@
             isPainting = false;
         }
 
-        // Event listeners untuk mouse dan layar sentuh ponsel
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         window.addEventListener('mouseup', stopDrawing);
@@ -319,7 +479,7 @@
 
         function clearCanvas() {
             playClickSound();
-            strokeCount = 0;
+            strokePoints = 0;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
@@ -331,23 +491,63 @@
         function setPenSize(size) {
             playClickSound();
             penSize = size;
+            [3, 5, 8].forEach(s => {
+                const btn = document.getElementById(`size-btn-${s}`);
+                if (btn) {
+                    if (s === size) {
+                        btn.className = "px-2 py-0.5 rounded-lg border-2 border-rose-300 bg-rose-50 text-rose-700 font-black";
+                    } else {
+                        btn.className = "px-2 py-0.5 rounded-lg border border-slate-200 font-bold hover:bg-slate-100";
+                    }
+                }
+            });
+        }
+
+        function toggleGhostGuide() {
+            playClickSound();
+            showGhostGuide = !showGhostGuide;
+            const ghostText = document.getElementById('ghost-trace-text');
+            const iconGhost = document.getElementById('icon-ghost');
+            if (showGhostGuide) {
+                ghostText.style.display = 'block';
+                iconGhost.setAttribute('data-lucide', 'eye');
+            } else {
+                ghostText.style.display = 'none';
+                iconGhost.setAttribute('data-lucide', 'eye-off');
+            }
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
         }
 
         // ==============================================================
-        // GAMEPLAY & WORD ADVANCEMENT
+        // 5. MANAJEMEN KATA DAN ADVANCEMENT
         // ==============================================================
-        function loadWord() {
-            const item = CURSIVE_VOCAB[wordIndex % CURSIVE_VOCAB.length];
+        function loadCurrentWord() {
+            if (sessionWords.length === 0) {
+                startNewCursiveSession();
+                return;
+            }
+
+            const item = sessionWords[sessionIndex];
             document.getElementById('target-word-display').innerText = item.word;
-            document.getElementById('target-meaning-display').innerText = `(${item.meaning})`;
+            document.getElementById('target-meaning-display').innerText = `(${item.id})`;
+            document.getElementById('ghost-trace-text').innerText = item.word;
+            document.getElementById('round-indicator').innerText = `Kata ${sessionIndex + 1} / ${SESSION_WORD_COUNT}`;
+
+            const btnText = document.getElementById('btn-submit-text');
+            if (sessionIndex === SESSION_WORD_COUNT - 1) {
+                btnText.innerText = "SELESAI & LIHAT HASIL";
+            } else {
+                btnText.innerText = "SELESAI & SIMPAN KATA (+15 XP)";
+            }
+
             clearCanvas();
         }
 
         function speakCurrentWord() {
             playClickSound();
-            if ('speechSynthesis' in window) {
+            if ('speechSynthesis' in window && sessionWords.length > 0) {
                 window.speechSynthesis.cancel();
-                const item = CURSIVE_VOCAB[wordIndex % CURSIVE_VOCAB.length];
+                const item = sessionWords[sessionIndex];
                 const u = new SpeechSynthesisUtterance(item.word);
                 u.lang = 'en-US';
                 u.rate = 0.85;
@@ -355,52 +555,77 @@
             }
         }
 
+        function finishWord() {
+            // Validasi goresan agar siswa benar-benar menulis di kanvas
+            if (strokePoints < 18) {
+                showToast("⚠️ Tuliskan huruf dengan lebih lengkap di kanvas ya!", false);
+                return;
+            }
+
+            playSound('snd-right', 880);
+            addStudentXP(15);
+            showToast("✨ Tulisan tercatat! (+15 XP)", true);
+
+            sessionIndex++;
+            if (sessionIndex >= SESSION_WORD_COUNT) {
+                setTimeout(showSessionSummary, 600);
+            } else {
+                setTimeout(loadCurrentWord, 600);
+            }
+        }
+
+        function showSessionSummary() {
+            playSound('snd-victory', 900);
+            const modal = document.getElementById('session-summary-modal');
+            const completedEl = document.getElementById('summary-completed-count');
+            const xpEl = document.getElementById('summary-xp-earned');
+            const levelTagEl = document.getElementById('summary-level-tag');
+
+            completedEl.innerText = `${SESSION_WORD_COUNT} / ${SESSION_WORD_COUNT}`;
+            xpEl.innerText = `+${SESSION_WORD_COUNT * 15} XP`;
+
+            const levelNames = { easy: '🟢 Level: Mudah', medium: '🟠 Level: Sedang', hard: '🔴 Level: Sulit' };
+            levelTagEl.innerText = `Tingkat: ${levelNames[currentDifficulty] || 'Mudah'}`;
+
+            modal.classList.remove('hidden');
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+        }
+
+        // ==============================================================
+        // 6. PENYIMPANAN SKOR XP & INISIALISASI
+        // ==============================================================
+        function addStudentXP(pts) {
+            const current = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            const newTotal = current + pts;
+            localStorage.setItem('maharati_student_xp', newTotal);
+            document.getElementById('score-display').innerText = `${newTotal} XP`;
+
+            let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+            if (!visited.includes('Cursive')) {
+                visited.push('Cursive');
+                localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
+            }
+        }
+
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('toast');
-            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all ${isSuccess ? 'bg-emerald-500' : 'bg-amber-500'}`;
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-3 rounded-2xl text-center font-black text-white text-xs shadow-xl z-50 transition-all ${isSuccess ? 'bg-rose-600' : 'bg-amber-600'}`;
             toast.innerText = msg;
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 2200);
         }
 
-        function finishWord() {
-            if (strokeCount < 3) {
-                showToast("⚠️ Tuliskan minimal beberapa goresan di kanvas ya!", false);
-                return;
-            }
-
-            playSound('snd-right', 880);
-            score += 15;
-            document.getElementById('score-display').innerText = `${score} XP`;
-            showToast("✨ Tulisan tercatat! Lanjut ke kata berikutnya (+15 XP)", true);
-            saveScoreToSupabase(15);
-
-            setTimeout(() => {
-                wordIndex++;
-                loadWord();
-            }, 900);
-        }
-
-        async function saveScoreToSupabase(pts) {
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
-                    method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Content-Type": "application/json",
-                        "Prefer": "return=minimal"
-                    },
-                    body: JSON.stringify([{ name: studentName, activity: "Cursive", level: "Easy", score: pts }])
-                });
-            } catch(e) {}
-        }
-
         window.onload = () => {
             document.getElementById('student-badge').innerText = studentName;
+            const currentXP = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            document.getElementById('score-display').innerText = `${currentXP} XP`;
+            
+            updateDifficultyTabsUI();
             resizeCanvas();
-            loadWord();
-            lucide.createIcons();
+            startNewCursiveSession();
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
         };
+
         window.onresize = resizeCanvas;
     </script>
 </body>
