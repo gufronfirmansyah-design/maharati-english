@@ -2,193 +2,402 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Reading Lab - English Maharati</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --duo-green: #58cc02;
-            --duo-green-dark: #46a302;
+            --duo-green-shadow: #46a302;
             --duo-blue: #1cb0f6;
-            --duo-blue-dark: #1899d6;
-            --duo-orange: #ff9600;
-            --duo-orange-dark: #e58700;
+            --duo-blue-shadow: #1899d6;
+            --duo-rose: #f43f5e;
+            --duo-rose-shadow: #e11d48;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f7f9fa;
-            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
+            background-color: #f0fdf4;
+            background-image: 
+                radial-gradient(#dcfce7 2px, transparent 2px),
+                linear-gradient(rgba(240, 253, 244, 0.92), rgba(240, 253, 244, 0.97)),
+                url('../asset/bg-maharati.gif');
+            background-size: 24px 24px, cover, cover;
+            background-position: 0 0, center, center;
+            background-attachment: fixed;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
+        
         .duo-card {
             background: #ffffff;
-            border: 3px solid #e5e5e5;
-            border-bottom: 6px solid #e5e5e5;
+            border: 3px solid #e2e8f0;
+            border-bottom-width: 6px;
+            transition: all 0.15s ease-in-out;
         }
+        .duo-card:hover {
+            border-color: #cbd5e1;
+        }
+
         .btn-duo-green {
             background-color: var(--duo-green);
-            box-shadow: 0 5px 0 0 var(--duo-green-dark);
+            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
         }
         .btn-duo-green:active {
             transform: translateY(4px);
-            box-shadow: 0 1px 0 0 var(--duo-green-dark);
+            box-shadow: 0 1px 0 0 var(--duo-green-shadow);
         }
+
+        .btn-duo-blue {
+            background-color: var(--duo-blue);
+            box-shadow: 0 5px 0 0 var(--duo-blue-shadow);
+        }
+        .btn-duo-blue:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-blue-shadow);
+        }
+
         .btn-duo-white {
-            background-color: #ffffff;
-            color: #4b4b4b;
-            border: 2px solid #e5e5e5;
-            box-shadow: 0 4px 0 0 #e5e5e5;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-bottom: 4px solid #cbd5e1;
+            color: #334155;
+            transition: all 0.1s ease;
         }
         .btn-duo-white:active {
             transform: translateY(3px);
-            box-shadow: 0 1px 0 0 #e5e5e5;
+            border-bottom-width: 1px;
+        }
+
+        .btn-correct {
+            background-color: #dcfce7 !important;
+            border-color: #86efac !important;
+            border-bottom: 4px solid #22c55e !important;
+            color: #15803d !important;
+        }
+
+        .btn-wrong {
+            background-color: #ffe4e6 !important;
+            border-color: #fecdd3 !important;
+            border-bottom: 4px solid #f43f5e !important;
+            color: #be123c !important;
+        }
+
+        @keyframes shakeSlow {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .animate-shake {
+            animation: shakeSlow 0.35s ease-in-out;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 select-none text-slate-800">
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 text-slate-800">
 
-    <!-- Top Navigation -->
-    <header class="max-w-3xl w-full mx-auto flex items-center justify-between pb-4">
-        <a href="../" onclick="playClick()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Menu Utama
+    <!-- Audio Elements dari folder asset/ induk -->
+    <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
+    <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
+    <audio id="snd-wrong" src="../asset/wrong.mp3" preload="auto"></audio>
+
+    <!-- Header Navigation -->
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between pb-4">
+        <!-- SOLUSI: Mengarah langsung ke ../index.html agar tidak muncul Index of... -->
+        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Menu Utama</span>
         </a>
-        <div class="flex items-center gap-3">
-            <span id="student-badge" class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs font-game">
-                👤 Siswa
-            </span>
-            <div class="px-3.5 py-1.5 rounded-xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-700 flex items-center gap-1.5">
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div class="px-3.5 py-2 rounded-2xl bg-emerald-100 border-2 border-emerald-300 font-bold text-xs text-emerald-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
+                <span id="student-badge" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
+            </div>
+
+            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
                 <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
                 <span id="score-display">0 XP</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Reading Question Container -->
-    <main class="max-w-2xl w-full mx-auto my-auto space-y-5">
-        <div class="duo-card p-6 sm:p-8 rounded-[2.5rem] space-y-6">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-black uppercase text-[#58cc02] tracking-wider font-game">
-                    📖 Reading Comprehension
-                </span>
-                <button onclick="speakText()" class="p-3 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-[#46a302] transition">
-                    <i data-lucide="volume-2" class="w-5 h-5"></i>
-                </button>
+    <!-- Main Question Workspace -->
+    <main class="max-w-3xl w-full mx-auto my-auto space-y-4">
+        <div id="question-card" class="duo-card p-5 sm:p-7 rounded-[2.5rem] space-y-5 bg-white shadow-sm">
+            
+            <!-- Top Card Header Bar -->
+            <div class="flex items-center justify-between border-b border-emerald-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="text-xs font-black uppercase text-emerald-600 tracking-wider font-game">
+                        Reading Comprehension
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- Indikator Ronde / Nomor Soal -->
+                    <span id="round-indicator" class="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 font-black text-[11px] text-emerald-700">
+                        Soal 1 / 5
+                    </span>
+                    <!-- Tombol Dengarkan Bacaan (TTS) -->
+                    <button onclick="speakParagraph()" title="Dengarkan Teks Cerita" class="btn-duo-white px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Dengarkan</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Paragraph -->
-            <div class="p-5 rounded-2xl bg-slate-50 border-2 border-slate-200">
-                <p id="story-text" class="text-base sm:text-lg font-bold text-slate-700 leading-relaxed italic">
-                    Memuat cerita bacaan...
+            <!-- Reading Passage Banner -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border-2 border-slate-200 text-left space-y-2 relative overflow-hidden">
+                <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-600">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                    <span>Teks Bacaan:</span>
+                </div>
+                <p id="passage-display" class="text-sm sm:text-base font-bold text-slate-700 leading-relaxed italic">
+                    Memuat paragraf bacaan...
                 </p>
             </div>
 
-            <!-- Question -->
-            <div>
-                <p class="text-xs font-black uppercase text-slate-400 tracking-wider mb-1">Pertanyaan:</p>
-                <h3 id="question-text" class="text-lg sm:text-xl font-black text-slate-800 font-game">
-                    Pertanyaan pemahaman...
+            <!-- Question Area -->
+            <div class="space-y-1.5 text-left">
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-game">Pertanyaan:</p>
+                <h3 id="question-display" class="text-base sm:text-lg font-black text-slate-800 font-game leading-snug">
+                    Memuat pertanyaan...
                 </h3>
             </div>
 
             <!-- Options Grid -->
-            <div id="options-container" class="grid gap-3">
+            <div id="options-container" class="grid gap-3 pt-1">
                 <!-- Diisi otomatis oleh JavaScript -->
+            </div>
+
+            <!-- Next Button (Muncul setelah menjawab) -->
+            <div id="action-container" class="pt-2 hidden">
+                <button id="btn-next" onclick="nextQuestion()" class="w-full py-4 rounded-2xl btn-duo-green text-white font-black text-sm sm:text-base uppercase tracking-wider transition flex items-center justify-center gap-2">
+                    <span>SOAL BERIKUTNYA</span>
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
     </main>
 
-    <!-- Toast Feedback -->
-    <div id="toast" class="hidden max-w-md w-full mx-auto p-4 rounded-2xl text-center font-black text-white text-sm shadow-xl transition-all"></div>
+    <!-- Feedback Toast -->
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all"></div>
 
-    <footer class="text-center text-xs font-bold text-slate-400 py-2 font-game">
-        Modul /reading/ • SMKN 2 Mantangai Kapuas
+    <!-- Footer -->
+    <footer class="text-center text-xs font-bold text-slate-400 py-3 font-game">
+        Modul /reading/ • English Maharati Learning System • SMKN 2 Mantangai
     </footer>
 
+    <!-- Script Logika Pembelajaran -->
     <script>
         const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
 
-        const DEFAULT_READING = [
-            { text: "Sarah waters the fresh flowers in her garden every morning before going to school.", q: "When does Sarah water the flowers?", options: ["Every morning", "At night", "In the afternoon"], a: "Every morning" },
-            { text: "Computer processors generate significant heat, requiring cooling fans to prevent hardware failure.", q: "What do cooling fans prevent?", options: ["Hardware failure", "Power outage", "Monitor blur"], a: "Hardware failure" },
-            { text: "Vocational students practice network cabling in the computer laboratory twice a week.", q: "Where do students practice cabling?", options: ["In the laboratory", "In the schoolyard", "In the canteen"], a: "In the laboratory" }
+        // Bank Soal Reading Bahasa Inggris
+        const READING_BANK = [
+            {
+                text: "Sarah waters the fresh flowers in her front garden every morning before preparing for school.",
+                q: "When does Sarah water the flowers in her garden?",
+                options: ["Every morning", "Late at night", "During lunchtime", "Only on Sundays"],
+                a: "Every morning"
+            },
+            {
+                text: "Computer processors generate significant thermal heat, so cooling fans and heat sinks are essential to prevent hardware failure.",
+                q: "Why are cooling fans and heat sinks essential in computers?",
+                options: ["To prevent hardware failure", "To make the computer louder", "To double the monitor brightness", "To clean viruses automatically"],
+                a: "To prevent hardware failure"
+            },
+            {
+                text: "Vocational students practice network cabling in the computer laboratory twice a week under their teacher's guidance.",
+                q: "Where do the vocational students practice network cabling?",
+                options: ["In the computer laboratory", "In the school garden", "In the sports hall", "Inside the library"],
+                a: "In the computer laboratory"
+            },
+            {
+                text: "Regularly cleaning the dust inside your computer case ensures optimal airflow and extends the lifetime of internal components.",
+                q: "What is the primary benefit of maintaining optimal airflow inside the PC case?",
+                options: ["Extending component lifetime", "Decreasing Internet speed", "Changing the screen color", "Deleting temporary documents"],
+                a: "Extending component lifetime"
+            },
+            {
+                text: "Always remember to safely eject removable storage drives before physically disconnecting them to avoid file corruption.",
+                q: "What might happen if you unplug a storage drive without safely ejecting it?",
+                options: ["File corruption can occur", "The screen turns off forever", "Keyboard buttons will loosen", "The processor becomes cold"],
+                a: "File corruption can occur"
+            },
+            {
+                text: "Antivirus software constantly scans downloaded files to identify and quarantine potential malware threats.",
+                q: "What is the main task of an antivirus program?",
+                options: ["Identify and quarantine malware", "Increase speaker volume", "Write code automatically", "Charge the laptop battery"],
+                a: "Identify and quarantine malware"
+            }
         ];
 
-        let studentName = localStorage.getItem('studentName') || "Siswa Baru";
+        let questionIndex = 0;
         let score = 0;
-        let currentIndex = 0;
-        let currentItem = null;
+        let isAnswered = false;
+        const studentName = localStorage.getItem('studentName') || "Siswa Baru";
 
+        // ==============================================================
+        // AUDIO ENGINE (FILE ASSET + WEB AUDIO FALLBACK)
+        // ==============================================================
         let audioCtx = null;
-        function playClick() {
+        function getAudioContext() {
+            if (!audioCtx) {
+                const Cls = window.AudioContext || window.webkitAudioContext;
+                if (Cls) audioCtx = new Cls();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, dur = 0.09, type = 'sine', gainVal = 0.18) {
             try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(650, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
                 osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(ctx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.08);
+                osc.stop(ctx.currentTime + dur);
             } catch(e) {}
         }
 
-        function loadQuestion() {
-            currentItem = DEFAULT_READING[currentIndex % DEFAULT_READING.length];
-            document.getElementById('story-text').innerText = `"${currentItem.text}"`;
-            document.getElementById('question-text').innerText = currentItem.q;
-
-            const container = document.getElementById('options-container');
-            container.innerHTML = currentItem.options.map(opt => `
-                <button onclick="playClick(); checkAnswer('${opt.replace(/'/g, "\\'")}')" class="w-full p-4 rounded-2xl btn-duo-white font-extrabold text-sm sm:text-base text-left hover:border-emerald-400 transition">
-                    ${opt}
-                </button>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        async function checkAnswer(chosen) {
-            const isCorrect = chosen.trim().toLowerCase() === currentItem.a.trim().toLowerCase();
-            const toast = document.getElementById('toast');
-            toast.classList.remove('hidden', 'bg-emerald-500', 'bg-rose-500');
-
-            if (isCorrect) {
-                score += 20;
-                document.getElementById('score-display').innerText = `${score} XP`;
-                toast.classList.add('bg-emerald-500');
-                toast.innerText = "✓ Luar Biasa! Jawabanmu Benar (+20 XP)";
-                saveScoreToSupabase(20);
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                    currentIndex++;
-                    loadQuestion();
-                }, 1400);
+        function playSound(elementId, fallbackFreq = 650) {
+            const el = document.getElementById(elementId);
+            if (el && el.readyState >= 2) {
+                el.currentTime = 0;
+                el.play().catch(() => playTone(fallbackFreq));
             } else {
-                toast.classList.add('bg-rose-500');
-                toast.innerText = "✗ Kurang tepat. Coba perhatikan lagi teksnya!";
-                setTimeout(() => toast.classList.add('hidden'), 1800);
+                playTone(fallbackFreq);
             }
         }
 
-        function speakText() {
-            if (!('speechSynthesis' in window) || !currentItem) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(currentItem.text);
-            u.lang = 'en-US';
-            u.rate = 0.9;
-            window.speechSynthesis.speak(u);
+        function playClickSound() { playSound('snd-click', 650); }
+
+        // ==============================================================
+        // GAMEPLAY & QUESTION LOGIC
+        // ==============================================================
+        function loadCurrentQuestion() {
+            isAnswered = false;
+            document.getElementById('action-container').classList.add('hidden');
+
+            const item = READING_BANK[questionIndex % READING_BANK.length];
+            document.getElementById('round-indicator').innerText = `Soal ${(questionIndex % READING_BANK.length) + 1} / ${READING_BANK.length}`;
+            document.getElementById('passage-display').innerText = `"${item.text}"`;
+            document.getElementById('question-display').innerText = item.q;
+
+            // Acak urutan pilihan jawaban
+            const shuffledOptions = [...item.options].sort(() => 0.5 - Math.random());
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const prefixes = ['A', 'B', 'C', 'D'];
+            shuffledOptions.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-3.5 sm:p-4 rounded-2xl btn-duo-white font-extrabold text-xs sm:text-sm text-slate-700 text-left flex items-center gap-3 transition-all";
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-xs text-slate-600">${prefixes[idx]}</span>
+                    <span class="flex-1">${opt}</span>
+                    <span class="status-icon hidden"></span>
+                `;
+                btn.onclick = () => checkSelectedAnswer(btn, opt, item.a);
+                container.appendChild(btn);
+            });
+            lucide.createIcons();
         }
 
+        function checkSelectedAnswer(btnEl, selectedText, correctAnswer) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const isCorrect = selectedText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+            const allButtons = document.querySelectorAll('#options-container button');
+
+            // Nonaktifkan semua pilihan setelah menjawab
+            allButtons.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                playSound('snd-right', 880);
+                btnEl.classList.add('btn-correct');
+                btnEl.querySelector('.status-icon').innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>';
+                btnEl.querySelector('.status-icon').classList.remove('hidden');
+
+                score += 20;
+                document.getElementById('score-display').innerText = `${score} XP`;
+                showToast("✨ Benar sekali! Pemahamanmu sangat tepat (+20 XP)", true);
+                saveScoreToSupabase(20);
+            } else {
+                playSound('snd-wrong', 220);
+                btnEl.classList.add('btn-wrong');
+                btnEl.querySelector('.status-icon').innerHTML = '<i data-lucide="x-circle" class="w-5 h-5 text-rose-600"></i>';
+                btnEl.querySelector('.status-icon').classList.remove('hidden');
+
+                document.getElementById('question-card').classList.add('animate-shake');
+                setTimeout(() => document.getElementById('question-card').classList.remove('animate-shake'), 400);
+
+                // Tandai opsi yang benar agar siswa belajar
+                allButtons.forEach(b => {
+                    const textSpan = b.querySelector('span:nth-child(2)').innerText;
+                    if (textSpan.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+                        b.classList.add('btn-correct');
+                    }
+                });
+
+                showToast("⚠️ Kurang tepat! Perhatikan kunci jawaban di teks ya.", false);
+            }
+
+            document.getElementById('action-container').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function nextQuestion() {
+            playClickSound();
+            questionIndex++;
+            loadCurrentQuestion();
+        }
+
+        // ==============================================================
+        // SPEECH SYNTHESIS (TTS AUDIO)
+        // ==============================================================
+        function speakParagraph() {
+            playClickSound();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const item = READING_BANK[questionIndex % READING_BANK.length];
+                const utterance = new SpeechSynthesisUtterance(item.text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.88;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all ${isSuccess ? 'bg-emerald-500' : 'bg-amber-500'}`;
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2200);
+        }
+
+        // ==============================================================
+        // SUPABASE DATABASE SYNC
+        // ==============================================================
         async function saveScoreToSupabase(pts) {
             try {
                 await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
@@ -204,8 +413,9 @@
         }
 
         window.onload = () => {
-            document.getElementById('student-badge').innerText = `👤 ${studentName}`;
-            loadQuestion();
+            document.getElementById('student-badge').innerText = studentName;
+            loadCurrentQuestion();
+            lucide.createIcons();
         };
     </script>
 </body>
