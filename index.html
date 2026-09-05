@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Maharati - Portal Belajar</title>
+    <title>Maharati- English - Portal Belajar</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --duo-green: #58cc02;
@@ -30,10 +31,9 @@
             background-color: #f0fdf4;
             background-image: 
                 radial-gradient(#dcfce7 2px, transparent 2px),
-                linear-gradient(rgba(240, 253, 244, 0.92), rgba(240, 253, 244, 0.97)),
-                url('asset/bg-maharati.gif');
-            background-size: 24px 24px, cover, cover;
-            background-position: 0 0, center, center;
+                linear-gradient(rgba(240, 253, 244, 0.92), rgba(240, 253, 244, 0.97));
+            background-size: 24px 24px, cover;
+            background-position: 0 0, center;
             background-attachment: fixed;
             user-select: none;
             -webkit-user-select: none;
@@ -83,6 +83,30 @@
             border-bottom-width: 1px;
         }
 
+        /* Sound Bar Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            height: 6px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
@@ -92,9 +116,9 @@
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col justify-between p-3 sm:p-6" onclick="unlockAudioContext()">
+<body class="min-h-screen text-slate-800 flex flex-col justify-between p-3 sm:p-6" onclick="unlockAudioOnce()">
 
-    <!-- Audio Elements dari folder asset/ utama -->
+    <!-- Audio Elements: Terhubung ke folder asset/ asli saat di-host -->
     <audio id="snd-bg" loop src="asset/bg-music.mp3" preload="auto"></audio>
     <audio id="snd-click" src="asset/click.mp3" preload="auto"></audio>
     <audio id="snd-right" src="asset/right.mp3" preload="auto"></audio>
@@ -102,39 +126,42 @@
     <audio id="snd-victory" src="asset/victory.mp3" preload="auto"></audio>
 
     <!-- Top Navigation Bar -->
-    <nav class="max-w-5xl w-full mx-auto duo-card rounded-3xl p-3 sm:p-4 flex items-center justify-between mb-6 shadow-sm">
+    <nav class="max-w-5xl w-full mx-auto duo-card rounded-3xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 mb-6 shadow-sm">
         <div class="flex items-center gap-3">
             <div class="w-11 h-11 sm:w-12 sm:h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-[0_4px_0_0_#059669]">
                 <i data-lucide="languages" class="w-6 h-6"></i>
             </div>
             <div>
-                <h1 class="text-base sm:text-xl font-black font-game text-slate-800 leading-tight tracking-wide">ENGLISH MAHARATI</h1>
-                <p class="text-[10px] sm:text-[11px] font-bold text-emerald-600 uppercase tracking-wider">SMKN 2 Mantangai</p>
+                <h1 class="text-base sm:text-xl font-black font-game text-slate-800 leading-tight tracking-wide">MAHARATI- ENGLISH</h1>
+                <p class="text-[10px] sm:text-[11px] font-bold text-emerald-600 uppercase tracking-wider">SMKN 2 Mantangai Kapuas</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
             <!-- Profil Siswa -->
-            <button onclick="openNameModal()" class="btn-duo-white px-3 py-2 rounded-2xl flex items-center gap-1.5 text-xs font-bold transition">
+            <button onclick="openNameModal()" class="btn-duo-white px-3 py-2 rounded-2xl flex items-center gap-1.5 text-xs font-bold transition" title="Klik untuk ubah nama siswa">
                 <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
-                <span id="nav-student-name" class="max-w-[85px] sm:max-w-[140px] truncate">Siswa Baru</span>
+                <span id="nav-student-name" class="max-w-[85px] sm:max-w-[130px] truncate">Siswa Baru</span>
                 <i data-lucide="edit-3" class="w-3 h-3 text-slate-400 ml-0.5"></i>
             </button>
 
-            <!-- Skor XP -->
-            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
+            <!-- Total Akumulasi XP -->
+            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm" title="Total Akumulasi XP Anda">
                 <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
                 <span id="nav-xp-score">0 XP</span>
             </div>
 
-            <!-- Tombol Musik -->
-            <button id="btn-music" onclick="toggleMusic(event)" title="Putar Musik Latar" class="btn-duo-white px-3 py-2 rounded-2xl transition flex items-center gap-1.5">
-                <i data-lucide="volume-x" id="icon-music" class="w-4 h-4 text-slate-400"></i>
-                <span id="txt-music" class="text-[10px] font-black uppercase text-slate-400 hidden sm:inline">MUSIK OFF</span>
-            </button>
+            <!-- Kontrol Sound Bar: Tombol Mute & Slider Volume BGM -->
+            <div class="btn-duo-white px-3 py-1.5 rounded-2xl flex items-center gap-2 shadow-sm" title="Atur Volume Musik Latar">
+                <button id="btn-music-toggle" onclick="toggleMusicBtn()" class="text-emerald-600 hover:scale-110 transition-transform">
+                    <i data-lucide="volume-2" id="icon-music" class="w-4 h-4"></i>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" oninput="changeMusicVolume(this.value)" class="w-16 sm:w-24 cursor-pointer" title="Geser untuk mengatur volume">
+                <span id="volume-label" class="text-[10px] font-black text-slate-500 min-w-[28px]">50%</span>
+            </div>
 
-            <!-- Tombol Leaderboard -->
-            <button onclick="openLeaderboardModal()" title="Papan Peringkat" class="btn-duo-white p-2.5 rounded-2xl transition">
+            <!-- Tombol Klasemen Leaderboard -->
+            <button onclick="openLeaderboardModal()" title="Papan Peringkat Top 10" class="btn-duo-white p-2.5 rounded-2xl transition">
                 <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
             </button>
         </div>
@@ -154,14 +181,14 @@
                     Halo, <span id="hero-student-name">Siswa</span>! 👋
                 </h2>
                 <p class="text-xs sm:text-sm text-emerald-50 max-w-lg font-semibold leading-relaxed">
-                    Pilih modul di bawah untuk mulai mengasah kemampuan bahasa Inggris, bertanding duel kuis, dan kumpulkan skor XP!
+                    Pilih modul di bawah untuk mulai mengasah kemampuan bahasa Inggris, bertanding kuis seru, dan kumpulkan skor XP ke database!
                 </p>
                 <div class="pt-2 flex flex-wrap gap-2 justify-center md:justify-start">
                     <span id="audio-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
-                        <i data-lucide="music" class="w-3 h-3"></i> Audio Engine: Siap
+                        <i data-lucide="music" class="w-3 h-3 text-emerald-300"></i> Musik: Menyala (50%)
                     </span>
-                    <span id="db-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
-                        <i data-lucide="database" class="w-3 h-3"></i> Supabase: Terhubung
+                    <span id="modules-completed-pill" class="text-[10px] font-bold bg-emerald-950/30 text-yellow-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <i data-lucide="check-circle" class="w-3 h-3 text-yellow-300"></i> Modul Selesai: <span id="completed-count">0/6</span>
                     </span>
                 </div>
             </div>
@@ -175,37 +202,43 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             
             <!-- 1. Reading Comprehension -->
-            <div class="duo-card rounded-3xl p-5 block group border-emerald-200 hover:border-emerald-400">
+            <div class="duo-card rounded-3xl p-5 block group border-emerald-200 hover:border-emerald-400 relative">
                 <div class="flex items-start justify-between mb-4">
                     <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0] group-hover:scale-105 transition-transform">
                         <i data-lucide="book-open" class="w-7 h-7"></i>
                     </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">Membaca</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">Membaca</span>
+                        <span id="badge-status-Reading" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Belum Selesai</span>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">Reading Comprehension</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pahami paragraf pendek dan jawab soal pemahaman teks.</p>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pahami teks paragraf pendek dan jawab kuis pemahaman bacaan.</p>
                 <div class="flex gap-2">
-                    <a href="reading/index.html" onclick="handleCardNav(event, 'reading/index.html', 'Reading')" class="flex-1 py-2.5 rounded-xl btn-duo-green text-white font-black text-xs text-center uppercase tracking-wider block">
+                    <a href="reading/index.html" onclick="navigateToModule(event, 'reading/index.html', 'Reading')" class="flex-1 py-2.5 rounded-xl btn-duo-green text-white font-black text-xs text-center uppercase tracking-wider block">
                         Buka Modul ➔
                     </a>
-                    <button onclick="testQuickAction('Reading')" title="Coba Latihan Mini" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                    <button onclick="testQuickAction('Reading')" title="Coba Latihan Mini di Sini" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
                         ⚡ Tes
                     </button>
                 </div>
             </div>
 
             <!-- 2. Speaking Practice -->
-            <div class="duo-card rounded-3xl p-5 block group border-sky-200 hover:border-sky-400">
+            <div class="duo-card rounded-3xl p-5 block group border-sky-200 hover:border-sky-400 relative">
                 <div class="flex items-start justify-between mb-4">
                     <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-sky-600 shadow-[0_4px_0_0_#bae6fd] group-hover:scale-105 transition-transform">
                         <i data-lucide="mic" class="w-7 h-7"></i>
                     </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[10px] font-black uppercase">Bicara</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[10px] font-black uppercase">Bicara</span>
+                        <span id="badge-status-Speaking" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Belum Selesai</span>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">Speaking Practice</h3>
                 <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Latihan melafalkan kalimat bahasa Inggris langsung lewat mikrofon.</p>
                 <div class="flex gap-2">
-                    <a href="speaking/index.html" onclick="handleCardNav(event, 'speaking/index.html', 'Speaking')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black text-xs text-center uppercase tracking-wider block">
+                    <a href="speaking/index.html" onclick="navigateToModule(event, 'speaking/index.html', 'Speaking')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black text-xs text-center uppercase tracking-wider block">
                         Buka Modul ➔
                     </a>
                     <button onclick="testQuickAction('Speaking')" title="Dengarkan Contoh Frasa" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
@@ -215,17 +248,20 @@
             </div>
 
             <!-- 3. Cursive Writing Board -->
-            <div class="duo-card rounded-3xl p-5 block group border-rose-200 hover:border-rose-400">
+            <div class="duo-card rounded-3xl p-5 block group border-rose-200 hover:border-rose-400 relative">
                 <div class="flex items-start justify-between mb-4">
                     <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shadow-[0_4px_0_0_#fecdd3] group-hover:scale-105 transition-transform">
                         <i data-lucide="pen-tool" class="w-7 h-7"></i>
                     </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-black uppercase">Menulis</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-black uppercase">Menulis</span>
+                        <span id="badge-status-Cursive" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Belum Selesai</span>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-rose-600 transition-colors">Cursive Board</h3>
                 <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Papan tulis interaktif melatih tulisan indah tegak bersambung.</p>
                 <div class="flex gap-2">
-                    <a href="cursive/index.html" onclick="handleCardNav(event, 'cursive/index.html', 'Cursive')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#e11d48] block" style="background-color: #f43f5e;">
+                    <a href="cursive/index.html" onclick="navigateToModule(event, 'cursive/index.html', 'Cursive')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#e11d48] block" style="background-color: #f43f5e;">
                         Buka Papan ➔
                     </a>
                     <button onclick="testQuickAction('Cursive')" title="Tes Kanvas Mini" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
@@ -234,18 +270,21 @@
                 </div>
             </div>
 
-            <!-- 4. Roulette Sentence -->
-            <div class="duo-card rounded-3xl p-5 block group border-purple-200 hover:border-purple-400">
+            <!-- 4. Sentence Roulette -->
+            <div class="duo-card rounded-3xl p-5 block group border-purple-200 hover:border-purple-400 relative">
                 <div class="flex items-start justify-between mb-4">
                     <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-[0_4px_0_0_#e9d5ff] group-hover:scale-105 transition-transform">
                         <i data-lucide="refresh-cw" class="w-7 h-7"></i>
                     </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-purple-50 text-purple-700 text-[10px] font-black uppercase">Spin Ide</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2.5 py-1 rounded-xl bg-purple-50 text-purple-700 text-[10px] font-black uppercase">Spin Ide</span>
+                        <span id="badge-status-Roulette" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Belum Selesai</span>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">Sentence Roulette</h3>
                 <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Putar roda keberuntungan dan buat kalimat bahasa Inggris kreatif.</p>
                 <div class="flex gap-2">
-                    <a href="roulette/index.html" onclick="handleCardNav(event, 'roulette/index.html', 'Roulette')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#9333ea] block" style="background-color: #a855f7;">
+                    <a href="roulette/index.html" onclick="navigateToModule(event, 'roulette/index.html', 'Roulette')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#9333ea] block" style="background-color: #a855f7;">
                         Putar Roda ➔
                     </a>
                     <button onclick="testQuickAction('Roulette')" title="Putar Ide Cepat" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
@@ -255,17 +294,20 @@
             </div>
 
             <!-- 5. Tarik Tambang (Arcade) -->
-            <div class="duo-card rounded-3xl p-5 block group border-amber-200 hover:border-amber-400">
+            <div class="duo-card rounded-3xl p-5 block group border-amber-200 hover:border-amber-400 relative">
                 <div class="flex items-start justify-between mb-4">
                     <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-[0_4px_0_0_#fde68a] group-hover:scale-105 transition-transform">
                         <i data-lucide="swords" class="w-7 h-7"></i>
                     </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 text-[10px] font-black uppercase">Duel Seru</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 text-[10px] font-black uppercase">Duel Seru</span>
+                        <span id="badge-status-TarikTambang" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Belum Selesai</span>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">Battle Tarik Tambang</h3>
-                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Kuis duel tarik tambang solo atau 2 pemain tentang perawatan komputer.</p>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Kuis duel tarik tambang solo atau 2 pemain tentang kosakata & perangkat PC.</p>
                 <div class="flex gap-2">
-                    <a href="tarik-tambang/index.html" onclick="handleCardNav(event, 'tarik-tambang/index.html', 'Tarik Tambang')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#d97706] block" style="background-color: #f59e0b;">
+                    <a href="tarik-tambang/index.html" onclick="navigateToModule(event, 'tarik-tambang/index.html', 'TarikTambang')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#d97706] block" style="background-color: #f59e0b;">
                         Mainkan Battle ➔
                     </a>
                     <button onclick="testQuickAction('Battle')" title="Tes Kuis Tarik Tambang" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
@@ -275,17 +317,20 @@
             </div>
 
             <!-- 6. Word Clash AR -->
-            <div class="duo-card rounded-3xl p-5 block group border-cyan-200 hover:border-cyan-400">
+            <div class="duo-card rounded-3xl p-5 block group border-cyan-200 hover:border-cyan-400 relative">
                 <div class="flex items-start justify-between mb-4">
                     <div class="w-14 h-14 rounded-2xl bg-cyan-100 flex items-center justify-center text-cyan-600 shadow-[0_4px_0_0_#a5f3fc] group-hover:scale-105 transition-transform">
                         <i data-lucide="hand" class="w-7 h-7"></i>
                     </div>
-                    <span class="px-2.5 py-1 rounded-xl bg-cyan-50 text-cyan-700 text-[10px] font-black uppercase">Kamera AR</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2.5 py-1 rounded-xl bg-cyan-50 text-cyan-700 text-[10px] font-black uppercase">Kamera AR</span>
+                        <span id="badge-status-WordClash" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Belum Selesai</span>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-cyan-600 transition-colors">Word Clash AR (2 Player)</h3>
                 <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Duel 2 pemain memukul gelembung kata dengan kamera gestur MediaPipe.</p>
                 <div class="flex gap-2">
-                    <a href="duel-ar/index.html" onclick="handleCardNav(event, 'duel-ar/index.html', 'Duel AR')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#0891b2] block" style="background-color: #06b6d4;">
+                    <a href="duel-ar/index.html" onclick="navigateToModule(event, 'duel-ar/index.html', 'WordClash')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#0891b2] block" style="background-color: #06b6d4;">
                         Aktifkan AR ➔
                     </a>
                     <button onclick="testQuickAction('AR')" title="Info Kamera AR" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
@@ -297,9 +342,9 @@
         </div>
     </main>
 
-    <!-- Modal Pratinjau Cepat Langsung di Canvas -->
+    <!-- Modal Pratinjau Cepat Langsung di Portal -->
     <div id="modal-preview-action" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white relative">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white relative shadow-2xl">
             <button onclick="closeQuickAction()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
@@ -308,7 +353,7 @@
             </div>
             <h3 id="quick-title" class="text-xl font-black font-game text-slate-800">Uji Coba Langsung</h3>
             <div id="quick-body" class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 text-left space-y-3 text-xs">
-                <!-- Konten dinamis sesuai modul yang diuji -->
+                <!-- Konten dinamis -->
             </div>
             <button onclick="closeQuickAction()" class="w-full py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
                 Tutup Pratinjau
@@ -318,12 +363,12 @@
 
     <!-- Modal Ubah Nama Siswa -->
     <div id="modal-name" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="duo-card rounded-[2.5rem] max-w-sm w-full p-6 text-center space-y-4 bg-white">
+        <div class="duo-card rounded-[2.5rem] max-w-sm w-full p-6 text-center space-y-4 bg-white shadow-2xl">
             <div class="w-16 h-16 bg-emerald-100 rounded-3xl mx-auto flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0]">
                 <i data-lucide="user-check" class="w-8 h-8"></i>
             </div>
             <h3 class="text-xl font-black font-game text-slate-800">Nama Siswa</h3>
-            <p class="text-xs font-bold text-slate-400">Ketik nama lengkap kamu untuk menyimpan catatan skor XP ke Supabase.</p>
+            <p class="text-xs font-bold text-slate-400">Ketik nama lengkap kamu untuk mencatat skor XP ke database.</p>
             <input type="text" id="input-new-name" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 text-center font-bold text-base outline-none focus:border-emerald-500 shadow-inner" placeholder="Ketik nama kamu..." maxlength="25">
             <div class="flex gap-2">
                 <button onclick="saveStudentName()" class="flex-1 py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
@@ -338,7 +383,7 @@
 
     <!-- Modal Leaderboard (Klasemen Supabase) -->
     <div id="modal-leaderboard" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white shadow-2xl">
             <div class="flex items-center justify-between border-b pb-3">
                 <div class="flex items-center gap-2">
                     <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
@@ -347,8 +392,8 @@
                 <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div id="leaderboard-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-                <div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>
+            <div id="leaderboard-list" class="space-y-2 max-h-72 overflow-y-auto pr-1 text-left">
+                <div class="p-4 text-xs font-bold text-slate-400 text-center">Memuat peringkat dari Supabase...</div>
             </div>
 
             <button onclick="closeLeaderboardModal()" class="w-full py-3 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
@@ -360,7 +405,7 @@
     <!-- Footer -->
     <footer class="max-w-5xl w-full mx-auto text-center py-6 mt-6 border-t border-slate-200">
         <p class="text-xs font-black text-slate-400 font-game uppercase tracking-wider">
-            English Maharati Learning System • SMKN 2 Mantangai Kapuas
+            Maharati- English Learning System • SMKN 2 Mantangai Kapuas
         </p>
     </footer>
 
@@ -370,16 +415,20 @@
         // ==============================================================
         const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
+        const MODULE_KEYS = ["Reading", "Speaking", "Cursive", "Roulette", "TarikTambang", "WordClash"];
 
         // ==============================================================
-        // 2. HYBRID AUDIO SYSTEM (FILE ASSET + PROCEDURAL SYNTH FALLBACK)
+        // 2. SISTEM AUDIO & MUSIK LATAR (DENGAN SOUND BAR SLIDER)
         // ==============================================================
-        let isMusicPlaying = false;
+        let isMusicPlaying = true; // Default suara langsung MENYALA
+        let currentVolume = parseFloat(localStorage.getItem('maharati_bgm_volume'));
+        if (isNaN(currentVolume)) currentVolume = 0.5;
+
         let audioCtx = null;
         let synthBgmTimer = null;
         let synthNoteIndex = 0;
 
-        // Skala nada melodi latar procedural yang santai & ceria (C Pentatonic)
+        // Nada-nada melodi pentatonik yang ceria & santai
         const BGM_NOTES = [
             261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 440.00, 392.00,
             329.63, 392.00, 440.00, 523.25, 587.33, 523.25, 440.00, 329.63
@@ -388,9 +437,7 @@
         function getAudioContext() {
             if (!audioCtx) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                if (AudioContextClass) {
-                    audioCtx = new AudioContextClass();
-                }
+                if (AudioContextClass) audioCtx = new AudioContextClass();
             }
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume();
@@ -398,11 +445,7 @@
             return audioCtx;
         }
 
-        function unlockAudioContext() {
-            getAudioContext();
-        }
-
-        // Sintesis procedural suara pop-click saat file mp3 belum ada di sandbox
+        // Sintesis suara procedural (bekerja 100% di dalam tab Preview tanpa butuh file mp3 lokal)
         function playToneSound(freq, duration = 0.08, type = 'sine', gainVal = 0.15) {
             try {
                 const ctx = getAudioContext();
@@ -411,7 +454,7 @@
                 const gain = ctx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal * Math.max(0.1, currentVolume), ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -424,9 +467,8 @@
             const audio = document.getElementById(elementId);
             if (audio && audio.readyState >= 2) {
                 audio.currentTime = 0;
-                audio.play().catch(() => {
-                    playToneSound(fallbackFreq, 0.09, 'sine', 0.18);
-                });
+                audio.volume = Math.min(1, currentVolume * 1.2);
+                audio.play().catch(() => playToneSound(fallbackFreq, 0.09, 'sine', 0.18));
             } else {
                 playToneSound(fallbackFreq, 0.09, 'sine', 0.18);
             }
@@ -436,14 +478,14 @@
             playSoundEffect('snd-click', 700);
         }
 
-        // Melodi procedural synthesizer saat bg-music.mp3 belum tersedia
+        // Melodi synthesizer latar jika file bg-music.mp3 belum tersedia
         function startProceduralBGM() {
             stopProceduralBGM();
             const ctx = getAudioContext();
             if (!ctx) return;
 
             synthBgmTimer = setInterval(() => {
-                if (!isMusicPlaying) return;
+                if (!isMusicPlaying || currentVolume <= 0) return;
                 const freq = BGM_NOTES[synthNoteIndex % BGM_NOTES.length];
                 synthNoteIndex++;
 
@@ -452,12 +494,12 @@
                     const gain = ctx.createGain();
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                    gain.gain.setValueAtTime(0.035 * currentVolume, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.34);
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start();
-                    osc.stop(ctx.currentTime + 0.36);
+                    osc.stop(ctx.currentTime + 0.35);
                 } catch(e) {}
             }, 380);
         }
@@ -469,58 +511,144 @@
             }
         }
 
-        function toggleMusic(e) {
-            if (e) e.stopPropagation();
-            getAudioContext();
+        function startBackgroundMusic() {
             const bgAudio = document.getElementById('snd-bg');
-            const icon = document.getElementById('icon-music');
-            const txt = document.getElementById('txt-music');
-
-            if (isMusicPlaying) {
-                if (bgAudio) bgAudio.pause();
-                stopProceduralBGM();
-                isMusicPlaying = false;
-                icon.setAttribute('data-lucide', 'volume-x');
-                icon.classList.replace('text-emerald-600', 'text-slate-400');
-                if (txt) {
-                    txt.innerText = 'MUSIK OFF';
-                    txt.classList.replace('text-emerald-600', 'text-slate-400');
-                }
-            } else {
-                isMusicPlaying = true;
-                icon.setAttribute('data-lucide', 'volume-2');
-                icon.classList.replace('text-slate-400', 'text-emerald-600');
-                if (txt) {
-                    txt.innerText = 'MUSIK ON';
-                    txt.classList.replace('text-slate-400', 'text-emerald-600');
-                }
-
-                if (bgAudio) {
-                    bgAudio.volume = 0.35;
-                    bgAudio.play().catch(() => {
+            if (bgAudio) {
+                bgAudio.volume = currentVolume;
+                const playPromise = bgAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isMusicPlaying = true;
+                        updateMusicUI();
+                    }).catch(() => {
+                        // Jika autoplay terblokir oleh kebijakan browser, jalankan procedural saat sentuhan pertama
                         startProceduralBGM();
                     });
+                }
+            } else {
+                startProceduralBGM();
+            }
+        }
+
+        // Membuka kunci audio otomatis pada interaksi klik pertama siswa
+        function unlockAudioOnce() {
+            getAudioContext();
+            if (isMusicPlaying && !synthBgmTimer) {
+                const bgAudio = document.getElementById('snd-bg');
+                if (bgAudio && bgAudio.paused) {
+                    bgAudio.volume = currentVolume;
+                    bgAudio.play().catch(() => startProceduralBGM());
+                } else if (!bgAudio) {
+                    startProceduralBGM();
+                }
+            }
+        }
+
+        // Toggle tombol mute/unmute
+        function toggleMusicBtn() {
+            playClickSound();
+            const bgAudio = document.getElementById('snd-bg');
+
+            if (isMusicPlaying) {
+                isMusicPlaying = false;
+                if (bgAudio) bgAudio.pause();
+                stopProceduralBGM();
+            } else {
+                isMusicPlaying = true;
+                if (currentVolume === 0) {
+                    currentVolume = 0.5;
+                    document.getElementById('volume-slider').value = 0.5;
+                }
+                if (bgAudio) {
+                    bgAudio.volume = currentVolume;
+                    bgAudio.play().catch(() => startProceduralBGM());
                 } else {
                     startProceduralBGM();
                 }
             }
+            updateMusicUI();
+        }
+
+        // Penggeser Volume Sound Bar
+        function changeMusicVolume(val) {
+            currentVolume = parseFloat(val);
+            localStorage.setItem('maharati_bgm_volume', currentVolume);
+            
+            const bgAudio = document.getElementById('snd-bg');
+            if (bgAudio) bgAudio.volume = currentVolume;
+
+            if (currentVolume === 0) {
+                isMusicPlaying = false;
+                if (bgAudio) bgAudio.pause();
+                stopProceduralBGM();
+            } else {
+                if (!isMusicPlaying) {
+                    isMusicPlaying = true;
+                    if (bgAudio) bgAudio.play().catch(() => startProceduralBGM());
+                }
+            }
+            updateMusicUI();
+        }
+
+        function updateMusicUI() {
+            const icon = document.getElementById('icon-music');
+            const slider = document.getElementById('volume-slider');
+            const label = document.getElementById('volume-label');
+            const pill = document.getElementById('audio-status-pill');
+
+            slider.value = currentVolume;
+            const pct = Math.round(currentVolume * 100);
+            label.innerText = `${pct}%`;
+
+            if (!isMusicPlaying || currentVolume === 0) {
+                icon.setAttribute('data-lucide', 'volume-x');
+                icon.classList.replace('text-emerald-600', 'text-slate-400');
+                if (pill) pill.innerHTML = '<i data-lucide="volume-x" class="w-3 h-3 text-slate-400"></i> Musik: Mati';
+            } else {
+                icon.setAttribute('data-lucide', currentVolume < 0.3 ? 'volume-1' : 'volume-2');
+                icon.classList.replace('text-slate-400', 'text-emerald-600');
+                if (pill) pill.innerHTML = `<i data-lucide="music" class="w-3 h-3 text-emerald-300"></i> Musik: Menyala (${pct}%)`;
+            }
             lucide.createIcons();
         }
 
-        // ==============================================================
-        // 3. SMART NAVIGATION (FOLDER ASLI vs SANDBOX CANVAS)
-        // ==============================================================
-        function handleCardNav(e, fileUrl, moduleName) {
-            playClickSound();
-            const isLocalOrHosted = window.location.protocol === 'file:' || window.location.hostname.includes('github.io');
+        // Hentikan musik saat siswa masuk ke modul agar tidak menabrak audio game
+        function stopMusicBeforeNav() {
+            const bgAudio = document.getElementById('snd-bg');
+            if (bgAudio) bgAudio.pause();
+            stopProceduralBGM();
+            isMusicPlaying = false;
+        }
 
-            if (!isLocalOrHosted) {
+        // ==============================================================
+        // 3. NAVIGASI MODUL BEBAS HAMBATAN
+        // ==============================================================
+        function navigateToModule(e, targetUrl, moduleKey) {
+            playClickSound();
+            stopMusicBeforeNav(); // Matikan musik saat masuk modul
+            markModuleVisited(moduleKey);
+
+            // Jika dibuka di lingkungan preview tanpa subfolder lokal, tampilkan pratinjau mini
+            const isLocalPreviewSandbox = (window.location.protocol === 'about:' || window.location.href.includes('blob:'));
+            if (isLocalPreviewSandbox) {
                 e.preventDefault();
-                testQuickAction(moduleName);
+                testQuickAction(moduleKey);
+                return;
+            }
+
+            // Di server asli / localhost / custom domain, langsung berpindah halaman
+            window.location.href = targetUrl;
+        }
+
+        function markModuleVisited(key) {
+            let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+            if (!visited.includes(key)) {
+                visited.push(key);
+                localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
             }
         }
 
-        // Demonstrasi mini interaktif di dalam preview
+        // Pratinjau Cepat Modal (Bekerja 100% di dalam tab Preview)
         function testQuickAction(moduleName) {
             playClickSound();
             const modal = document.getElementById('modal-preview-action');
@@ -528,7 +656,7 @@
             const body = document.getElementById('quick-body');
             const iconBox = document.getElementById('quick-icon-box');
 
-            title.innerText = `Pratinjau: ${moduleName}`;
+            title.innerText = `Uji Coba: ${moduleName}`;
             modal.classList.remove('hidden');
 
             if (moduleName === 'Reading') {
@@ -539,15 +667,15 @@
                     </p>
                     <p class="font-black text-slate-800 mt-2">Pertanyaan: When does Sarah water the flowers?</p>
                     <div class="grid gap-2 pt-1">
-                        <button onclick="answerMiniQuiz(true)" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">A. Every morning</button>
-                        <button onclick="answerMiniQuiz(false)" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">B. At midnight</button>
+                        <button onclick="answerMiniQuiz(true, 'Reading')" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">A. Every morning</button>
+                        <button onclick="answerMiniQuiz(false, 'Reading')" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">B. At midnight</button>
                     </div>
                     <div id="mini-quiz-feedback" class="text-xs font-bold text-center pt-1 hidden"></div>
                 `;
             } else if (moduleName === 'Speaking') {
                 iconBox.innerHTML = '<i data-lucide="mic" class="w-8 h-8"></i>';
                 body.innerHTML = `
-                    <p class="text-slate-500">Frasa latihan hari ini:</p>
+                    <p class="text-slate-500 font-semibold">Frasa latihan pengucapan:</p>
                     <p class="text-base font-black text-sky-700 italic">"Practice makes perfect"</p>
                     <div class="pt-2 flex gap-2">
                         <button onclick="speakDemoText('Practice makes perfect')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black">
@@ -558,8 +686,8 @@
             } else if (moduleName === 'Cursive') {
                 iconBox.innerHTML = '<i data-lucide="pen-tool" class="w-8 h-8"></i>';
                 body.innerHTML = `
-                    <p class="text-slate-600 font-semibold">Tulis kata berikut di layar modul:</p>
-                    <p class="text-4xl text-center py-2 text-rose-600" style="font-family:'Fredoka'; font-weight:700;">Keyboard</p>
+                    <p class="text-slate-600 font-semibold">Kata contoh tulisan bersambung:</p>
+                    <p class="text-4xl text-center py-2 text-rose-600 font-game font-bold">Keyboard</p>
                     <p class="text-[11px] text-slate-400 text-center">Modul Cursive menyediakan kanvas sentuh khusus dengan garis bantu halus.</p>
                 `;
             } else if (moduleName === 'Roulette') {
@@ -571,16 +699,16 @@
                 ];
                 const pick = prompts[Math.floor(Math.random() * prompts.length)];
                 body.innerHTML = `
-                    <p class="text-slate-500">Template Kalimat Acak:</p>
+                    <p class="text-slate-500 font-semibold">Template Kalimat Acak:</p>
                     <p class="text-sm font-black text-purple-700 italic">"${pick}"</p>
-                    <p class="text-[11px] text-slate-400 mt-2">Siswa melanjutkan kalimat ini untuk mendapatkan +10 XP ke Supabase.</p>
+                    <p class="text-[11px] text-slate-400 mt-2">Siswa melanjutkan kalimat ini untuk mendapatkan poin XP.</p>
                 `;
-            } else if (moduleName === 'Battle') {
+            } else if (moduleName === 'Battle' || moduleName === 'TarikTambang') {
                 iconBox.innerHTML = '<i data-lucide="swords" class="w-8 h-8"></i>';
                 body.innerHTML = `
                     <p class="text-slate-700 font-bold">🎮 Kuis Duel Tarik Tambang PC</p>
                     <p class="text-[11px] text-slate-500 leading-relaxed">
-                        Mendukung mode Solo melawan komputer (Overheat AI) dan mode 2 Pemain (1 vs 1) di satu keyboard atau layar laptop.
+                        Mendukung mode Solo melawan Overheat AI dan mode 2 Pemain langsung di satu komputer/laptop dengan 75 soal kejuruan.
                     </p>
                 `;
             } else {
@@ -588,14 +716,14 @@
                 body.innerHTML = `
                     <p class="text-slate-700 font-bold">🖐️ Duel AR Gestur Tangan</p>
                     <p class="text-[11px] text-slate-500 leading-relaxed">
-                        Menggunakan kecerdasan buatan MediaPipe Hands untuk mendeteksi ujung jari telunjuk menyentuh gelembung kata.
+                        Menggunakan kecerdasan buatan MediaPipe Hands untuk mendeteksi sentuhan ujung jari telunjuk ke gelembung kata.
                     </p>
                 `;
             }
             lucide.createIcons();
         }
 
-        function answerMiniQuiz(isCorrect) {
+        function answerMiniQuiz(isCorrect, moduleKey) {
             const fb = document.getElementById('mini-quiz-feedback');
             fb.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
             if (isCorrect) {
@@ -603,6 +731,8 @@
                 fb.classList.add('text-emerald-600');
                 fb.innerText = "✓ Jawaban Benar! (+15 XP dicatat)";
                 addTempScore(15);
+                markModuleVisited(moduleKey);
+                updateModuleBadges();
             } else {
                 playSoundEffect('snd-wrong', 220);
                 fb.classList.add('text-rose-600');
@@ -626,7 +756,7 @@
         }
 
         // ==============================================================
-        // 4. STUDENT PROFILE & STORAGE
+        // 4. PROFIL SISWA & SINKRONISASI XP / STATUS
         // ==============================================================
         function getStudentName() {
             return localStorage.getItem('studentName') || 'Siswa Baru';
@@ -637,6 +767,7 @@
             document.getElementById('nav-student-name').innerText = name;
             document.getElementById('hero-student-name').innerText = name;
             fetchStudentTotalXP(name);
+            updateModuleBadges();
         }
 
         function openNameModal() {
@@ -663,29 +794,76 @@
         function addTempScore(pts) {
             const el = document.getElementById('nav-xp-score');
             const current = parseInt(el.innerText) || 0;
-            el.innerText = `${current + pts} XP`;
+            const newTotal = current + pts;
+            el.innerText = `${newTotal} XP`;
+            localStorage.setItem('maharati_student_xp', newTotal);
         }
 
-        // ==============================================================
-        // 5. SUPABASE XP & LEADERBOARD
-        // ==============================================================
+        function updateModuleBadges() {
+            const visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+            let count = 0;
+
+            MODULE_KEYS.forEach(key => {
+                const badge = document.getElementById(`badge-status-${key}`);
+                if (!badge) return;
+
+                if (visited.includes(key)) {
+                    badge.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300";
+                    badge.innerText = "✓ Selesai";
+                    count++;
+                } else {
+                    badge.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
+                    badge.innerText = "Belum Selesai";
+                }
+            });
+
+            const countEl = document.getElementById('completed-count');
+            if (countEl) countEl.innerText = `${count}/${MODULE_KEYS.length}`;
+        }
+
+        // Ambil akumulasi XP dari Supabase
         async function fetchStudentTotalXP(studentName) {
+            const localXP = localStorage.getItem('maharati_student_xp');
+            if (localXP) {
+                document.getElementById('nav-xp-score').innerText = `${localXP} XP`;
+            }
+
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?name=eq.${encodeURIComponent(studentName)}&select=score`, {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?name=eq.${encodeURIComponent(studentName)}&select=score,activity`, {
                     headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
                 });
                 if (!res.ok) return;
                 const rows = await res.json();
-                const total = rows.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
-                document.getElementById('nav-xp-score').innerText = `${total} XP`;
+                
+                if (rows && rows.length > 0) {
+                    const total = rows.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
+                    document.getElementById('nav-xp-score').innerText = `${total} XP`;
+                    localStorage.setItem('maharati_student_xp', total);
+
+                    let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+                    rows.forEach(r => {
+                        const act = (r.activity || '').toLowerCase();
+                        if (act.includes('reading') && !visited.includes('Reading')) visited.push('Reading');
+                        if (act.includes('speaking') && !visited.includes('Speaking')) visited.push('Speaking');
+                        if (act.includes('cursive') && !visited.includes('Cursive')) visited.push('Cursive');
+                        if (act.includes('roulette') && !visited.includes('Roulette')) visited.push('Roulette');
+                        if (act.includes('tarik') && !visited.includes('TarikTambang')) visited.push('TarikTambang');
+                        if (act.includes('clash') && !visited.includes('WordClash')) visited.push('WordClash');
+                    });
+                    localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
+                    updateModuleBadges();
+                }
             } catch(e) {}
         }
 
+        // ==============================================================
+        // 5. MODAL LEADERBOARD DARI SUPABASE
+        // ==============================================================
         async function openLeaderboardModal() {
             playClickSound();
             document.getElementById('modal-leaderboard').classList.remove('hidden');
             const container = document.getElementById('leaderboard-list');
-            container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>';
+            container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400 text-center">Memuat peringkat dari database Supabase...</div>';
 
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?select=name,score`, {
@@ -705,7 +883,7 @@
                 })).sort((a, b) => b.score - a.score).slice(0, 10);
 
                 if (sorted.length === 0) {
-                    container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Belum ada skor tercatat di database.</div>';
+                    container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400 text-center">Belum ada skor tercatat.</div>';
                     return;
                 }
 
@@ -743,15 +921,22 @@
             document.getElementById('modal-leaderboard').classList.add('hidden');
         }
 
-        // Inisialisasi awal saat window selesai dimuat
+        // ==============================================================
+        // 6. INISIALISASI HALAMAN
+        // ==============================================================
         window.onload = () => {
             updateProfileUI();
+            updateMusicUI();
+            startBackgroundMusic(); // Otomatis menyalakan musik latar saat dimuat
             lucide.createIcons();
             
             if (!localStorage.getItem('studentName')) {
                 openNameModal();
             }
         };
+
+        // Hentikan musik saat jendela atau tab ditutup/berpindah
+        window.addEventListener('beforeunload', stopMusicBeforeNav);
     </script>
 </body>
 </html>
