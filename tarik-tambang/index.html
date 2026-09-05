@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Battle Tarik Tambang - English Maharati</title>
+    <title>Battle Tarik Tambang - Maharati- English</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -85,8 +85,8 @@
             border-radius: 18px;
             font-family: 'Fredoka', sans-serif;
             font-weight: 700;
-            font-size: clamp(0.9rem, 1.6vw, 1.25rem);
-            padding: clamp(8px, 1.3vw, 14px) clamp(16px, 2.5vw, 28px);
+            font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+            padding: clamp(8px, 1.2vw, 13px) clamp(16px, 2.2vw, 26px);
             cursor: pointer;
             transition: all 0.1s ease;
             display: inline-flex;
@@ -145,7 +145,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5% 2.5%;
+            padding: 1.2% 2.5%;
             z-index: 25; 
         }
 
@@ -292,13 +292,13 @@
 
         #timer-box {
             font-family: 'Fredoka', sans-serif;
-            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-size: clamp(1.8rem, 4vw, 2.9rem);
             font-weight: 800;
             color: #d97706;
             background: #fef3c7;
             border: 2px solid #fde68a;
             border-bottom: 5px solid #f59e0b;
-            padding: 0 clamp(16px, 2.5vw, 28px);
+            padding: 0 clamp(14px, 2.2vw, 26px);
             border-radius: 22px;
             line-height: 1.2;
             box-shadow: 0 4px 8px rgba(217, 119, 6, 0.15);
@@ -341,7 +341,7 @@
         }
 
         .q-text {
-            font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+            font-size: clamp(0.85rem, 1.4vw, 1.1rem);
             font-weight: 700;
             color: #1e293b;
             flex-grow: 1;
@@ -349,7 +349,7 @@
             align-items: center;
             justify-content: center;
             background: #f8fafc;
-            padding: 2.5%;
+            padding: 2.2%;
             border: 2px dashed #cbd5e1;
             border-radius: 16px;
             margin-bottom: 2%;
@@ -367,8 +367,8 @@
             border: 2px solid #e2e8f0;
             border-bottom: 4px solid #cbd5e1;
             color: #334155;
-            padding: clamp(8px, 1.3vw, 14px);
-            font-size: clamp(0.75rem, 1.4vw, 0.95rem);
+            padding: clamp(7px, 1.1vw, 13px);
+            font-size: clamp(0.75rem, 1.3vw, 0.95rem);
             font-weight: 700;
             border-radius: 16px;
             cursor: pointer;
@@ -401,11 +401,11 @@
             color: #9f1239 !important;
         }
 
-        /* Virtual Keyboard (Duolingo Style Chunky Blocks) */
+        /* Virtual Keyboard */
         #virtual-keyboard {
             width: 100%;
-            max-width: 620px;
-            margin-top: 1.5%;
+            max-width: 600px;
+            margin-top: 1%;
             display: flex;
             flex-direction: column;
             gap: 5px;
@@ -418,8 +418,8 @@
             border: 2px solid #e2e8f0;
             border-bottom: 4px solid #cbd5e1;
             color: #334155;
-            padding: clamp(4px, 0.9vw, 8px) clamp(8px, 1.4vw, 14px);
-            font-size: clamp(0.8rem, 1.4vw, 1rem);
+            padding: clamp(4px, 0.8vw, 7px) clamp(7px, 1.3vw, 13px);
+            font-size: clamp(0.75rem, 1.3vw, 0.95rem);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.1s ease;
@@ -428,15 +428,15 @@
         }
         .vk-key:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
         .vk-key:active { transform: translateY(2px); border-bottom-width: 1px; }
-        .vk-key.wide { padding: clamp(4px, 0.9vw, 8px) clamp(14px, 2.2vw, 24px); }
+        .vk-key.wide { padding: clamp(4px, 0.8vw, 7px) clamp(12px, 2vw, 20px); }
 
-        .name-input-group { display: flex; gap: 2%; margin-bottom: 2%; justify-content: center; }
+        .name-input-group { display: flex; gap: 2%; margin-bottom: 1.5%; justify-content: center; }
         .name-input-box {
             background: #ffffff;
             border: 3px solid #e2e8f0;
             border-bottom: 5px solid #cbd5e1;
             color: #64748b;
-            padding: 2% 4%;
+            padding: 1.8% 4%;
             font-size: clamp(0.95rem, 1.8vw, 1.25rem);
             font-weight: 800;
             text-align: center;
@@ -517,17 +517,19 @@
 </head>
 <body>
 
-    <!-- Audio Elements: Terhubung ke folder asset/ induk -->
+    <!-- Audio Elements: Global & Asset Lokal Tarik Tambang -->
     <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
     <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
     <audio id="snd-wrong" src="../asset/wrong.mp3" preload="auto"></audio>
     <audio id="snd-victory" src="../asset/victory.mp3" preload="auto"></audio>
+    <!-- Asset Musik & Efek Suara Khusus Tarik Tambang -->
+    <audio id="snd-battle" src="asset/battle.mp3" loop preload="auto"></audio>
+    <audio id="snd-lose" src="asset/lose.mp3" preload="auto"></audio>
 
     <div id="app">
         <!-- TOP BAR DENGAN NAVIGASI AMAN -->
         <div id="top-bar">
             <div style="display:flex; gap:8px; align-items:center;">
-                <!-- Tombol kembali langsung ke ../index.html agar tidak muncul layar Index of... -->
                 <a href="../index.html" onclick="playClick()" class="btn-duo-white px-3.5 py-1.5 rounded-2xl text-xs font-black flex items-center gap-1.5">
                     <i data-lucide="arrow-left" style="width:16px; height:16px;"></i>
                     <span class="hidden sm:inline">MENU UTAMA</span>
@@ -551,17 +553,25 @@
 
         <!-- 1. SPLASH / MAIN MENU -->
         <div id="screen-menu" class="screen">
-            <div id="game-title" style="cursor: pointer; text-align: center; margin-bottom: 2%;">
-                <!-- Logo Game dengan fallback visual jika belum ada gambar -->
-                <img src="asset/game_logo.png" onerror="this.style.display='none'; document.getElementById('logo-fallback-banner').style.display='block';" alt="BATTLE TARIK TAMBANG" style="max-width: 75%; max-height: 26vh; object-fit: contain; pointer-events: none; display: block; margin: 0 auto;">
-                
-                <div id="logo-fallback-banner" style="display:none;" class="p-3 bg-emerald-500 text-white rounded-3xl border-b-4 border-emerald-700 shadow-md">
-                    <h1 class="text-2xl sm:text-4xl font-black font-game tracking-wider">⚔️ BATTLE TARIK TAMBANG</h1>
+            <!-- Judul Game Tipografi Murni Pengganti Gambar Logo -->
+            <div id="game-title" class="cursor-pointer text-center mb-3">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border-2 border-amber-300 text-amber-800 text-[11px] font-black uppercase tracking-wider mb-2 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span>Arcade Vocab Battle</span>
                 </div>
+                
+                <h1 class="text-3xl sm:text-5xl md:text-6xl font-black font-game text-slate-800 tracking-wider flex items-center justify-center gap-2">
+                    <span class="text-amber-500 drop-shadow-[0_4px_0_#d97706]">BATTLE</span>
+                    <span class="text-emerald-500 drop-shadow-[0_4px_0_#059669]">TARIK TAMBANG</span>
+                </h1>
+                
+                <p class="text-xs sm:text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest font-game">
+                    Tarik tali kemenangan dengan menguasai kosakata bahasa Inggris!
+                </p>
             </div>
 
             <p class="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-100 border-2 border-emerald-200 px-4 py-1.5 rounded-full mb-4 shadow-sm">
-                Modul: English Vocabulary Mastery • SMKN 2 Mantangai
+                Maharati- English • SMKN 2 Mantangai
             </p>
             
             <div class="flex gap-3 flex-wrap justify-center">
@@ -573,7 +583,7 @@
                 </button>
             </div>
             
-            <p style="margin-top: 3.5%; color: #94a3b8; font-size: clamp(0.65rem, 0.95vw, 0.8rem); font-weight: 700;">
+            <p style="margin-top: 3%; color: #94a3b8; font-size: clamp(0.65rem, 0.95vw, 0.8rem); font-weight: 700;">
                 *Tahan judul game selama 3 detik untuk membuka Mode Guru*
             </p>
         </div>
@@ -593,7 +603,7 @@
 
         <!-- 2.5 NAME INPUT VIRTUAL KEYBOARD -->
         <div id="screen-name" class="screen hidden">
-            <h2 class="text-xl sm:text-3xl font-black font-game text-slate-800 mb-2">MASUKKAN NAMA</h2>
+            <h2 class="text-xl sm:text-3xl font-black font-game text-slate-800 mb-1">MASUKKAN NAMA</h2>
             
             <div class="name-input-group" id="name-inputs-container">
                 <div class="name-input-box active" id="input-p1" onclick="setActiveInput('p1')">PLAYER 1_</div>
@@ -636,10 +646,10 @@
                     <button class="vk-key wide btn-duo-rose" onclick="vkPress('DEL')">⬅ HAPUS</button>
                 </div>
                 <div class="vk-row">
-                    <button class="vk-key wide" onclick="vkPress('SPACE')" style="width: 50%; min-width: 230px;">[ SPASI ]</button>
+                    <button class="vk-key wide" onclick="vkPress('SPACE')" style="width: 50%; min-width: 210px;">[ SPASI ]</button>
                 </div>
             </div>
-            <p class="text-[11px] font-bold text-slate-400 mt-2">*Bisa juga langsung mengetik menggunakan keyboard fisik</p>
+            <p class="text-[11px] font-bold text-slate-400 mt-1.5">*Bisa juga langsung mengetik menggunakan keyboard fisik</p>
             
             <button class="btn-duo mt-2 px-8" onclick="confirmNames()">LANJUT ➔</button>
         </div>
@@ -648,27 +658,27 @@
         <div id="screen-settings" class="screen hidden">
             <h2 class="text-2xl sm:text-3xl font-black font-game text-slate-800">Pengaturan Sesi</h2>
             
-            <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-3">Tingkat Kesulitan:</p>
+            <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-2.5">Tingkat Kesulitan:</p>
             <div style="display:flex; gap:10px; margin-top:1%;">
                 <button class="btn-duo btn-duo-white active-select" id="lvl-easy" onclick="selectLevel('easy')">🟢 Mudah</button>
                 <button class="btn-duo btn-duo-white" id="lvl-medium" onclick="selectLevel('medium')">🟠 Sedang</button>
                 <button class="btn-duo btn-duo-white" id="lvl-hard" onclick="selectLevel('hard')">🔴 Sulit</button>
             </div>
 
-            <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-3">Waktu Pertandingan:</p>
+            <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-2.5">Waktu Pertandingan:</p>
             <div style="display:flex; gap:10px; margin-top:1%;">
                 <button class="btn-duo btn-duo-rose" id="time-30" onclick="selectTime(30)">⏱️ 30s</button>
                 <button class="btn-duo btn-duo-rose" id="time-45" onclick="selectTime(45)">⏱️ 45s</button>
                 <button class="btn-duo btn-duo-rose active-select" id="time-60" onclick="selectTime(60)">⏱️ 60s</button>
             </div>
 
-            <button class="btn-duo mt-5 px-10 py-3.5" onclick="startGame()">
+            <button class="btn-duo mt-4 px-10 py-3.5" onclick="startGame()">
                 <i data-lucide="swords" class="w-5 h-5"></i> MULAI BERTANDING!
             </button>
         </div>
 
         <!-- 4. GAMEPLAY -->
-        <div id="screen-game" class="screen hidden" style="justify-content: flex-start; padding-top: clamp(45px, 8.5%, 80px);">
+        <div id="screen-game" class="screen hidden" style="justify-content: flex-start; padding-top: clamp(42px, 8%, 75px);">
             
             <!-- INFO BAR: Pemain Kiri, Timer, Pemain Kanan -->
             <div id="game-info">
@@ -734,7 +744,7 @@
             <h1 class="text-xl sm:text-2xl font-black font-game text-slate-500 uppercase" id="result-title">WAKTU HABIS!</h1>
             <h2 id="result-winner" class="text-2xl sm:text-4xl font-black font-game text-emerald-600 my-2">Player 1 Menang!</h2>
             
-            <div style="font-size: clamp(0.9rem, 2vw, 1.2rem); margin-bottom: 4%; display:flex; gap: 3vw;">
+            <div style="font-size: clamp(0.9rem, 2vw, 1.2rem); margin-bottom: 3.5%; display:flex; gap: 3vw;">
                 <div class="score-box score-blue">Skor Kiri: <span id="final-score-left">0</span></div>
                 <div class="score-box score-red">Skor Kanan: <span id="final-score-right">0</span></div>
             </div>
@@ -773,7 +783,7 @@
 
         <div id="modal-dashboard" class="duo-modal hidden" style="width: 90%; max-width: 540px; max-height: 80vh; overflow-y: auto;">
             <h2 class="text-xl font-black font-game text-emerald-600">🛠️ DASHBOARD GURU</h2>
-            <p class="text-xs text-slate-500 my-2">Bank Soal terintegrasi otomatis dengan penyimpanan nilai Supabase & LocalStorage.</p>
+            <p class="text-xs text-slate-500 my-2">Bank Soal terintegrasi otomatis dengan penyimpanan nilai LocalStorage.</p>
             
             <div class="flex gap-2 justify-center my-3">
                 <button class="btn-duo btn-duo-rose text-xs py-2 px-4" id="btn-reset" onclick="resetLeaderboard()">🗑️ Reset Skor Lokal</button>
@@ -788,16 +798,12 @@
 
     </div>
 
-    <!-- SCRIPT LOGIKA PERMAINAN & BANK SOAL LENGKAP -->
     <script>
         // ═══════════════════════════════════════════
-        // 📝 KONFIGURASI SUPABASE & PIN GURU
+        // 📝 KONFIGURASI DAN BANK SOAL 75 SOAL LENGKAP
         // ═══════════════════════════════════════════
-        const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
         const PIN_GURU = "1234";
 
-        // Bank Soal Lengkap 75 Soal Kosakata Bahasa Inggris (Easy, Medium, Hard)
         const BANK_SOAL = [
             // 🟢 EASY (25 Soal: Kata Dasar, Benda Sehari-hari, Warna, Angka, Antonim Dasar)
             { level: "easy", soal: "Apa arti dari kata 'Book' dalam bahasa Indonesia?", pilihan: ["Buku", "Meja", "Pensil", "Pintu"], jawaban: "Buku" },
@@ -882,9 +888,13 @@
         ];
 
         // State Utama Permainan
+        const urlParams = new URLSearchParams(window.location.search);
+        let initialLevel = urlParams.get('lvl') || localStorage.getItem('maharati_difficulty') || 'easy';
+        if (!['easy', 'medium', 'hard'].includes(initialLevel.toLowerCase())) initialLevel = 'easy';
+
         let gameState = {
             mode: 'solo',
-            level: 'easy',
+            level: initialLevel.toLowerCase(),
             timeTotal: 60,
             timeLeft: 60,
             scoreLeft: 0,
@@ -948,13 +958,27 @@
                     gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
                     gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+                } else if (type === 'lose') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime + 0.2);
+                    osc.frequency.setValueAtTime(140, audioCtx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.7);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.7);
                 }
             } catch(e) {}
         }
 
         function playSound(type) {
             if (isAudioMuted) return;
-            const elId = type === 'click' ? 'snd-click' : (type === 'right' || type === 'correct' ? 'snd-right' : (type === 'wrong' ? 'snd-wrong' : 'snd-victory'));
+            let elId = 'snd-click';
+            if (type === 'click') elId = 'snd-click';
+            else if (type === 'right' || type === 'correct') elId = 'snd-right';
+            else if (type === 'wrong') elId = 'snd-wrong';
+            else if (type === 'victory' || type === 'win') elId = 'snd-victory';
+            else if (type === 'lose') elId = 'snd-lose';
+
             const el = document.getElementById(elId);
             if (el && el.readyState >= 2) {
                 el.currentTime = 0;
@@ -966,12 +990,36 @@
 
         function playClick() { playSound('click'); }
 
+        // Kontrol Musik Pertempuran (battle.mp3)
+        function startBattleMusic() {
+            if (isAudioMuted) return;
+            const bg = document.getElementById('snd-battle');
+            if (bg) {
+                bg.volume = 0.45;
+                bg.currentTime = 0;
+                bg.play().catch(() => {});
+            }
+        }
+
+        function stopBattleMusic() {
+            const bg = document.getElementById('snd-battle');
+            if (bg) {
+                bg.pause();
+                bg.currentTime = 0;
+            }
+        }
+
         function toggleAudio() {
             isAudioMuted = !isAudioMuted;
             document.getElementById('audio-txt').innerText = isAudioMuted ? 'MUTE' : 'AUDIO';
             const icon = document.getElementById('audio-icon');
-            if (isAudioMuted) icon.setAttribute('data-lucide', 'volume-x');
-            else icon.setAttribute('data-lucide', 'volume-2');
+            if (isAudioMuted) {
+                icon.setAttribute('data-lucide', 'volume-x');
+                stopBattleMusic();
+            } else {
+                icon.setAttribute('data-lucide', 'volume-2');
+                if (gameState.isPlaying) startBattleMusic();
+            }
             lucide.createIcons();
         }
 
@@ -1070,6 +1118,8 @@
         function selectLevel(lvl) {
             playClick();
             gameState.level = lvl;
+            localStorage.setItem('maharati_difficulty', lvl);
+            localStorage.setItem('studentLevel', lvl);
             ['easy','medium','hard'].forEach(l => document.getElementById(`lvl-${l}`).classList.remove('active-select'));
             document.getElementById(`lvl-${lvl}`).classList.add('active-select');
         }
@@ -1141,6 +1191,9 @@
 
             updateVisuals();
             showScreen('screen-game');
+
+            // Jalankan Musik Pertempuran (battle.mp3)
+            startBattleMusic();
 
             // Hitung Mundur Waktu
             clearInterval(gameState.timerInterval);
@@ -1255,7 +1308,7 @@
             gameState.isPlaying = false;
             clearInterval(gameState.timerInterval);
             clearInterval(gameState.aiInterval);
-            playSound('victory');
+            stopBattleMusic();
 
             let title = "WAKTU HABIS!";
             if (reason === "ko-left") title = "INSTANT KO! TIM KIRI MENANG!";
@@ -1269,14 +1322,24 @@
             let p1 = gameState.p1Name.toUpperCase();
             let p2 = (gameState.mode === 'solo') ? "OVERHEAT" : gameState.p2Name.toUpperCase();
 
+            // Pengecekan Pemenang & Suara Kemenangan / Kekalahan (lose.mp3 vs victory.mp3)
             if (gameState.ropePos < 50) {
+                // Pemain Kiri Menang
                 winnerText = `${p1} MENANG! 🏆`;
-                saveScoreToSupabase(gameState.p1Name, gameState.scoreLeft);
+                playSound('victory');
+                addStudentXP(gameState.scoreLeft);
             } else if (gameState.ropePos > 50) {
+                // Pemain Kanan Menang (Jika mode solo berarti AI Menang -> Pemain Kalah)
                 winnerText = `${p2} MENANG! 💥`;
-                if (gameState.mode === '2p') saveScoreToSupabase(gameState.p2Name, gameState.scoreRight);
+                if (gameState.mode === 'solo') {
+                    playSound('lose'); // Suara kalah saat lawan AI
+                } else {
+                    playSound('victory');
+                    if (gameState.scoreRight > 0) addStudentXP(gameState.scoreRight);
+                }
             } else {
                 winnerText = "PERTANDINGAN SERI! 🤝";
+                playSound('click');
             }
 
             const winEl = document.getElementById('result-winner');
@@ -1293,28 +1356,22 @@
             gameState.isPlaying = false;
             clearInterval(gameState.timerInterval);
             clearInterval(gameState.aiInterval);
+            stopBattleMusic();
         }
 
         // ==============================================================
-        // SINKRONISASI DATABASE SUPABASE
+        // PENYIMPANAN XP & PAPAN SKOR LOKAL
         // ==============================================================
-        async function saveScoreToSupabase(studentName, score) {
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
-                    method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Content-Type": "application/json",
-                        "Prefer": "return=minimal"
-                    },
-                    body: JSON.stringify([{
-                        name: studentName,
-                        activity: "Battle Tarik Tambang",
-                        level: gameState.level,
-                        score: score
-                    }])
-                });
-            } catch(e) {}
+        function addStudentXP(pts) {
+            const current = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            const newTotal = current + pts;
+            localStorage.setItem('maharati_student_xp', newTotal);
+
+            let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+            if (!visited.includes('TarikTambang')) {
+                visited.push('TarikTambang');
+                localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
+            }
         }
 
         function saveLeaderboardLocal(playerName, score) {
@@ -1389,7 +1446,7 @@
             setTimeout(() => btn.innerText = "🗑️ Reset Skor Lokal", 2000);
         }
 
-        // Efek Partikel Ceria
+        // Efek Partikel
         function createParticles(element, color) {
             const rect = element.getBoundingClientRect();
             for (let i = 0; i < 14; i++) {
@@ -1422,7 +1479,12 @@
         }
 
         window.onload = () => {
+            selectLevel(gameState.level);
             lucide.createIcons();
+        };
+
+        window.onbeforeunload = () => {
+            stopBattleMusic();
         };
     </script>
 </body>
