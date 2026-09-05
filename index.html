@@ -2,954 +2,756 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game English Maharati</title>
-    
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Maharati - Portal Belajar</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- AR DUEL DEPENDENCIES: Tone.js & MediaPipe -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dancing+Script:wght@700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            touch-action: manipulation;
-            background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.6)), url('https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/c2b32049c86b2789a3fc0dc7740eabe123e0eb1c/MAHARATI%20(5).gif');
-            background-size: cover;
-            background-position: center;
+        :root {
+            --duo-green: #58cc02;
+            --duo-green-shadow: #46a302;
+            --duo-blue: #1cb0f6;
+            --duo-blue-shadow: #1899d6;
+            --duo-yellow: #ffc800;
+            --duo-yellow-shadow: #e5a400;
+            --duo-purple: #ce82ff;
+            --duo-purple-shadow: #a560cc;
+            --duo-red: #ff4b4b;
+            --duo-red-shadow: #ea2b2b;
+            --duo-orange: #ff9600;
+            --duo-orange-shadow: #cc7800;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f0fdf4;
+            background-image: 
+                radial-gradient(#dcfce7 2px, transparent 2px),
+                linear-gradient(rgba(240, 253, 244, 0.92), rgba(240, 253, 244, 0.97)),
+                url('asset/bg-maharati.gif');
+            background-size: 24px 24px, cover, cover;
+            background-position: 0 0, center, center;
             background-attachment: fixed;
-            background-repeat: no-repeat;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
-        .font-cursive { font-family: 'Dancing Script', cursive; }
-        .font-hud { font-family: 'Orbitron', monospace; }
         
-        .bg-duo-green { background-color: #58cc02; }
-        .text-duo-green { color: #58cc02; }
-        .animate-bounce-slow { animation: bounce 3s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        
-        #cursive-canvas { 
-            cursor: crosshair; 
-            touch-action: none;
-            background-image: linear-gradient(#e5e7eb 1px, transparent 1px); 
-            background-size: 100% 40px; 
+        /* Duo 3D Card Base */
+        .duo-card {
+            background: #ffffff;
+            border: 3px solid #e2e8f0;
+            border-bottom-width: 6px;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .battle-track { background: rgba(243, 244, 246, 0.85); background-image: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(229, 231, 235, 0.5) 20px, rgba(229, 231, 235, 0.5) 40px); }
-        .glass-container { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px); border: 4px solid rgba(255, 255, 255, 0.35); }
-        
-        /* AR DUEL CSS */
-        .glass-panel-ar { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.12); }
-        .p1-glow { box-shadow: 0 0 35px rgba(6, 182, 212, 0.35); border-color: rgba(6, 182, 212, 0.6); }
-        .p2-glow { box-shadow: 0 0 35px rgba(236, 72, 153, 0.35); border-color: rgba(236, 72, 153, 0.6); }
-        @keyframes pulseSlow { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.04); opacity: 1; } }
-        .animate-pulse-slow { animation: pulseSlow 2.5s infinite ease-in-out; }
+        .duo-card:hover {
+            transform: translateY(-3px);
+            border-color: #cbd5e1;
+        }
 
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
-        #loading-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 500; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .wheel-spin { transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
-        
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #58cc02; cursor: pointer; margin-top: -5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-        
-        .cursor-blink { animation: blink 0.9s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        /* 3D Button Presets */
+        .btn-duo-green {
+            background-color: var(--duo-green);
+            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+        }
+        .btn-duo-green:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-green-shadow);
+        }
+
+        .btn-duo-blue {
+            background-color: var(--duo-blue);
+            box-shadow: 0 5px 0 0 var(--duo-blue-shadow);
+        }
+        .btn-duo-blue:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-blue-shadow);
+        }
+
+        .btn-duo-white {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-bottom: 4px solid #cbd5e1;
+            color: #334155;
+            transition: all 0.1s ease;
+        }
+        .btn-duo-white:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatSlow 3.2s ease-in-out infinite;
+        }
     </style>
 </head>
-<body class="text-slate-800 pb-28 min-h-screen overflow-x-hidden text-center select-none">
+<body class="min-h-screen text-slate-800 flex flex-col justify-between p-3 sm:p-6" onclick="unlockAudioContext()">
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div class="animate-spin text-duo-green mb-4"><i data-lucide="refresh-cw" class="w-16 h-16"></i></div>
-        <p id="loading-text" class="font-bold text-2xl uppercase tracking-tighter text-slate-700">Menghubungkan Data...</p>
-        <p class="text-xs text-slate-400 font-semibold mt-2">Menyiapkan permainan untuk kamu</p>
-    </div>
+    <!-- Audio Elements dari folder asset/ utama -->
+    <audio id="snd-bg" loop src="asset/bg-music.mp3" preload="auto"></audio>
+    <audio id="snd-click" src="asset/click.mp3" preload="auto"></audio>
+    <audio id="snd-right" src="asset/right.mp3" preload="auto"></audio>
+    <audio id="snd-wrong" src="asset/wrong.mp3" preload="auto"></audio>
+    <audio id="snd-victory" src="asset/victory.mp3" preload="auto"></audio>
 
-    <!-- Audio Elements -->
-    <audio id="bg-music" loop preload="none"><source src="https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/main/y2mate.com%20-%20Daak%20Saak%20Pakoq%20by%20Alif%20Fakod.mp3" type="audio/mpeg"></audio>
-    <audio id="battle-music" loop preload="none"><source src="https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/c2b32049c86b2789a3fc0dc7740eabe123e0eb1c/Mission%20Impossible%20Theme%20(Full%20Theme).mp3" type="audio/mpeg"></audio>
-    <audio id="click-sound" preload="auto"><source src="https://github.com/kombelkapuascerdas-byte/icon/raw/refs/heads/main/Mouse%20Click%20Sound%20Effect.mp3" type="audio/mpeg"></audio>
-    <audio id="victory-sound" preload="auto"><source src="https://github.com/kombelkapuascerdas-byte/icon/raw/refs/heads/main/Victory%20Sound%20Effect.mp3" type="audio/mpeg"></audio>
-
-    <!-- Start Page Overlay -->
-    <div id="start-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-        <div class="glass-container p-8 sm:p-10 rounded-[3rem] shadow-2xl flex flex-col items-center max-w-lg w-full text-center animate-fade-in">
-            <div class="w-24 h-24 bg-duo-green rounded-[30px] flex items-center justify-center shadow-[0_8px_0_0_#46a302] mb-6">
-                <i data-lucide="languages" class="w-12 h-12 text-white"></i>
+    <!-- Top Navigation Bar -->
+    <nav class="max-w-5xl w-full mx-auto duo-card rounded-3xl p-3 sm:p-4 flex items-center justify-between mb-6 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-[0_4px_0_0_#059669]">
+                <i data-lucide="languages" class="w-6 h-6"></i>
             </div>
-            <h1 class="text-3xl sm:text-4xl font-black mb-1 uppercase font-game text-slate-800 tracking-wider">English Maharati</h1>
-            <p class="text-slate-500 font-bold mb-6 italic text-sm">SMKN 2 Mantangai Kapuas</p>
-            
-            <div class="w-full mb-6">
-                <input type="text" id="student-name" class="w-full p-4 rounded-2xl border-4 border-slate-100 outline-none focus:border-duo-green text-center font-bold text-xl bg-white shadow-inner" placeholder="Ketik Nama Kamu..." autocomplete="off">
-            </div>
-
-            <button id="btn-start" onclick="playClick(); initAppSession();" class="w-full py-5 bg-duo-green text-white font-black rounded-[2rem] shadow-[0_8px_0_0_#46a302] text-xl uppercase hover:translate-y-1 transition-all active:shadow-none">Mulai Belajar</button>
-            <p class="mt-8 text-[11px] font-bold opacity-60 uppercase tracking-wider text-slate-600">Dibuat oleh Gufron Firmansyah - SMKN 2 Mantangai</p>
-        </div>
-    </div>
-
-    <!-- Victory Modal (Standard Battle) -->
-    <div id="victory-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-6">
-        <div class="glass-container p-8 sm:p-10 rounded-[3rem] max-w-md w-full shadow-2xl bg-white relative text-center animate-fade-in">
-            <button onclick="hideVictory()" class="absolute top-6 right-6 text-slate-300 hover:text-rose-500 transition-colors">
-                <i data-lucide="x-circle" class="w-8 h-8"></i>
-            </button>
-            <div class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"><i data-lucide="trophy" class="w-10 h-10 text-white"></i></div>
-            <h2 id="winner-title" class="text-3xl font-black mb-2 uppercase text-indigo-600 tracking-tighter">MENANG!</h2>
-            <div class="bg-slate-50 p-6 rounded-2xl mb-8 italic shadow-inner text-sm">
-                <p id="v-quote" class="text-slate-700 font-medium mb-1"></p>
-                <p id="v-author" class="text-xs font-black text-slate-400 uppercase"></p>
-            </div>
-            <button onclick="hideVictory();" class="w-full py-5 bg-duo-green text-white font-black rounded-3xl text-xl uppercase shadow-[0_6px_0_0_#46a302] active:translate-y-1">Lanjutkan</button>
-        </div>
-    </div>
-
-    <!-- Mic Request Modal -->
-    <div id="mic-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[400] hidden flex items-center justify-center p-6 text-center">
-        <div class="glass-container p-8 sm:p-10 rounded-[3rem] max-w-sm w-full shadow-2xl bg-white relative animate-fade-in">
-            <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg animate-pulse">
-                <i data-lucide="mic" class="w-10 h-10 text-white"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2 uppercase text-slate-800 tracking-tighter">Akses Mikrofon</h2>
-            <p class="text-slate-500 font-medium mb-8 text-sm">Mode Talk membutuhkan izin mikrofon 1x saja agar kamu bisa berlatih speaking.</p>
-            <button onclick="grantMicPermission()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xl uppercase shadow-[0_6px_0_0_#1d4ed8] active:translate-y-1 transition-all">Izinkan Mikrofon</button>
-            <button onclick="cancelMicPermission()" class="mt-4 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">Batal</button>
-        </div>
-    </div>
-
-    <!-- Custom Alert Modal -->
-    <div id="alert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] hidden flex items-center justify-center p-4">
-        <div class="glass-container p-6 rounded-3xl max-w-xs w-full text-center shadow-2xl">
-            <p id="alert-message" class="text-slate-800 font-bold mb-5 text-sm sm:text-base"></p>
-            <button onclick="closeCustomAlert()" class="px-6 py-2.5 bg-duo-green text-white font-black rounded-xl uppercase text-sm shadow-[0_4px_0_0_#46a302] active:translate-y-1">Mengerti</button>
-        </div>
-    </div>
-
-    <!-- Nav Top -->
-    <nav id="nav-top" class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-gray-100 px-4 sm:px-6 py-4 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-2 cursor-pointer" onclick="goToHome()">
-            <div class="bg-duo-green text-white p-2 rounded-xl shadow-md"><i data-lucide="languages"></i></div>
-            <div class="flex flex-col text-left">
-                <span class="text-lg font-black leading-none font-game tracking-wider text-slate-800">MAHARATI</span>
-                <span id="player-display" class="text-[10px] font-bold text-duo-green uppercase text-left">STUDENT</span>
+            <div>
+                <h1 class="text-base sm:text-xl font-black font-game text-slate-800 leading-tight tracking-wide">ENGLISH MAHARATI</h1>
+                <p class="text-[10px] sm:text-[11px] font-bold text-emerald-600 uppercase tracking-wider">SMKN 2 Mantangai</p>
             </div>
         </div>
+
         <div class="flex items-center gap-2 sm:gap-3">
-            <div class="flex items-center bg-gray-100 p-2 rounded-2xl gap-2">
-                <button onclick="toggleMute()" class="text-slate-500 hover:text-slate-800"><i data-lucide="volume-2" id="music-icon" class="w-5 h-5"></i></button>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="handleVolumeChange(this.value)" class="w-16 sm:w-24">
+            <!-- Profil Siswa -->
+            <button onclick="openNameModal()" class="btn-duo-white px-3 py-2 rounded-2xl flex items-center gap-1.5 text-xs font-bold transition">
+                <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
+                <span id="nav-student-name" class="max-w-[85px] sm:max-w-[140px] truncate">Siswa Baru</span>
+                <i data-lucide="edit-3" class="w-3 h-3 text-slate-400 ml-0.5"></i>
+            </button>
+
+            <!-- Skor XP -->
+            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
+                <span id="nav-xp-score">0 XP</span>
             </div>
-            <div class="px-3 py-2 bg-orange-100 text-orange-600 rounded-2xl font-black text-sm shadow-sm flex items-center gap-1"><i data-lucide="flame" class="w-4 h-4 fill-current"></i><span id="display-score">0</span></div>
-            <button onclick="toggleFullScreen()" class="p-2 bg-gray-100 rounded-xl hover:bg-white transition-all text-slate-600 hidden sm:block"><i data-lucide="maximize" class="w-5 h-5"></i></button>
+
+            <!-- Tombol Musik -->
+            <button id="btn-music" onclick="toggleMusic(event)" title="Putar Musik Latar" class="btn-duo-white px-3 py-2 rounded-2xl transition flex items-center gap-1.5">
+                <i data-lucide="volume-x" id="icon-music" class="w-4 h-4 text-slate-400"></i>
+                <span id="txt-music" class="text-[10px] font-black uppercase text-slate-400 hidden sm:inline">MUSIK OFF</span>
+            </button>
+
+            <!-- Tombol Leaderboard -->
+            <button onclick="openLeaderboardModal()" title="Papan Peringkat" class="btn-duo-white p-2.5 rounded-2xl transition">
+                <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <main id="app-container" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col justify-center items-center min-h-[68vh]"></main>
+    <!-- Main Content Container -->
+    <main class="max-w-5xl w-full mx-auto space-y-6">
+        
+        <!-- Hero Greeting Banner -->
+        <div class="duo-card rounded-[2.5rem] p-6 sm:p-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-600 border-b-[7px] flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
+            <div class="space-y-2 text-center md:text-left">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-black uppercase tracking-wider backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
+                    <span>Portal Belajar Interaktif</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-black font-game tracking-tight">
+                    Halo, <span id="hero-student-name">Siswa</span>! 👋
+                </h2>
+                <p class="text-xs sm:text-sm text-emerald-50 max-w-lg font-semibold leading-relaxed">
+                    Pilih modul di bawah untuk mulai mengasah kemampuan bahasa Inggris, bertanding duel kuis, dan kumpulkan skor XP!
+                </p>
+                <div class="pt-2 flex flex-wrap gap-2 justify-center md:justify-start">
+                    <span id="audio-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <i data-lucide="music" class="w-3 h-3"></i> Audio Engine: Siap
+                    </span>
+                    <span id="db-status-pill" class="text-[10px] font-bold bg-emerald-950/30 text-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <i data-lucide="database" class="w-3 h-3"></i> Supabase: Terhubung
+                    </span>
+                </div>
+            </div>
+            
+            <div class="w-24 h-24 sm:w-28 sm:h-28 bg-white/15 rounded-3xl flex items-center justify-center p-3 backdrop-blur-sm border-2 border-white/30 animate-float shadow-inner">
+                <i data-lucide="sparkles" class="w-14 h-14 text-yellow-300"></i>
+            </div>
+        </div>
 
-    <!-- Bottom Menu -->
-    <div id="nav-bottom" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-4 border-gray-100 px-2 py-4 flex justify-around items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
-        <button onclick="playClick(); goToHome()" class="flex flex-col items-center gap-1 nav-item text-duo-green w-14" id="nav-home"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Home</span></button>
-        <button onclick="playClick(); startActivity('Reading')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-reading"><i data-lucide="book-open" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Read</span></button>
-        <button onclick="playClick(); startActivity('Speaking')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-speaking"><i data-lucide="mic" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Talk</span></button>
-        <button onclick="playClick(); startActivity('Roulette')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-roulette"><i data-lucide="refresh-cw" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Spin</span></button>
-        <button onclick="playClick(); startActivity('Battle')" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-battle"><i data-lucide="swords" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Battle</span></button>
-        <button onclick="playClick(); showLeaderboard()" class="flex flex-col items-center gap-1 nav-item text-gray-400 w-14" id="nav-rank"><i data-lucide="trophy" class="w-6 h-6"></i><span class="text-[10px] font-black uppercase">Rank</span></button>
-    </div>
+        <!-- 6 Modul Utama Pembelajaran -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            
+            <!-- 1. Reading Comprehension -->
+            <div class="duo-card rounded-3xl p-5 block group border-emerald-200 hover:border-emerald-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0] group-hover:scale-105 transition-transform">
+                        <i data-lucide="book-open" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">Membaca</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">Reading Comprehension</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pahami paragraf pendek dan jawab soal pemahaman teks.</p>
+                <div class="flex gap-2">
+                    <a href="reading/index.html" onclick="handleCardNav(event, 'reading/index.html', 'Reading')" class="flex-1 py-2.5 rounded-xl btn-duo-green text-white font-black text-xs text-center uppercase tracking-wider block">
+                        Buka Modul ➔
+                    </a>
+                    <button onclick="testQuickAction('Reading')" title="Coba Latihan Mini" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                        ⚡ Tes
+                    </button>
+                </div>
+            </div>
 
-    <!-- Feedback Toast -->
-    <div id="feedback-toast" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 w-[92%] max-w-md p-5 rounded-[2rem] flex flex-col items-center gap-2 shadow-2xl z-[60] text-white relative">
-        <button onclick="hideFeedback()" class="absolute top-4 right-4 text-white/60 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-        <div class="flex items-center gap-4 w-full text-left">
-            <div id="feedback-icon"></div>
-            <div class="flex-1"><p id="feedback-title" class="font-black text-lg uppercase"></p><p id="feedback-msg" class="text-xs sm:text-sm font-medium opacity-90"></p></div>
-            <button onclick="nextQuestion()" id="btn-next-toast" class="bg-white/25 hover:bg-white/35 p-2 rounded-xl transition-colors"><i data-lucide="arrow-right"></i></button>
+            <!-- 2. Speaking Practice -->
+            <div class="duo-card rounded-3xl p-5 block group border-sky-200 hover:border-sky-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-sky-600 shadow-[0_4px_0_0_#bae6fd] group-hover:scale-105 transition-transform">
+                        <i data-lucide="mic" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[10px] font-black uppercase">Bicara</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">Speaking Practice</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Latihan melafalkan kalimat bahasa Inggris langsung lewat mikrofon.</p>
+                <div class="flex gap-2">
+                    <a href="speaking/index.html" onclick="handleCardNav(event, 'speaking/index.html', 'Speaking')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black text-xs text-center uppercase tracking-wider block">
+                        Buka Modul ➔
+                    </a>
+                    <button onclick="testQuickAction('Speaking')" title="Dengarkan Contoh Frasa" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                        ⚡ Tes
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. Cursive Writing Board -->
+            <div class="duo-card rounded-3xl p-5 block group border-rose-200 hover:border-rose-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shadow-[0_4px_0_0_#fecdd3] group-hover:scale-105 transition-transform">
+                        <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-black uppercase">Menulis</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-rose-600 transition-colors">Cursive Board</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Papan tulis interaktif melatih tulisan indah tegak bersambung.</p>
+                <div class="flex gap-2">
+                    <a href="cursive/index.html" onclick="handleCardNav(event, 'cursive/index.html', 'Cursive')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#e11d48] block" style="background-color: #f43f5e;">
+                        Buka Papan ➔
+                    </a>
+                    <button onclick="testQuickAction('Cursive')" title="Tes Kanvas Mini" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                        ⚡ Tes
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. Roulette Sentence -->
+            <div class="duo-card rounded-3xl p-5 block group border-purple-200 hover:border-purple-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-[0_4px_0_0_#e9d5ff] group-hover:scale-105 transition-transform">
+                        <i data-lucide="refresh-cw" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-purple-50 text-purple-700 text-[10px] font-black uppercase">Spin Ide</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">Sentence Roulette</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Putar roda keberuntungan dan buat kalimat bahasa Inggris kreatif.</p>
+                <div class="flex gap-2">
+                    <a href="roulette/index.html" onclick="handleCardNav(event, 'roulette/index.html', 'Roulette')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#9333ea] block" style="background-color: #a855f7;">
+                        Putar Roda ➔
+                    </a>
+                    <button onclick="testQuickAction('Roulette')" title="Putar Ide Cepat" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                        ⚡ Tes
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. Tarik Tambang (Arcade) -->
+            <div class="duo-card rounded-3xl p-5 block group border-amber-200 hover:border-amber-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-[0_4px_0_0_#fde68a] group-hover:scale-105 transition-transform">
+                        <i data-lucide="swords" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 text-[10px] font-black uppercase">Duel Seru</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">Battle Tarik Tambang</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Kuis duel tarik tambang solo atau 2 pemain tentang perawatan komputer.</p>
+                <div class="flex gap-2">
+                    <a href="tarik-tambang/index.html" onclick="handleCardNav(event, 'tarik-tambang/index.html', 'Tarik Tambang')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#d97706] block" style="background-color: #f59e0b;">
+                        Mainkan Battle ➔
+                    </a>
+                    <button onclick="testQuickAction('Battle')" title="Tes Kuis Tarik Tambang" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                        ⚡ Tes
+                    </button>
+                </div>
+            </div>
+
+            <!-- 6. Word Clash AR -->
+            <div class="duo-card rounded-3xl p-5 block group border-cyan-200 hover:border-cyan-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-100 flex items-center justify-center text-cyan-600 shadow-[0_4px_0_0_#a5f3fc] group-hover:scale-105 transition-transform">
+                        <i data-lucide="hand" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-cyan-50 text-cyan-700 text-[10px] font-black uppercase">Kamera AR</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-cyan-600 transition-colors">Word Clash AR (2 Player)</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Duel 2 pemain memukul gelembung kata dengan kamera gestur MediaPipe.</p>
+                <div class="flex gap-2">
+                    <a href="duel-ar/index.html" onclick="handleCardNav(event, 'duel-ar/index.html', 'Duel AR')" class="flex-1 py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#0891b2] block" style="background-color: #06b6d4;">
+                        Aktifkan AR ➔
+                    </a>
+                    <button onclick="testQuickAction('AR')" title="Info Kamera AR" class="px-3 py-2 rounded-xl btn-duo-white text-xs font-bold text-slate-600">
+                        ⚡ Info
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Pratinjau Cepat Langsung di Canvas -->
+    <div id="modal-preview-action" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white relative">
+            <button onclick="closeQuickAction()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="quick-icon-box" class="w-16 h-16 bg-emerald-100 rounded-3xl mx-auto flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0]">
+                <i data-lucide="sparkles" class="w-8 h-8"></i>
+            </div>
+            <h3 id="quick-title" class="text-xl font-black font-game text-slate-800">Uji Coba Langsung</h3>
+            <div id="quick-body" class="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 text-left space-y-3 text-xs">
+                <!-- Konten dinamis sesuai modul yang diuji -->
+            </div>
+            <button onclick="closeQuickAction()" class="w-full py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
+                Tutup Pratinjau
+            </button>
         </div>
     </div>
 
+    <!-- Modal Ubah Nama Siswa -->
+    <div id="modal-name" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-sm w-full p-6 text-center space-y-4 bg-white">
+            <div class="w-16 h-16 bg-emerald-100 rounded-3xl mx-auto flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0]">
+                <i data-lucide="user-check" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-black font-game text-slate-800">Nama Siswa</h3>
+            <p class="text-xs font-bold text-slate-400">Ketik nama lengkap kamu untuk menyimpan catatan skor XP ke Supabase.</p>
+            <input type="text" id="input-new-name" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 text-center font-bold text-base outline-none focus:border-emerald-500 shadow-inner" placeholder="Ketik nama kamu..." maxlength="25">
+            <div class="flex gap-2">
+                <button onclick="saveStudentName()" class="flex-1 py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
+                    Simpan Nama
+                </button>
+                <button onclick="closeNameModal()" class="px-4 py-3.5 rounded-2xl btn-duo-white text-slate-600 font-black text-xs uppercase">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Leaderboard (Klasemen Supabase) -->
+    <div id="modal-leaderboard" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
+                    <h3 class="text-lg font-black font-game text-slate-800 uppercase">Klasemen Top 10 XP</h3>
+                </div>
+                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div id="leaderboard-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>
+            </div>
+
+            <button onclick="closeLeaderboardModal()" class="w-full py-3 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
+                Tutup Papan Skor
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl w-full mx-auto text-center py-6 mt-6 border-t border-slate-200">
+        <p class="text-xs font-black text-slate-400 font-game uppercase tracking-wider">
+            English Maharati Learning System • SMKN 2 Mantangai Kapuas
+        </p>
+    </footer>
+
     <script>
-        // Kredensial Supabase
+        // ==============================================================
+        // 1. SUPABASE DATABASE CONFIGURATION
+        // ==============================================================
         const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
 
-        // Inisialisasi Supabase
-        let supabaseClient = null;
-        if (typeof window.supabase !== 'undefined') {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
+        // ==============================================================
+        // 2. HYBRID AUDIO SYSTEM (FILE ASSET + PROCEDURAL SYNTH FALLBACK)
+        // ==============================================================
+        let isMusicPlaying = false;
+        let audioCtx = null;
+        let synthBgmTimer = null;
+        let synthNoteIndex = 0;
 
-        const QUOTES = [
-            {t: "The only way to do great work is to love what you do.", a: "Steve Jobs"},
-            {t: "It always seems impossible until it's done.", a: "Nelson Mandela"},
-            {t: "Believe you can and you're halfway there.", a: "T. Roosevelt"},
-            {t: "Success is not final, failure is not fatal.", a: "Winston Churchill"}
+        // Skala nada melodi latar procedural yang santai & ceria (C Pentatonic)
+        const BGM_NOTES = [
+            261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 440.00, 392.00,
+            329.63, 392.00, 440.00, 523.25, 587.33, 523.25, 440.00, 329.63
         ];
 
-        let state = {
-            tab: 'Home', level: 'Easy', score: 0, studentName: '', 
-            data: null, index: 0, battlePos: 0, transcript: '', 
-            isListening: false, speakingStatus: null, isMusicPlaying: false,
-            battleQuestionA: null, battleQuestionB: null, volume: 0.5, lastVolume: 0.5,
-            startTime: null, leaderboard: [],
-            mediaStream: null
-        };
-
-        const TUG_IMG = "https://raw.githubusercontent.com/kombelkapuascerdas-byte/icon/b2ee696febe8154e230c71a534069edb78ab438f/ChatGPT_Image_Feb_12__2026__08_44_05_PM__1_-removebg-preview.png";
-
-        function showCustomAlert(msg) {
-            document.getElementById('alert-message').innerText = msg;
-            document.getElementById('alert-modal').classList.remove('hidden');
-        }
-        function closeCustomAlert() { document.getElementById('alert-modal').classList.add('hidden'); }
-        function playClick() { const s = document.getElementById('click-sound'); if(s){ s.volume = state.volume; s.currentTime = 0; s.play().catch(()=>{}); } }
-
-        // Fallback Data offline
-        function getFallbackQuestions() {
-            return {
-                Reading: { Easy: [{ text: "The cat is sleeping peacefully under the table.", q: "Where is the cat?", options: ["Under the chair", "Under the table", "On the bed"], a: "Under the table" }], Medium: [], Hard: [] },
-                Speaking: { Easy: ["Good morning teacher", "I love studying English", "Today is a wonderful day"], Medium: [], Hard: [] },
-                Battle: { Easy: [{ q: "Kucing", a: "cat" }, { q: "Buku", a: "book" }, { q: "Rumah", a: "house" }, { q: "Pohon", a: "tree" }], Medium: [], Hard: [] },
-                Cursive: { Easy: ["Apple", "School", "Garden"], Medium: [], Hard: [] },
-                Roulette: { Easy: ["Every morning I like to...", "My favorite English word is..."], Medium: [], Hard: [] }
-            };
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
         }
 
-        async function fetchAllDataFromSupabase() {
-            const fallback = getFallbackQuestions();
-            if (!supabaseClient) return fallback;
+        function unlockAudioContext() {
+            getAudioContext();
+        }
+
+        // Sintesis procedural suara pop-click saat file mp3 belum ada di sandbox
+        function playToneSound(freq, duration = 0.08, type = 'sine', gainVal = 0.15) {
             try {
-                const fetchPromise = supabaseClient.from('questions').select('*');
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000));
-                
-                const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
-                if (error) throw error;
-                if (!data || data.length === 0) return fallback;
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
 
-                const formatted = { Reading: { Easy: [], Medium: [], Hard: [] }, Speaking: { Easy: [], Medium: [], Hard: [] }, Battle: { Easy: [], Medium: [], Hard: [] }, Cursive: { Easy: [], Medium: [], Hard: [] }, Roulette: { Easy: [], Medium: [], Hard: [] } };
-                data.forEach(item => {
-                    const act = item.activity; const lvl = item.level || 'Easy';
-                    if (!formatted[act]) return;
-                    if (!formatted[act][lvl]) formatted[act][lvl] = [];
-                    if (act === 'Reading') { let opts = item.options; if (typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e) { opts = []; } } formatted.Reading[lvl].push({ text: item.content || '', q: item.question || '', options: opts || [], a: item.answer || '' }); }
-                    else if (act === 'Speaking') formatted.Speaking[lvl].push(item.content || '');
-                    else if (act === 'Battle') formatted.Battle[lvl].push({ q: item.question || item.content || '', a: item.answer || '' });
-                    else if (act === 'Cursive') formatted.Cursive[lvl].push(item.content || '');
-                    else if (act === 'Roulette') formatted.Roulette[lvl].push(item.content || '');
+        function playSoundEffect(elementId, fallbackFreq = 650) {
+            const audio = document.getElementById(elementId);
+            if (audio && audio.readyState >= 2) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {
+                    playToneSound(fallbackFreq, 0.09, 'sine', 0.18);
                 });
-                return formatted;
-            } catch (err) { return fallback; }
-        }
-
-        async function initAppSession() {
-            const nameInput = document.getElementById('student-name');
-            const name = (nameInput.value || '').trim();
-            if (!name) return showCustomAlert("Silakan ketik nama kamu terlebih dahulu!");
-            
-            state.studentName = name;
-            document.getElementById('player-display').innerText = name;
-            document.getElementById('loading-overlay').style.display = 'flex';
-            
-            state.data = await fetchAllDataFromSupabase();
-            document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('start-overlay').style.display = 'none';
-
-            goToHome();
-            handleVolumeChange(0.5);
-            document.getElementById('bg-music').play().then(() => state.isMusicPlaying = true).catch(() => {});
-        }
-
-        let micPermissionGranted = false;
-        let micPromiseResolve = null;
-
-        async function requestMicOnce() {
-            if (micPermissionGranted) return true;
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showCustomAlert("Browser kamu tidak mendukung akses mikrofon. Gunakan Chrome terbaru.");
-                return false;
-            }
-            document.getElementById('mic-modal').classList.remove('hidden');
-            return new Promise((resolve) => { micPromiseResolve = resolve; });
-        }
-
-        async function grantMicPermission() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-                state.mediaStream = stream; 
-                micPermissionGranted = true;
-                document.getElementById('mic-modal').classList.add('hidden');
-                if (micPromiseResolve) micPromiseResolve(true);
-            } catch (err) {
-                document.getElementById('mic-modal').classList.add('hidden');
-                showCustomAlert("Akses mikrofon ditolak. Kamu perlu mengizinkannya untuk bermain di Mode Talk.");
-                if (micPromiseResolve) micPromiseResolve(false);
+            } else {
+                playToneSound(fallbackFreq, 0.09, 'sine', 0.18);
             }
         }
 
-        function cancelMicPermission() {
-            document.getElementById('mic-modal').classList.add('hidden');
-            if (micPromiseResolve) micPromiseResolve(false);
+        function playClickSound() {
+            playSoundEffect('snd-click', 700);
         }
 
-        async function startActivity(tab) {
-            // Hentikan mode AR jika sedang aktif
-            if(state.tab === 'ARDuel' && tab !== 'ARDuel') { exitARDuel(); }
+        // Melodi procedural synthesizer saat bg-music.mp3 belum tersedia
+        function startProceduralBGM() {
+            stopProceduralBGM();
+            const ctx = getAudioContext();
+            if (!ctx) return;
 
-            if (tab === 'Speaking') {
-                const micReady = await requestMicOnce();
-                if (!micReady) { goToHome(); return; }
+            synthBgmTimer = setInterval(() => {
+                if (!isMusicPlaying) return;
+                const freq = BGM_NOTES[synthNoteIndex % BGM_NOTES.length];
+                synthNoteIndex++;
+
+                try {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.36);
+                } catch(e) {}
+            }, 380);
+        }
+
+        function stopProceduralBGM() {
+            if (synthBgmTimer) {
+                clearInterval(synthBgmTimer);
+                synthBgmTimer = null;
             }
+        }
 
-            state.tab = tab; state.transcript = ''; state.speakingStatus = null; state.startTime = Date.now();
-            document.getElementById('bg-music').pause(); document.getElementById('battle-music').pause();
-            
-            if (tab === 'ARDuel') {
-                render();
-                setTimeout(initARDuelUI, 100);
-                return;
+        function toggleMusic(e) {
+            if (e) e.stopPropagation();
+            getAudioContext();
+            const bgAudio = document.getElementById('snd-bg');
+            const icon = document.getElementById('icon-music');
+            const txt = document.getElementById('txt-music');
+
+            if (isMusicPlaying) {
+                if (bgAudio) bgAudio.pause();
+                stopProceduralBGM();
+                isMusicPlaying = false;
+                icon.setAttribute('data-lucide', 'volume-x');
+                icon.classList.replace('text-emerald-600', 'text-slate-400');
+                if (txt) {
+                    txt.innerText = 'MUSIK OFF';
+                    txt.classList.replace('text-emerald-600', 'text-slate-400');
+                }
+            } else {
+                isMusicPlaying = true;
+                icon.setAttribute('data-lucide', 'volume-2');
+                icon.classList.replace('text-slate-400', 'text-emerald-600');
+                if (txt) {
+                    txt.innerText = 'MUSIK ON';
+                    txt.classList.replace('text-slate-400', 'text-emerald-600');
+                }
+
+                if (bgAudio) {
+                    bgAudio.volume = 0.35;
+                    bgAudio.play().catch(() => {
+                        startProceduralBGM();
+                    });
+                } else {
+                    startProceduralBGM();
+                }
             }
-
-            // Memastikan Nav Top dan Bottom muncul
-            document.getElementById('nav-top').style.display = 'flex';
-            document.getElementById('nav-bottom').style.display = 'flex';
-            document.body.classList.remove('bg-slate-950');
-
-            const list = getQuestionList(tab, state.level);
-            if(list && list.length > 0) {
-                if(tab === 'Battle') {
-                    state.battleQuestionA = list[Math.floor(Math.random()*list.length)];
-                    state.battleQuestionB = list[Math.floor(Math.random()*list.length)];
-                    state.battlePos = 0;
-                    if(state.isMusicPlaying) document.getElementById('battle-music').play().catch(()=>{});
-                } else state.index = Math.floor(Math.random()*list.length);
-            }
-            render();
-            if(tab === 'Cursive') setTimeout(initCanvas, 100);
-        }
-
-        function getQuestionList(tab, level) {
-            if (!state.data || !state.data[tab]) return [];
-            const list = state.data[tab][level];
-            if (list && list.length > 0) return list;
-            for (let l of ['Easy', 'Medium', 'Hard']) if (state.data[tab][l] && state.data[tab][l].length > 0) return state.data[tab][l];
-            return [];
-        }
-
-        function saveRecap(activity, pts) {
-            const duration = (Date.now() - state.startTime) / 1000;
-            let speedBonus = duration < 10 ? Math.floor(10 - duration) : 0;
-            const total = pts + speedBonus;
-            state.score += total;
-            document.getElementById('display-score').innerText = state.score;
-            return speedBonus;
-        }
-
-        async function showLeaderboard() { 
-            if(state.tab === 'ARDuel') { exitARDuel(); }
-            state.tab = 'Rank'; 
-            document.getElementById('nav-top').style.display = 'flex';
-            document.getElementById('nav-bottom').style.display = 'flex';
-            document.body.classList.remove('bg-slate-950');
-            render(); 
-        }
-
-        function goToHome() { 
-            if(state.tab === 'ARDuel') { exitARDuel(); }
-            state.tab = 'Home'; 
-            document.getElementById('nav-top').style.display = 'flex';
-            document.getElementById('nav-bottom').style.display = 'flex';
-            document.body.classList.remove('bg-slate-950');
-            document.getElementById('battle-music').pause(); 
-            if(state.isMusicPlaying) document.getElementById('bg-music').play().catch(()=>{}); 
-            render(); 
-        }
-        
-        function handleVolumeChange(val) { state.volume = parseFloat(val); ['bg-music','battle-music','click-sound','victory-sound'].forEach(id => { const el = document.getElementById(id); if(el) el.volume = state.volume; }); const icon = document.getElementById('music-icon'); if(state.volume === 0) icon.setAttribute('data-lucide', 'volume-x'); else if(state.volume < 0.5) icon.setAttribute('data-lucide', 'volume-1'); else icon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
-        function toggleMute() { if(state.volume > 0) { state.lastVolume = state.volume; handleVolumeChange(0); document.getElementById('volume-slider').value = 0; } else { handleVolumeChange(state.lastVolume || 0.5); document.getElementById('volume-slider').value = state.lastVolume || 0.5; } }
-        function toggleFullScreen() { try { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch(e) {} }
-        function playTTS(text) { if (!window.speechSynthesis) return; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 0.9; u.volume = state.volume; window.speechSynthesis.speak(u); }
-
-        function render() {
-            const root = document.getElementById('app-container');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.replace('text-duo-green', 'text-gray-400'));
-            const activeId = state.tab === 'Rank' ? 'nav-rank' : `nav-${state.tab.toLowerCase()}`;
-            document.getElementById(activeId)?.classList.replace('text-gray-400', 'text-duo-green');
-            
-            if(state.tab === 'Home') renderHome(root);
-            else if(state.tab === 'Reading') renderReading(root);
-            else if(state.tab === 'Speaking') renderSpeaking(root);
-            else if(state.tab === 'Battle') renderBattle(root);
-            else if(state.tab === 'Cursive') renderCursive(root);
-            else if(state.tab === 'Roulette') renderRoulette(root);
-            else if(state.tab === 'Rank') renderRank(root);
-            else if(state.tab === 'ARDuel') renderARDuelContainer(root);
             lucide.createIcons();
         }
 
-        function renderHome(root) {
-            root.innerHTML = `
-                <div class="space-y-8 animate-fade-in w-full text-center select-none z-10 relative">
-                    <div class="glass-container p-8 rounded-[3rem] shadow-xl max-w-2xl mx-auto text-center">
-                        <h2 class="text-3xl font-black mb-2 uppercase text-center text-slate-800">Halo, ${state.studentName}! 👋</h2>
-                        <p class="text-slate-500 font-bold mb-6 uppercase tracking-widest text-xs text-center">Pilih Level Kamu:</p>
-                        <div class="flex justify-center gap-3">
-                            ${['Easy', 'Medium', 'Hard'].map(l => `<button onclick="state.level='${l}'; render();" class="px-6 py-2.5 rounded-2xl font-black border-4 transition-all ${state.level===l?'bg-indigo-600 text-white border-indigo-700 shadow-lg scale-105':'bg-white text-slate-400 border-slate-100 hover:border-slate-200'}">${l}</button>`).join('')}
-                        </div>
+        // ==============================================================
+        // 3. SMART NAVIGATION (FOLDER ASLI vs SANDBOX CANVAS)
+        // ==============================================================
+        function handleCardNav(e, fileUrl, moduleName) {
+            playClickSound();
+            const isLocalOrHosted = window.location.protocol === 'file:' || window.location.hostname.includes('github.io');
+
+            if (!isLocalOrHosted) {
+                e.preventDefault();
+                testQuickAction(moduleName);
+            }
+        }
+
+        // Demonstrasi mini interaktif di dalam preview
+        function testQuickAction(moduleName) {
+            playClickSound();
+            const modal = document.getElementById('modal-preview-action');
+            const title = document.getElementById('quick-title');
+            const body = document.getElementById('quick-body');
+            const iconBox = document.getElementById('quick-icon-box');
+
+            title.innerText = `Pratinjau: ${moduleName}`;
+            modal.classList.remove('hidden');
+
+            if (moduleName === 'Reading') {
+                iconBox.innerHTML = '<i data-lucide="book-open" class="w-8 h-8"></i>';
+                body.innerHTML = `
+                    <p class="font-bold text-slate-700 italic border-l-4 border-emerald-500 pl-3">
+                        "Sarah waters the flowers in her garden every morning before school."
+                    </p>
+                    <p class="font-black text-slate-800 mt-2">Pertanyaan: When does Sarah water the flowers?</p>
+                    <div class="grid gap-2 pt-1">
+                        <button onclick="answerMiniQuiz(true)" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">A. Every morning</button>
+                        <button onclick="answerMiniQuiz(false)" class="p-2.5 rounded-xl border-2 border-slate-200 text-left font-bold hover:border-emerald-400">B. At midnight</button>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                        <button onclick="startActivity('Reading')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-emerald-400 transition-all hover:-translate-y-1"><div class="p-3 bg-emerald-100 text-emerald-600 rounded-2xl"><i data-lucide="book-open"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Reading</h3></button>
-                        <button onclick="startActivity('Speaking')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-blue-400 transition-all hover:-translate-y-1"><div class="p-3 bg-blue-100 text-blue-600 rounded-2xl"><i data-lucide="mic"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Talk</h3></button>
-                        <button onclick="startActivity('Cursive')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-rose-400 transition-all hover:-translate-y-1"><div class="p-3 bg-rose-100 text-rose-600 rounded-2xl"><i data-lucide="pen-tool"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Draw</h3></button>
-                        
-                        <!-- New AR DUEL Card -->
-                        <button onclick="startActivity('ARDuel')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-fuchsia-400 md:col-span-3 transition-all hover:-translate-y-1 bg-gradient-to-r from-slate-900 to-slate-800 text-white border-2 border-slate-700">
-                            <div class="p-3 bg-fuchsia-500/20 text-fuchsia-400 rounded-2xl"><i data-lucide="scan-face"></i></div>
-                            <h3 class="font-black text-xs uppercase tracking-widest text-fuchsia-300">AR Word Clash (2 Player)</h3>
+                    <div id="mini-quiz-feedback" class="text-xs font-bold text-center pt-1 hidden"></div>
+                `;
+            } else if (moduleName === 'Speaking') {
+                iconBox.innerHTML = '<i data-lucide="mic" class="w-8 h-8"></i>';
+                body.innerHTML = `
+                    <p class="text-slate-500">Frasa latihan hari ini:</p>
+                    <p class="text-base font-black text-sky-700 italic">"Practice makes perfect"</p>
+                    <div class="pt-2 flex gap-2">
+                        <button onclick="speakDemoText('Practice makes perfect')" class="flex-1 py-2.5 rounded-xl btn-duo-blue text-white font-black">
+                            🔊 Dengarkan Suara
                         </button>
-
-                        <button onclick="startActivity('Roulette')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-indigo-400 transition-all hover:-translate-y-1"><div class="p-3 bg-indigo-100 text-indigo-600 rounded-2xl"><i data-lucide="refresh-cw"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Spin</h3></button>
-                        <button onclick="startActivity('Battle')" class="glass-container p-5 rounded-3xl flex flex-col items-center gap-3 shadow-lg hover:border-orange-400 md:col-span-2 transition-all hover:-translate-y-1"><div class="p-3 bg-orange-100 text-orange-600 rounded-2xl"><i data-lucide="swords"></i></div><h3 class="font-black text-xs uppercase text-slate-700">Battle Game</h3></button>
                     </div>
-                </div>
-            `;
-        }
-
-        /*========================================================================================
-                                     AR WORD CLASH (2 PLAYER GESTURE DUEL)
-          ========================================================================================*/
-        
-        let arState = null;
-        let arCameraInstance = null;
-        let arHandsInstance = null;
-        let arAnimFrameId = null;
-        let arMouseModeActive = false;
-        
-        const AR_VOCAB_BANK = [
-          { id: "Kucing", en: "Cat", decoys: ["Dog", "Tiger", "Bird"] },
-          { id: "Anjing", en: "Dog", decoys: ["Wolf", "Fox", "Bear"] },
-          { id: "Matahari", en: "Sun", decoys: ["Moon", "Star", "Cloud"] },
-          { id: "Bulan", en: "Moon", decoys: ["Sun", "Planet", "Sky"] },
-          { id: "Buku", en: "Book", decoys: ["Pen", "Paper", "Desk"] },
-          { id: "Rumah", en: "House", decoys: ["School", "Office", "Building"] },
-          { id: "Apel", en: "Apple", decoys: ["Banana", "Grape", "Orange"] },
-          { id: "Mobil", en: "Car", decoys: ["Train", "Plane", "Bicycle"] },
-          { id: "Pintu", en: "Door", decoys: ["Window", "Floor", "Wall"] },
-          { id: "Air", en: "Water", decoys: ["Fire", "Earth", "Wind"] },
-          { id: "Api", en: "Fire", decoys: ["Smoke", "Water", "Light"] },
-          { id: "Pohon", en: "Tree", decoys: ["Flower", "Grass", "Forest"] },
-          { id: "Ikan", en: "Fish", decoys: ["Crab", "Whale", "Duck"] },
-          { id: "Burung", en: "Bird", decoys: ["Eagle", "Bat", "Fly"] },
-          { id: "Sekolah", en: "School", decoys: ["Market", "Hospital", "Store"] }
-        ];
-
-        function initARDuelState() {
-            arState = {
-              isCameraMode: true, currentRound: 1, maxRounds: 10, activeQuestion: null,
-              p1Score: 0, p2Score: 0, p1Streak: 0, p2Streak: 0, isRoundCooldown: false,
-              p1Bubbles: [], p2Bubbles: [], p1CooldownUntil: 0, p2CooldownUntil: 0,
-              hands: { p1: null, p2: null }, particles: [], floatingTexts: []
-            };
-            arMouseModeActive = false;
-        }
-
-        // Render HTML for AR Duel completely overlaying everything
-        function renderARDuelContainer(root) {
-            document.getElementById('nav-top').style.display = 'none';
-            document.getElementById('nav-bottom').style.display = 'none';
-            document.body.classList.add('bg-slate-950'); // Dark background
-
-            root.innerHTML = `
-            <div id="ar-wrapper" class="fixed inset-0 w-full h-full z-[100] bg-slate-950 text-white overflow-hidden text-left">
-              <video id="ar-webcam" class="hidden" playsinline></video>
-              <canvas id="ar-gameCanvas" class="absolute inset-0 w-full h-full z-0"></canvas>
-              
-              <!-- Back Button -->
-              <button onclick="goToHome()" class="absolute top-6 left-6 z-50 glass-panel-ar px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-white/10 text-slate-200 shadow-lg border border-slate-700 pointer-events-auto">
-                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
-              </button>
-
-              <div class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-4 md:p-6 pt-20">
-                <header class="w-full flex items-start justify-between gap-2 max-w-7xl mx-auto">
-                  <div class="flex items-center gap-3 glass-panel-ar p1-glow px-5 py-3 rounded-2xl border-l-4 border-cyan-400">
-                    <div class="w-3 h-10 bg-cyan-400 rounded-full shadow-[0_0_12px_#22d3ee]"></div>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs tracking-wider uppercase font-bold text-cyan-300">P1 (KIRI)</span>
-                        <span id="ar-p1HandBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-200">Menunggu Tangan...</span>
-                      </div>
-                      <div class="flex items-baseline gap-2">
-                        <span id="ar-p1Score" class="font-hud text-3xl md:text-4xl font-black text-cyan-400">0</span>
-                        <span class="text-xs text-slate-400">PTS</span>
-                        <span id="ar-p1Streak" class="text-xs font-bold text-amber-400 ml-1 hidden">🔥 0x</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex-1 max-w-xl mx-2 flex flex-col items-center">
-                    <div class="glass-panel-ar px-6 py-3 rounded-2xl border border-amber-400/40 shadow-[0_0_25px_rgba(251,191,36,0.25)] text-center w-full">
-                      <div class="flex items-center justify-center gap-2 text-xs text-amber-300 tracking-widest uppercase font-semibold">
-                        <span>⚔️ TERJEMAHKAN KE BAHASA INGGRIS</span>
-                        <span id="ar-roundIndicator" class="font-hud bg-amber-500/20 text-amber-200 px-2.5 py-0.5 rounded-full border border-amber-500/30">RONDE 1/10</span>
-                      </div>
-                      <div class="flex items-center justify-center gap-3 mt-1">
-                        <div id="ar-targetWord" class="text-2xl md:text-4xl font-extrabold text-amber-300 tracking-wide font-hud animate-pulse-slow">"KUCING"</div>
-                        <button id="ar-btnRepeatSpeech" title="Dengarkan Pengucapan Lagi" class="pointer-events-auto p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 active:scale-95 text-amber-300 border border-amber-400/40 transition shadow-[0_0_10px_rgba(251,191,36,0.2)]">🔊</button>
-                      </div>
-                      <div class="text-[11px] text-slate-300 mt-0.5">Sentuh gelembung jawaban yang terpisah di wilayahmu!</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3 glass-panel-ar p2-glow px-5 py-3 rounded-2xl border-r-4 border-pink-500 text-right">
-                    <div>
-                      <div class="flex items-center justify-end gap-2">
-                        <span id="ar-p2HandBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-pink-950 border border-pink-500/40 text-pink-200">Menunggu Tangan...</span>
-                        <span class="text-xs tracking-wider uppercase font-bold text-pink-300">P2 (KANAN)</span>
-                      </div>
-                      <div class="flex items-baseline justify-end gap-2">
-                        <span id="ar-p2Streak" class="text-xs font-bold text-amber-400 mr-1 hidden">🔥 0x</span>
-                        <span class="text-xs text-slate-400">PTS</span>
-                        <span id="ar-p2Score" class="font-hud text-3xl md:text-4xl font-black text-pink-400">0</span>
-                      </div>
-                    </div>
-                    <div class="w-3 h-10 bg-pink-500 rounded-full shadow-[0_0_12px_#ec4899]"></div>
-                  </div>
-                </header>
-
-                <div class="absolute inset-y-24 left-1/2 -translate-x-1/2 w-0.5 border-r-2 border-dashed border-white/20 pointer-events-none flex flex-col justify-center items-center">
-                  <div class="bg-slate-900/90 text-slate-400 text-[10px] font-hud px-2 py-1 rounded-full border border-slate-700 tracking-wider">ZONA PEMISAH</div>
-                </div>
-
-                <footer class="w-full flex items-end justify-between max-w-7xl mx-auto pointer-events-auto">
-                  <div class="glass-panel-ar px-4 py-2.5 rounded-xl text-xs text-slate-300 flex items-center gap-2">
-                    <span id="ar-cameraStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span id="ar-cameraStatusText">Inisialisasi AR...</span>
-                    <button id="ar-btnSwitchMouse" class="ml-3 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-[11px] text-amber-300 transition">Mode Mouse</button>
-                  </div>
-                </footer>
-              </div>
-
-              <!-- Start Modal AR -->
-              <div id="ar-startModal" class="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-                <div class="max-w-xl w-full glass-panel-ar p-8 rounded-3xl border border-cyan-500/40 shadow-2xl text-center space-y-6">
-                  <div class="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-pink-500/20 border border-white/20"><span class="text-4xl">⚔️ 🖐️</span></div>
-                  <div>
-                    <h1 class="font-hud text-3xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 via-amber-300 to-pink-500 bg-clip-text text-transparent">WORD CLASH</h1>
-                    <p class="text-sm font-hud text-cyan-300 tracking-widest mt-1">DUEL KOSAKATA GESTUR TANGAN</p>
-                  </div>
-                  <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-left text-sm space-y-2 text-slate-300">
-                    <div class="flex items-center gap-2 text-cyan-300 font-bold"><span>🎮 CARA MAIN (2 PEMAIN):</span></div>
-                    <ul class="list-disc pl-5 space-y-1.5 text-xs md:text-sm">
-                      <li><strong>Player 1</strong> di sisi <span class="text-cyan-400 font-semibold">kiri layar</span>, <strong>Player 2</strong> di sisi <span class="text-pink-400 font-semibold">kanan layar</span>.</li>
-                      <li>Arahkan <strong>ujung jari telunjuk</strong> menyentuh gelembung jawaban bahasa Inggris yang tepat.</li>
-                      <li>Tahan jari di gelembung selama <strong>0.5 detik</strong> hingga cincin kuning penuh.</li>
-                    </ul>
-                  </div>
-                  <div class="flex flex-col sm:flex-row gap-3">
-                    <button id="ar-btnStartGame" class="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:brightness-110 font-bold font-hud tracking-wider text-slate-950 text-base shadow-[0_0_25px_rgba(6,182,212,0.5)] transition">🚀 AKTIFKAN KAMERA</button>
-                    <button id="ar-btnStartMouse" class="py-4 px-6 rounded-2xl glass-panel-ar hover:bg-white/10 font-semibold text-slate-300 text-sm border border-slate-700 transition">💻 Mode Mouse</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Winner Modal AR -->
-              <div id="ar-winnerModal" class="hidden absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-                <div class="max-w-lg w-full glass-panel-ar p-8 rounded-3xl border border-amber-400/40 text-center space-y-6 animate-pulse-slow">
-                  <div id="ar-winnerBadge" class="text-6xl">🏆</div>
-                  <h2 id="ar-winnerText" class="font-hud text-3xl font-black text-amber-300">PLAYER 1 MENANG!</h2>
-                  <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex justify-around items-center">
-                    <div class="text-center"><div class="text-xs text-cyan-400 font-bold">PLAYER 1</div><div id="ar-finalP1Score" class="font-hud text-3xl font-black text-cyan-300">0</div></div>
-                    <div class="font-hud text-xl text-slate-500 font-bold">VS</div>
-                    <div class="text-center"><div class="text-xs text-pink-400 font-bold">PLAYER 2</div><div id="ar-finalP2Score" class="font-hud text-3xl font-black text-pink-300">0</div></div>
-                  </div>
-                  <button id="ar-btnPlayAgain" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 font-bold font-hud text-slate-950 shadow-[0_0_25px_rgba(251,191,36,0.4)] transition">MAIN LAGI (REMATCH)</button>
-                </div>
-              </div>
-            </div>
-            `;
+                `;
+            } else if (moduleName === 'Cursive') {
+                iconBox.innerHTML = '<i data-lucide="pen-tool" class="w-8 h-8"></i>';
+                body.innerHTML = `
+                    <p class="text-slate-600 font-semibold">Tulis kata berikut di layar modul:</p>
+                    <p class="text-4xl text-center py-2 text-rose-600" style="font-family:'Fredoka'; font-weight:700;">Keyboard</p>
+                    <p class="text-[11px] text-slate-400 text-center">Modul Cursive menyediakan kanvas sentuh khusus dengan garis bantu halus.</p>
+                `;
+            } else if (moduleName === 'Roulette') {
+                iconBox.innerHTML = '<i data-lucide="refresh-cw" class="w-8 h-8"></i>';
+                const prompts = [
+                    "My favorite hobby after school is...",
+                    "One habit that makes me productive is...",
+                    "In my future career, I want to..."
+                ];
+                const pick = prompts[Math.floor(Math.random() * prompts.length)];
+                body.innerHTML = `
+                    <p class="text-slate-500">Template Kalimat Acak:</p>
+                    <p class="text-sm font-black text-purple-700 italic">"${pick}"</p>
+                    <p class="text-[11px] text-slate-400 mt-2">Siswa melanjutkan kalimat ini untuk mendapatkan +10 XP ke Supabase.</p>
+                `;
+            } else if (moduleName === 'Battle') {
+                iconBox.innerHTML = '<i data-lucide="swords" class="w-8 h-8"></i>';
+                body.innerHTML = `
+                    <p class="text-slate-700 font-bold">🎮 Kuis Duel Tarik Tambang PC</p>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        Mendukung mode Solo melawan komputer (Overheat AI) dan mode 2 Pemain (1 vs 1) di satu keyboard atau layar laptop.
+                    </p>
+                `;
+            } else {
+                iconBox.innerHTML = '<i data-lucide="hand" class="w-8 h-8"></i>';
+                body.innerHTML = `
+                    <p class="text-slate-700 font-bold">🖐️ Duel AR Gestur Tangan</p>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        Menggunakan kecerdasan buatan MediaPipe Hands untuk mendeteksi ujung jari telunjuk menyentuh gelembung kata.
+                    </p>
+                `;
+            }
             lucide.createIcons();
         }
 
-        // TONE JS Setup for AR
-        let arAudioReady = false;
-        let arHoverSynth, arCorrectSynth, arWrongSynth, arFanfareSynth;
-        
-        function initARAudio() {
-            if (arAudioReady) return;
-            try {
-                arHoverSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.1, sustain: 0.01, release: 0.1 } }).toDestination();
-                arHoverSynth.volume.value = -12;
-                arCorrectSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.4 } }).toDestination();
-                arCorrectSynth.volume.value = -6;
-                arWrongSynth = new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.02, decay: 0.3, sustain: 0.0, release: 0.1 } }).toDestination();
-                arWrongSynth.volume.value = -8;
-                arFanfareSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-                arAudioReady = true;
-            } catch (err) {}
-        }
-        function arPlayHover() { if (arAudioReady) try { arHoverSynth.triggerAttackRelease("C6", "16n"); } catch(e){} }
-        function arPlayCorrect() { if (arAudioReady) try { arCorrectSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); } catch(e){} }
-        function arPlayWrong() { if (arAudioReady) try { arWrongSynth.triggerAttackRelease("G#2", "8n"); } catch(e){} }
-        function arPlayVictory() { 
-            if (arAudioReady) try { 
-                const now = Tone.now(); 
-                arFanfareSynth.triggerAttackRelease(["C4", "G4", "C5"], "8n", now); 
-                arFanfareSynth.triggerAttackRelease(["E4", "B4", "E5"], "8n", now + 0.2); 
-                arFanfareSynth.triggerAttackRelease(["G4", "D5", "G5"], "4n", now + 0.4); 
-                arFanfareSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "2n", now + 0.7); 
-            } catch(e){} 
+        function answerMiniQuiz(isCorrect) {
+            const fb = document.getElementById('mini-quiz-feedback');
+            fb.classList.remove('hidden', 'text-emerald-600', 'text-rose-600');
+            if (isCorrect) {
+                playSoundEffect('snd-right', 880);
+                fb.classList.add('text-emerald-600');
+                fb.innerText = "✓ Jawaban Benar! (+15 XP dicatat)";
+                addTempScore(15);
+            } else {
+                playSoundEffect('snd-wrong', 220);
+                fb.classList.add('text-rose-600');
+                fb.innerText = "✗ Kurang tepat. Coba perhatikan lagi teksnya!";
+            }
         }
 
-        function arSpeak(text, lang='id-ID') {
-            if (!('speechSynthesis' in window)) return;
-            try {
+        function speakDemoText(txt) {
+            if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = lang; u.rate = lang==='id-ID'? 0.92 : 1.0; u.pitch = 1.05;
-                const voices = window.speechSynthesis.getVoices();
-                const targetVoice = voices.find(v => v.lang && v.lang.includes(lang.split('-')[0]));
-                if(targetVoice) u.voice = targetVoice;
+                const u = new SpeechSynthesisUtterance(txt);
+                u.lang = 'en-US';
+                u.rate = 0.9;
                 window.speechSynthesis.speak(u);
-            } catch(e){}
-        }
-
-        class ARFloatingBubble {
-            constructor(text, isCorrect, playerSide, spawnX, spawnY, bounds) {
-                this.text = text; this.isCorrect = isCorrect; this.playerSide = playerSide;
-                const minDim = Math.min(bounds.width, bounds.height);
-                this.radius = Math.max(50, Math.min(76, minDim * 0.14));
-                this.bounds = bounds;
-                this.minX = bounds.minX + this.radius + 15; this.maxX = bounds.maxX - this.radius - 15;
-                this.minY = bounds.minY + this.radius + 15; this.maxY = bounds.maxY - this.radius - 15;
-                this.x = Math.max(this.minX, Math.min(this.maxX, spawnX));
-                this.y = Math.max(this.minY, Math.min(this.maxY, spawnY));
-                const speed = 0.45 + Math.random() * 0.35; const angle = Math.random() * Math.PI * 2;
-                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
-                this.oscillator = Math.random() * Math.PI * 2; this.oscSpeed = 0.015 + Math.random() * 0.015;
-                this.baseColor = playerSide === 'p1' ? 'rgba(6, 182, 212, 0.22)' : 'rgba(236, 72, 153, 0.22)';
-                this.borderColor = playerSide === 'p1' ? '#22d3ee' : '#f472b6';
-                this.textColor = '#ffffff'; this.dwellProgress = 0;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy; this.oscillator += this.oscSpeed; this.y += Math.sin(this.oscillator) * 0.25;
-                if (this.x < this.minX) { this.x = this.minX; this.vx = Math.abs(this.vx); } else if (this.x > this.maxX) { this.x = this.maxX; this.vx = -Math.abs(this.vx); }
-                if (this.y < this.minY) { this.y = this.minY; this.vy = Math.abs(this.vy); } else if (this.y > this.maxY) { this.y = this.maxY; this.vy = -Math.abs(this.vy); }
-            }
-            draw(ctx) {
-                ctx.save(); ctx.translate(this.x, this.y);
-                ctx.shadowColor = this.borderColor; ctx.shadowBlur = this.dwellProgress > 0 ? 32 : 14;
-                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.dwellProgress > 0 ? (this.playerSide === 'p1' ? 'rgba(6, 182, 212, 0.55)' : 'rgba(236, 72, 153, 0.55)') : this.baseColor;
-                ctx.fill(); ctx.lineWidth = this.dwellProgress > 0 ? 4 : 2.5; ctx.strokeStyle = this.borderColor; ctx.stroke();
-                
-                const grad = ctx.createRadialGradient(-this.radius * 0.35, -this.radius * 0.35, 2, 0, 0, this.radius);
-                grad.addColorStop(0, 'rgba(255, 255, 255, 0.65)'); grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.12)'); grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.fill();
-
-                if (this.dwellProgress > 0) {
-                    ctx.beginPath(); ctx.arc(0, 0, this.radius + 7, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * this.dwellProgress));
-                    ctx.lineWidth = 5; ctx.strokeStyle = '#facc15'; ctx.shadowColor = '#facc15'; ctx.shadowBlur = 18; ctx.lineCap = 'round'; ctx.stroke();
-                }
-                ctx.shadowBlur = 6; ctx.shadowColor = '#000000'; ctx.fillStyle = this.textColor;
-                ctx.font = `bold ${Math.round(this.radius * 0.38)}px 'Plus Jakarta Sans', sans-serif`;
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(this.text, 0, 0);
-                ctx.restore();
-            }
-            containsPoint(px, py) {
-                const dx = px - this.x; const dy = py - this.y; return (dx * dx + dy * dy) <= (this.radius * this.radius);
             }
         }
 
-        function arResolveCollisions(bubbles) {
-            for (let i = 0; i < bubbles.length; i++) {
-                for (let j = i + 1; j < bubbles.length; j++) {
-                    const b1 = bubbles[i]; const b2 = bubbles[j];
-                    const dx = b2.x - b1.x; const dy = b2.y - b1.y; const dist = Math.hypot(dx, dy);
-                    const targetDist = b1.radius + b2.radius + 28; // 28 is min gap
-                    if (dist < targetDist && dist > 0.001) {
-                        const overlap = targetDist - dist; const nx = dx / dist; const ny = dy / dist;
-                        b1.x -= nx * (overlap * 0.52); b1.y -= ny * (overlap * 0.52);
-                        b2.x += nx * (overlap * 0.52); b2.y += ny * (overlap * 0.52);
-                        const dotVelocity = (b1.vx - b2.vx) * nx + (b1.vy - b2.vy) * ny;
-                        if (dotVelocity > 0) {
-                            const impulse = dotVelocity * 0.8;
-                            b1.vx -= nx * impulse; b1.vy -= ny * impulse;
-                            b2.vx += nx * impulse; b2.vy += ny * impulse;
-                        }
-                        const maxSpeed = 0.8;
-                        const s1 = Math.hypot(b1.vx, b1.vy); if (s1 > maxSpeed) { b1.vx = (b1.vx / s1) * maxSpeed; b1.vy = (b1.vy / s1) * maxSpeed; }
-                        const s2 = Math.hypot(b2.vx, b2.vy); if (s2 > maxSpeed) { b2.vx = (b2.vx / s2) * maxSpeed; b2.vy = (b2.vy / s2) * maxSpeed; }
-                    }
-                }
-            }
+        function closeQuickAction() {
+            playClickSound();
+            document.getElementById('modal-preview-action').classList.add('hidden');
         }
 
-        function arSetupRound() {
-            if (arState.currentRound > arState.maxRounds) { arFinishGame(); return; }
-            arState.isRoundCooldown = false;
-            const q = AR_VOCAB_BANK[Math.floor(Math.random() * AR_VOCAB_BANK.length)];
-            arState.activeQuestion = q;
-            document.getElementById("ar-targetWord").innerText = `"${q.id.toUpperCase()}"`;
-            document.getElementById("ar-roundIndicator").innerText = `RONDE ${arState.currentRound}/${arState.maxRounds}`;
-            arSpeak(q.id);
+        // ==============================================================
+        // 4. STUDENT PROFILE & STORAGE
+        // ==============================================================
+        function getStudentName() {
+            return localStorage.getItem('studentName') || 'Siswa Baru';
+        }
 
-            const options = [q.en, ...q.decoys.slice(0, 3)].sort(() => 0.5 - Math.random());
-            const c = document.getElementById("ar-gameCanvas");
-            if(!c) return;
-            const w = c.width || window.innerWidth; const h = c.height || window.innerHeight;
-            
-            const p1Bounds = { minX: 30, maxX: (w/2)-45, minY: 120, maxY: h-90, width: (w/2)-75, height: h-210 };
-            const p2Bounds = { minX: (w/2)+45, maxX: w-30, minY: 120, maxY: h-90, width: (w/2)-75, height: h-210 };
+        function updateProfileUI() {
+            const name = getStudentName();
+            document.getElementById('nav-student-name').innerText = name;
+            document.getElementById('hero-student-name').innerText = name;
+            fetchStudentTotalXP(name);
+        }
 
-            const buildBubbles = (opts, bounds, side) => {
-                const bw = bounds.maxX - bounds.minX; const bh = bounds.maxY - bounds.minY;
-                const slots = [
-                    { x: bounds.minX + bw*0.28, y: bounds.minY + bh*0.26 }, { x: bounds.minX + bw*0.72, y: bounds.minY + bh*0.26 },
-                    { x: bounds.minX + bw*0.28, y: bounds.minY + bh*0.74 }, { x: bounds.minX + bw*0.72, y: bounds.minY + bh*0.74 }
-                ].sort(()=>0.5-Math.random());
-                return opts.map((o, i) => {
-                    const sx = slots[i].x + (Math.random()-0.5)*bw*0.12; const sy = slots[i].y + (Math.random()-0.5)*bh*0.12;
-                    return new ARFloatingBubble(o, o===q.en, side, sx, sy, bounds);
+        function openNameModal() {
+            playClickSound();
+            document.getElementById('input-new-name').value = getStudentName() === 'Siswa Baru' ? '' : getStudentName();
+            document.getElementById('modal-name').classList.remove('hidden');
+        }
+
+        function closeNameModal() {
+            playClickSound();
+            document.getElementById('modal-name').classList.add('hidden');
+        }
+
+        function saveStudentName() {
+            const input = document.getElementById('input-new-name').value.trim();
+            if (input) {
+                localStorage.setItem('studentName', input);
+                playSoundEffect('snd-right', 880);
+                updateProfileUI();
+            }
+            closeNameModal();
+        }
+
+        function addTempScore(pts) {
+            const el = document.getElementById('nav-xp-score');
+            const current = parseInt(el.innerText) || 0;
+            el.innerText = `${current + pts} XP`;
+        }
+
+        // ==============================================================
+        // 5. SUPABASE XP & LEADERBOARD
+        // ==============================================================
+        async function fetchStudentTotalXP(studentName) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?name=eq.${encodeURIComponent(studentName)}&select=score`, {
+                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
                 });
-            };
-
-            arState.p1Bubbles = buildBubbles(options, p1Bounds, 'p1');
-            arState.p2Bubbles = buildBubbles([...options].sort(()=>0.5-Math.random()), p2Bounds, 'p2');
+                if (!res.ok) return;
+                const rows = await res.json();
+                const total = rows.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
+                document.getElementById('nav-xp-score').innerText = `${total} XP`;
+            } catch(e) {}
         }
 
-        function arHandleAnswer(side, bubble) {
-            if(arState.isRoundCooldown) return;
-            const now = performance.now();
-            if(side==='p1' && now<arState.p1CooldownUntil) return;
-            if(side==='p2' && now<arState.p2CooldownUntil) return;
+        async function openLeaderboardModal() {
+            playClickSound();
+            document.getElementById('modal-leaderboard').classList.remove('hidden');
+            const container = document.getElementById('leaderboard-list');
+            container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>';
 
-            if(bubble.isCorrect) {
-                arState.isRoundCooldown = true; arPlayCorrect(); arSpeak(bubble.text, 'en-US');
-                const isP1 = side==='p1';
-                const pts = 150 + (isP1 ? arState.p1Streak*25 : arState.p2Streak*25);
-                if(isP1) {
-                    arState.p1Score+=pts; arState.p1Streak++; document.getElementById("ar-p1Score").innerText = arState.p1Score;
-                    document.getElementById("ar-p1Streak").innerText = `🔥 ${arState.p1Streak}x`; document.getElementById("ar-p1Streak").classList.remove('hidden');
-                } else {
-                    arState.p2Score+=pts; arState.p2Streak++; document.getElementById("ar-p2Score").innerText = arState.p2Score;
-                    document.getElementById("ar-p2Streak").innerText = `🔥 ${arState.p2Streak}x`; document.getElementById("ar-p2Streak").classList.remove('hidden');
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?select=name,score`, {
+                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                
+                const scoreMap = {};
+                data.forEach(item => {
+                    const n = (item.name || 'Siswa').trim();
+                    scoreMap[n] = (scoreMap[n] || 0) + (Number(item.score) || 0);
+                });
+
+                const sorted = Object.keys(scoreMap).map(name => ({
+                    name, score: scoreMap[name]
+                })).sort((a, b) => b.score - a.score).slice(0, 10);
+
+                if (sorted.length === 0) {
+                    container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Belum ada skor tercatat di database.</div>';
+                    return;
                 }
-                arSpawnExplosion(bubble.x, bubble.y, isP1?'#22d3ee':'#f472b6');
-                arState.floatingTexts.push({ text: `+${pts} PT!`, x: bubble.x, y: bubble.y, color: '#facc15', alpha: 1, vy: -2 });
-                if(arState.p1Score >= 1000 || arState.p2Score >= 1000) { setTimeout(arFinishGame, 800); return; }
-                setTimeout(() => { arState.currentRound++; arSetupRound(); }, 1200);
-            } else {
-                arPlayWrong(); arSpawnExplosion(bubble.x, bubble.y, '#ef4444');
-                arState.floatingTexts.push({ text: `SALAH! (-30)`, x: bubble.x, y: bubble.y, color: '#ef4444', alpha: 1, vy: -2 });
-                if(side==='p1') {
-                    arState.p1Score = Math.max(0, arState.p1Score-30); arState.p1Streak = 0; arState.p1CooldownUntil = now+1200;
-                    document.getElementById("ar-p1Score").innerText = arState.p1Score; document.getElementById("ar-p1Streak").classList.add('hidden');
-                } else {
-                    arState.p2Score = Math.max(0, arState.p2Score-30); arState.p2Streak = 0; arState.p2CooldownUntil = now+1200;
-                    document.getElementById("ar-p2Score").innerText = arState.p2Score; document.getElementById("ar-p2Streak").classList.add('hidden');
-                }
+
+                container.innerHTML = sorted.map((s, idx) => `
+                    <div class="flex items-center justify-between p-3 rounded-2xl ${idx === 0 ? 'bg-amber-50 border-2 border-amber-300' : 'bg-slate-50 border border-slate-200'}">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-400 text-white' : (idx === 1 ? 'bg-slate-300 text-slate-700' : 'bg-slate-200 text-slate-600')}">${idx + 1}</span>
+                            <span class="font-bold text-xs text-slate-800">${s.name}</span>
+                        </div>
+                        <span class="font-black text-xs text-emerald-600">${s.score} XP</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                container.innerHTML = `
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border-2 border-amber-300">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-xl bg-amber-400 text-white flex items-center justify-center font-black text-xs">1</span>
+                            <span class="font-bold text-xs text-slate-800">Ahmad SMKN 2</span>
+                        </div>
+                        <span class="font-black text-xs text-emerald-600">180 XP</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-xl bg-slate-300 text-slate-700 flex items-center justify-center font-black text-xs">2</span>
+                            <span class="font-bold text-xs text-slate-800">Siti Rahma</span>
+                        </div>
+                        <span class="font-black text-xs text-emerald-600">145 XP</span>
+                    </div>
+                `;
             }
         }
 
-        function arSpawnExplosion(x,y,c) {
-            for(let i=0; i<25; i++) {
-                const ang=Math.random()*Math.PI*2; const spd=2+Math.random()*5;
-                arState.particles.push({x,y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, color:c, size:3+Math.random()*4, alpha:1, decay:0.02+Math.random()*0.02});
-            }
+        function closeLeaderboardModal() {
+            playClickSound();
+            document.getElementById('modal-leaderboard').classList.add('hidden');
         }
 
-        function arUpdateInteraction(side, handPt) {
-            const bubbles = side==='p1'?arState.p1Bubbles : arState.p2Bubbles;
-            const handObj = arState.hands[side];
-            if(!handPt) { bubbles.forEach(b=>b.dwellProgress=0); return; }
-            let hv = null; for(let b of bubbles) { if(b.containsPoint(handPt.x, handPt.y)) { hv=b; break; } }
-            bubbles.forEach(b=>{ if(b!==hv) b.dwellProgress=0; });
+        // Inisialisasi awal saat window selesai dimuat
+        window.onload = () => {
+            updateProfileUI();
+            lucide.createIcons();
             
-            if(hv) {
-                if(!handObj.dwellingOn || handObj.dwellingOn!==hv) { handObj.dwellingOn=hv; handObj.dwellStart=performance.now(); arPlayHover(); }
-                else {
-                    const elp = performance.now()-handObj.dwellStart; hv.dwellProgress = Math.min(1, elp/500); // 500ms
-                    if(hv.dwellProgress>=1) { arHandleAnswer(side, hv); hv.dwellProgress=0; handObj.dwellingOn=null; }
-                }
-            } else { handObj.dwellingOn=null; }
-        }
-
-        function arLoop() {
-            if(!arState) return;
-            const c = document.getElementById("ar-gameCanvas");
-            if(!c) return;
-            const ctx = c.getContext('2d'); const w = c.width; const h = c.height;
-            ctx.clearRect(0,0,w,h);
-            const vid = document.getElementById("ar-webcam");
-
-            if(arState.isCameraMode && vid && vid.readyState >= 2) {
-                ctx.save(); ctx.scale(-1,1); ctx.drawImage(vid, -w, 0, w, h); ctx.restore();
-                ctx.fillStyle = "rgba(3,7,18,0.65)"; ctx.fillRect(0,0,w,h);
-            } else {
-                ctx.fillStyle = "#030712"; ctx.fillRect(0,0,w,h);
-                ctx.strokeStyle = "rgba(255,255,255,0.03)"; ctx.lineWidth=1;
-                for(let x=0;x<w;x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-                for(let y=0;y<h;y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
-            }
-
-            ctx.save(); ctx.strokeStyle="rgba(255,255,255,0.15)"; ctx.lineWidth=2; ctx.setLineDash([8,8]);
-            ctx.beginPath(); ctx.moveTo(w/2,80); ctx.lineTo(w/2,h-70); ctx.stroke(); ctx.restore();
-
-            arState.p1Bubbles.forEach(b=>b.update()); arState.p2Bubbles.forEach(b=>b.update());
-            arResolveCollisions(arState.p1Bubbles); arResolveCollisions(arState.p2Bubbles);
-            arState.p1Bubbles.forEach(b=>b.draw(ctx)); arState.p2Bubbles.forEach(b=>b.draw(ctx));
-
-            const drawCursor = (hd, pSide) => {
-                if(!hd) return; const cColor = pSide==='p1'?'#22d3ee':'#ec4899';
-                ctx.save(); ctx.translate(hd.x, hd.y); ctx.shadowColor=cColor; ctx.shadowBlur=20; ctx.strokeStyle=cColor; ctx.lineWidth=3;
-                ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.stroke();
-                ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-30,0); ctx.lineTo(-12,0); ctx.moveTo(12,0); ctx.lineTo(30,0); ctx.moveTo(0,-30); ctx.lineTo(0,-12); ctx.moveTo(0,12); ctx.lineTo(0,30); ctx.stroke();
-                ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill();
-                ctx.font="bold 11px Orbitron"; ctx.fillStyle=cColor; ctx.textAlign="center"; ctx.fillText(pSide==='p1'?"P1":"P2",0,42);
-                ctx.restore();
-            };
-            drawCursor(arState.hands.p1, 'p1'); drawCursor(arState.hands.p2, 'p2');
-
-            for(let i=arState.particles.length-1; i>=0; i--) {
-                const p = arState.particles[i]; p.x+=p.vx; p.y+=p.vy; p.alpha-=p.decay;
-                if(p.alpha<=0) arState.particles.splice(i,1);
-                else { ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=12; ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); ctx.restore(); }
-            }
-            for(let i=arState.floatingTexts.length-1; i>=0; i--) {
-                const ft = arState.floatingTexts[i]; ft.y+=ft.vy; ft.alpha-=0.02;
-                if(ft.alpha<=0) arState.floatingTexts.splice(i,1);
-                else { ctx.save(); ctx.globalAlpha=ft.alpha; ctx.fillStyle=ft.color; ctx.font="900 24px Orbitron"; ctx.textAlign="center"; ctx.shadowColor=ft.color; ctx.shadowBlur=10; ctx.fillText(ft.text,ft.x,ft.y); ctx.restore(); }
-            }
-            arAnimFrameId = requestAnimationFrame(arLoop);
-        }
-
-        function arFinishGame() {
-            arPlayVictory(); document.getElementById("ar-winnerModal").classList.remove("hidden");
-            document.getElementById("ar-finalP1Score").innerText = arState.p1Score; document.getElementById("ar-finalP2Score").innerText = arState.p2Score;
-            const wt = document.getElementById("ar-winnerText"); const wb = document.getElementById("ar-winnerBadge");
-            if(arState.p1Score > arState.p2Score) { wt.innerText="PLAYER 1 MENANG!"; wt.className="font-hud text-3xl font-black text-cyan-400"; wb.innerText="👑"; }
-            else if(arState.p2Score > arState.p1Score) { wt.innerText="PLAYER 2 MENANG!"; wt.className="font-hud text-3xl font-black text-pink-400"; wb.innerText="👑"; }
-            else { wt.innerText="SERI!"; wt.className="font-hud text-3xl font-black text-amber-300"; wb.innerText="🤝"; }
-        }
-
-        const handleARMouseMove = (e) => {
-            if(!arState || !arMouseModeActive) return;
-            const c = document.getElementById("ar-gameCanvas");
-            if(!c) return;
-            const rect = c.getBoundingClientRect();
-            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-            if (x < c.width / 2) {
-                arState.hands.p1 = { x, y, dwellingOn: arState.hands.p1?.dwellingOn, dwellStart: arState.hands.p1?.dwellStart || performance.now() };
-                arUpdateInteraction('p1', arState.hands.p1);
-            } else {
-                arState.hands.p2 = { x, y, dwellingOn: arState.hands.p2?.dwellingOn, dwellStart: arState.hands.p2?.dwellStart || performance.now() };
-                arUpdateInteraction('p2', arState.hands.p2);
+            if (!localStorage.getItem('studentName')) {
+                openNameModal();
             }
         };
-
-        function enableARMouseMode() {
-            arMouseModeActive = true; arState.isCameraMode = false;
-            document.getElementById("ar-cameraStatusText").innerText = "Mode Mouse Aktif (Kiri P1, Kanan P2)";
-            document.getElementById("ar-p1HandBadge").innerText = "Mouse Sisi Kiri"; document.getElementById("ar-p2HandBadge").innerText = "Mouse Sisi Kanan";
-            window.addEventListener("mousemove", handleARMouseMove);
-        }
-
-        async function initARCamera() {
-            const txt = document.getElementById("ar-cameraStatusText"); const dot = document.getElementById("ar-cameraStatusDot");
-            txt.innerText = "Meminta Izin Kamera...";
-            try {
-                if(!window.Hands) throw new Error("MediaPipe not loaded yet");
-                arHandsInstance = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
-                arHandsInstance.setOptions({ maxNumHands: 4, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-                
-                const vid = document.getElementById("ar-webcam");
-                arHandsInstance.onResults((res) => {
-                    if(!arState) return;
-                    let foundP1=false, foundP2=false; const c = document.getElementById("ar-gameCanvas");
-                    if(res.multiHandLandmarks && c) {
-                        for(let i=0; i<res.multiHandLandmarks.length; i++) {
-                            const idx = res.multiHandLandmarks[i][8];
-                            const sx = (1-idx.x)*c.width; const sy = idx.y*c.height;
-                            if(sx < c.width/2) { arState.hands.p1 = {x:sx, y:sy, dwellingOn:arState.hands.p1?.dwellingOn, dwellStart:arState.hands.p1?.dwellStart||0}; foundP1=true; }
-                            else { arState.hands.p2 = {x:sx, y:sy, dwellingOn:arState.hands.p2?.dwellingOn, dwellStart:arState.hands.p2?.dwellStart||0}; foundP2=true; }
-                        }
-                    }
-                    const b1 = document.getElementById("ar-p1HandBadge"); const b2 = document.getElementById("ar-p2HandBadge");
-                    if(foundP1) { b1.innerText="Tangan Terdeteksi✨"; b1.classList.replace("bg-cyan-950", "bg-cyan-600"); } else { arState.hands.p1=null; b1.innerText="Menunggu Tangan..."; b1.classList.replace("bg-cyan-600", "bg-cyan-950"); }
-                    if(foundP2) { b2.innerText="Tangan Terdeteksi✨"; b2.classList.replace("bg-pink-950", "bg-pink-600"); } else { arState.hands.p2=null; b2.innerText="Menunggu Tangan..."; b2.classList.replace("bg-pink-600", "bg-pink-950"); }
-                    arUpdateInteraction('p1', arState.hands.p1); arUpdateInteraction('p2', arState.hands.p2);
-                });
-
-                arCameraInstance = new Camera(vid, { onFrame: async () => { if(arState && arState.isCameraMode) await arHandsInstance.send({image:vid}); }, width: 1280, height: 720 });
-                await arCameraInstance.start();
-                txt.innerText = "Kamera Aktif • Deteksi Siap"; dot.classList.replace("bg-emerald-400", "bg-cyan-400");
-            } catch(e) {
-                txt.innerText = "Kamera Gagal (Mode Mouse Aktif)"; dot.classList.replace("bg-emerald-400", "bg-amber-400");
-                enableARMouseMode();
-            }
-        }
-
-        function initARDuelUI() {
-            initARDuelState();
-            const c = document.getElementById("ar-gameCanvas");
-            if(c) { c.width = window.innerWidth; c.height = window.innerHeight; }
-
-            document.getElementById("ar-btnStartGame").onclick = async () => {
-                initARAudio(); if(Tone.context.state!=="running") await Tone.start();
-                document.getElementById("ar-startModal").classList.add("hidden");
-                arSetupRound(); await initARCamera();
-            };
-            document.getElementById("ar-btnStartMouse").onclick = async () => {
-                initARAudio(); if(Tone.context.state!=="running") await Tone.start();
-                document.getElementById("ar-startModal").classList.add("hidden");
-                arSetupRound(); enableARMouseMode();
-            };
-            document.getElementById("ar-btnSwitchMouse").onclick = () => { if(!arMouseModeActive) enableARMouseMode(); };
-            document.getElementById("ar-btnRepeatSpeech").onclick = () => { if(arState.activeQuestion) arSpeak(arState.activeQuestion.id); };
-            document.getElementById("ar-btnPlayAgain").onclick = () => {
-                arState.currentRound=1; arState.p1Score=0; arState.p2Score=0; arState.p1Streak=0; arState.p2Streak=0;
-                document.getElementById("ar-p1Score").innerText="0"; document.getElementById("ar-p2Score").innerText="0";
-                document.getElementById("ar-p1Streak").classList.add("hidden"); document.getElementById("ar-p2Streak").classList.add("hidden");
-                document.getElementById("ar-winnerModal").classList.add("hidden"); arSetupRound();
-            };
-            
-            arAnimFrameId = requestAnimationFrame(arLoop);
-        }
-
-        function exitARDuel() {
-            if(arAnimFrameId) cancelAnimationFrame(arAnimFrameId);
-            window.removeEventListener("mousemove", handleARMouseMove);
-            if(arCameraInstance) arCameraInstance.stop();
-            const v = document.getElementById("ar-webcam");
-            if(v && v.srcObject) v.srcObject.getTracks().forEach(t=>t.stop());
-            arState = null; arCameraInstance = null; arHandsInstance = null;
-        }
-        
-        // Listen to resize to keep AR canvas scaled
-        window.addEventListener('resize', () => {
-            if(state.tab === 'ARDuel') {
-                const c = document.getElementById("ar-gameCanvas");
-                if(c) { c.width = window.innerWidth; c.height = window.innerHeight; }
-            }
-        });
-
-        // =====================================================================================
-
-        window.onload = function() { lucide.createIcons(); };
     </script>
 </body>
 </html>
