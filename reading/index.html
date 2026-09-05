@@ -2,11 +2,11 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reading Lab - English Maharati</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Lab - Maharati- English</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -16,6 +16,8 @@
             --duo-green-shadow: #46a302;
             --duo-blue: #1cb0f6;
             --duo-blue-shadow: #1899d6;
+            --duo-yellow: #ffc800;
+            --duo-yellow-shadow: #e5a400;
             --duo-rose: #f43f5e;
             --duo-rose-shadow: #e11d48;
         }
@@ -24,7 +26,7 @@
             background-color: #f0fdf4;
             background-image: 
                 radial-gradient(#dcfce7 2px, transparent 2px),
-                linear-gradient(rgba(240, 253, 244, 0.92), rgba(240, 253, 244, 0.97)),
+                linear-gradient(rgba(240, 253, 244, 0.94), rgba(240, 253, 244, 0.98)),
                 url('../asset/bg-maharati.gif');
             background-size: 24px 24px, cover, cover;
             background-position: 0 0, center, center;
@@ -34,32 +36,21 @@
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
         
+        /* 3D Duolingo Style Card */
         .duo-card {
             background: #ffffff;
             border: 3px solid #e2e8f0;
             border-bottom-width: 6px;
             transition: all 0.15s ease-in-out;
         }
-        .duo-card:hover {
-            border-color: #cbd5e1;
-        }
 
         .btn-duo-green {
             background-color: var(--duo-green);
-            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+            box-shadow: 0 4px 0 0 var(--duo-green-shadow);
         }
         .btn-duo-green:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 0 1px 0 0 var(--duo-green-shadow);
-        }
-
-        .btn-duo-blue {
-            background-color: var(--duo-blue);
-            box-shadow: 0 5px 0 0 var(--duo-blue-shadow);
-        }
-        .btn-duo-blue:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 0 var(--duo-blue-shadow);
         }
 
         .btn-duo-white {
@@ -70,8 +61,8 @@
             transition: all 0.1s ease;
         }
         .btn-duo-white:active {
-            transform: translateY(3px);
-            border-bottom-width: 1px;
+            transform: translateY(2px);
+            border-bottom-width: 2px;
         }
 
         .btn-correct {
@@ -88,6 +79,28 @@
             color: #be123c !important;
         }
 
+        /* Token Kata Bacaan Interaktif */
+        .word-token {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .word-token:hover {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .word-highlight {
+            background-color: #fef08a !important;
+            color: #854d0e !important;
+            font-weight: 800;
+            border-radius: 6px;
+            box-shadow: 0 0 0 2px #facc15;
+            transform: scale(1.05);
+        }
+
         @keyframes shakeSlow {
             0%, 100% { transform: translateX(0); }
             20% { transform: translateX(-6px); }
@@ -100,154 +113,962 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 text-slate-800">
+<body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 text-slate-800">
 
-    <!-- Audio Elements dari folder asset/ induk -->
+    <!-- Audio Elements -->
     <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
     <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
     <audio id="snd-wrong" src="../asset/wrong.mp3" preload="auto"></audio>
+    <audio id="snd-victory" src="../asset/victory.mp3" preload="auto"></audio>
 
-    <!-- Header Navigation -->
-    <header class="max-w-4xl w-full mx-auto flex items-center justify-between pb-4">
-        <!-- SOLUSI: Mengarah langsung ke ../index.html agar tidak muncul Index of... -->
-        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Menu Utama</span>
-        </a>
+    <!-- HEADER NAVIGATION -->
+    <header class="max-w-5xl w-full mx-auto flex items-center justify-between gap-2 shrink-0 py-1">
+        <div class="flex items-center gap-2">
+            <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Menu Utama</span>
+            </a>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-            <div class="px-3.5 py-2 rounded-2xl bg-emerald-100 border-2 border-emerald-300 font-bold text-xs text-emerald-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
-                <span id="student-badge" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
+            <!-- Selector Level Cepat -->
+            <div class="flex items-center bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-sm gap-1">
+                <button id="tab-lvl-easy" onclick="changeModuleDifficulty('easy')" class="px-3 py-1.5 rounded-xl font-black text-[11px] uppercase transition flex items-center gap-1 bg-emerald-100 text-emerald-800 border-2 border-emerald-400">
+                    🟢 <span class="hidden sm:inline">Mudah</span>
+                </button>
+                <button id="tab-lvl-medium" onclick="changeModuleDifficulty('medium')" class="px-3 py-1.5 rounded-xl font-black text-[11px] uppercase transition flex items-center gap-1 text-slate-600 hover:bg-slate-100">
+                    🟠 <span class="hidden sm:inline">Sedang</span>
+                </button>
+                <button id="tab-lvl-hard" onclick="changeModuleDifficulty('hard')" class="px-3 py-1.5 rounded-xl font-black text-[11px] uppercase transition flex items-center gap-1 text-slate-600 hover:bg-slate-100">
+                    🔴 <span class="hidden sm:inline">Sulit</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <div class="px-3 py-1.5 rounded-xl bg-emerald-100 border-2 border-emerald-300 font-bold text-xs text-emerald-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span id="student-badge" class="max-w-[90px] sm:max-w-[130px] truncate">Siswa Baru</span>
             </div>
 
-            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
+            <div class="px-3 py-1.5 rounded-xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="flame" class="w-3.5 h-3.5 fill-amber-500 text-amber-500"></i>
                 <span id="score-display">0 XP</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Question Workspace -->
-    <main class="max-w-3xl w-full mx-auto my-auto space-y-4">
-        <div id="question-card" class="duo-card p-5 sm:p-7 rounded-[2.5rem] space-y-5 bg-white shadow-sm">
+    <!-- WORKSPACE UTAMA: Tata Letak Vertikal Terpadu (Teks di Atas, Opsi di Bawah) -->
+    <main class="max-w-5xl w-full mx-auto flex-1 flex flex-col justify-center py-2">
+        <div id="question-card" class="duo-card rounded-[2rem] p-4 sm:p-6 bg-white flex flex-col justify-between shadow-md border-emerald-100">
             
-            <!-- Top Card Header Bar -->
-            <div class="flex items-center justify-between border-b border-emerald-100 pb-3">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span class="text-xs font-black uppercase text-emerald-600 tracking-wider font-game">
-                        Reading Comprehension
-                    </span>
+            <!-- BAGIAN ATAS: Header Card, Paragraf Bacaan & Pertanyaan -->
+            <div class="space-y-3">
+                <!-- Baris Status & Aksi Bacaan -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-xs font-black uppercase text-emerald-600 tracking-wider font-game">Reading Lab</span>
+                        <span id="level-badge-card" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 uppercase">🟢 Level: Mudah</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Indikator Sesi Soal 1 / 5 -->
+                        <span id="round-indicator" class="px-3 py-1 rounded-xl bg-slate-100 border border-slate-200 font-black text-[11px] text-slate-700">
+                            Soal 1 / 5
+                        </span>
+                        <!-- Tombol Text-to-Speech (TTS) -->
+                        <button id="btn-read-aloud" onclick="toggleReadPassage()" title="Dengarkan pembacaan teks dengan penyorot kata" class="btn-duo-white px-3 py-1 rounded-xl text-xs font-bold text-emerald-700 flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="volume-2" id="icon-tts" class="w-3.5 h-3.5"></i>
+                            <span id="label-tts" class="hidden sm:inline">Dengarkan</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <!-- Indikator Ronde / Nomor Soal -->
-                    <span id="round-indicator" class="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 font-black text-[11px] text-emerald-700">
-                        Soal 1 / 5
-                    </span>
-                    <!-- Tombol Dengarkan Bacaan (TTS) -->
-                    <button onclick="speakParagraph()" title="Dengarkan Teks Cerita" class="btn-duo-white px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-600 flex items-center gap-1.5">
-                        <i data-lucide="volume-2" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Dengarkan</span>
+                <!-- Teks Paragraf Bacaan -->
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-50/80 via-teal-50/40 to-slate-50 border-2 border-emerald-200 text-left relative overflow-hidden">
+                    <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1">
+                        <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> Teks Paragraf Bacaan:</span>
+                        <span class="text-slate-400 normal-case italic hidden sm:inline">💡 Klik/ketuk kata mana saja untuk melihat arti di kamus</span>
+                    </div>
+                    <p id="passage-container" class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed">
+                        <!-- Token teks disuntikkan secara dinamis -->
+                    </p>
+                </div>
+
+                <!-- Pertanyaan Pemahaman Bacaan -->
+                <div class="text-left bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                    <span class="text-[10px] font-extrabold uppercase text-slate-400 font-game tracking-widest">Pertanyaan:</span>
+                    <h3 id="question-display" class="text-sm sm:text-base md:text-lg font-black text-slate-800 font-game leading-snug">
+                        Memuat pertanyaan...
+                    </h3>
+                </div>
+            </div>
+
+            <!-- BAGIAN BAWAH: 5 Pilihan Jawaban (Grid Responsif) -->
+            <div class="py-3">
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
+                    <!-- Opsi A, B, C, D, E disuntikkan dinamis -->
+                </div>
+            </div>
+
+            <!-- FOOTER KARTU: Panduan / Kotak Pembahasan & Tombol Lanjut -->
+            <div class="pt-2 border-t border-slate-100">
+                <!-- Panduan Awal Sebelum Menjawab -->
+                <div id="reading-hint-box" class="py-2.5 px-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs flex items-center justify-center gap-2 text-emerald-800 font-semibold">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                    <span>Pilihlah salah satu jawaban di atas yang paling sesuai dengan teks bacaan.</span>
+                </div>
+
+                <!-- Kotak Pembahasan & Tombol Lanjut (Aktif Setelah Menjawab) -->
+                <div id="action-wrapper" class="hidden flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div id="explanation-box" class="flex-1 p-3 rounded-xl bg-amber-50 border-2 border-amber-300 text-left text-xs space-y-0.5">
+                        <div class="flex items-center gap-1.5 text-amber-800 font-black uppercase text-[10px] font-game">
+                            <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                            <span id="explanation-title">Pembahasan Kunci Jawaban:</span>
+                        </div>
+                        <p id="explanation-text" class="text-slate-700 font-semibold text-xs leading-snug">
+                            <!-- Pembahasan dinamis -->
+                        </p>
+                    </div>
+
+                    <!-- Tombol Lanjut -->
+                    <button id="btn-next" onclick="nextQuestion()" class="py-3 px-6 rounded-xl btn-duo-green text-white font-black text-xs sm:text-sm uppercase tracking-wider transition flex items-center justify-center gap-2 shrink-0 sm:min-w-[200px]">
+                        <span id="btn-next-text">SOAL BERIKUTNYA</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Reading Passage Banner -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border-2 border-slate-200 text-left space-y-2 relative overflow-hidden">
-                <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                    <span>Teks Bacaan:</span>
-                </div>
-                <p id="passage-display" class="text-sm sm:text-base font-bold text-slate-700 leading-relaxed italic">
-                    Memuat paragraf bacaan...
-                </p>
-            </div>
-
-            <!-- Question Area -->
-            <div class="space-y-1.5 text-left">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-game">Pertanyaan:</p>
-                <h3 id="question-display" class="text-base sm:text-lg font-black text-slate-800 font-game leading-snug">
-                    Memuat pertanyaan...
-                </h3>
-            </div>
-
-            <!-- Options Grid -->
-            <div id="options-container" class="grid gap-3 pt-1">
-                <!-- Diisi otomatis oleh JavaScript -->
-            </div>
-
-            <!-- Next Button (Muncul setelah menjawab) -->
-            <div id="action-container" class="pt-2 hidden">
-                <button id="btn-next" onclick="nextQuestion()" class="w-full py-4 rounded-2xl btn-duo-green text-white font-black text-sm sm:text-base uppercase tracking-wider transition flex items-center justify-center gap-2">
-                    <span>SOAL BERIKUTNYA</span>
-                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                </button>
-            </div>
         </div>
     </main>
 
+    <!-- Modal Rekapitulasi Selesai 5 Soal -->
+    <div id="session-summary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white shadow-2xl">
+            <div class="w-16 h-16 bg-amber-100 rounded-3xl mx-auto flex items-center justify-center text-amber-600 shadow-[0_4px_0_0_#fde68a]">
+                <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-600 font-game">Sesi Latihan Selesai!</span>
+                <h3 class="text-2xl font-black font-game text-slate-800 mt-1">Hasil Reading Comprehension</h3>
+                <p id="summary-level-tag" class="text-xs font-bold text-slate-400 mt-0.5">Tingkat: 🟢 Mudah</p>
+            </div>
+            
+            <div class="p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl flex justify-around items-center">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Jawaban Benar</p>
+                    <p id="summary-correct-count" class="text-2xl font-black text-emerald-600 font-game">5 / 5</p>
+                </div>
+                <div class="w-px h-10 bg-slate-200"></div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Perolehan XP</p>
+                    <p id="summary-xp-earned" class="text-2xl font-black text-amber-500 font-game">+100 XP</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                <button onclick="startNewQuizSession()" class="flex-1 py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>5 Soal Acak Baru</span>
+                </button>
+                <a href="../index.html" class="px-5 py-3.5 rounded-2xl btn-duo-white text-slate-700 font-black text-xs uppercase flex items-center justify-center gap-1">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    <span>Menu</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Glosarium Mini (Vocabulary Popover) -->
+    <div id="glossary-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-3xl max-w-xs w-full p-5 text-center space-y-3 bg-white shadow-2xl relative">
+            <button onclick="closeGlossary()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div class="w-10 h-10 bg-blue-100 rounded-2xl mx-auto flex items-center justify-center text-blue-600 shadow-sm">
+                <i data-lucide="book-a" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Kamus Kosakata Mini</span>
+                <h4 id="glossary-word-en" class="text-xl font-black text-slate-800 font-game">Word</h4>
+                <p id="glossary-word-id" class="text-sm font-bold text-emerald-600 mt-0.5">Arti Kata</p>
+            </div>
+            <button onclick="speakSingleWord(activeGlossaryWord)" class="w-full py-2.5 rounded-xl btn-duo-white text-xs font-bold text-blue-600 flex items-center justify-center gap-1.5">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+                <span>Dengarkan Pengucapan</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Feedback Toast -->
-    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all"></div>
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-3 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all"></div>
 
-    <!-- Footer -->
-    <footer class="text-center text-xs font-bold text-slate-400 py-3 font-game">
-        Modul /reading/ • English Maharati Learning System • SMKN 2 Mantangai
-    </footer>
-
-    <!-- Script Logika Pembelajaran -->
+    <!-- SCRIPT LOGIKA PEMBELAJARAN LENGKAP -->
     <script>
-        const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
+        // ==============================================================
+        // 1. BANK SOAL 90 SOAL LENGKAP (30 EASY, 30 MEDIUM, 30 HARD)
+        // ==============================================================
+        const READING_DATA = {
+            easy: [
+                {
+                    text: "I have a red apple.",
+                    q: "What color is the apple?",
+                    opts: ["Blue", "Red", "Green", "Yellow", "Purple"],
+                    ans: "Red",
+                    exp: "Berdasarkan teks, apel tersebut berwarna merah: 'a red apple'."
+                },
+                {
+                    text: "The cat is sleeping on the mat.",
+                    q: "Where is the cat?",
+                    opts: ["On the mat", "In the car", "Under the bed", "In the garden", "On the chair"],
+                    ans: "On the mat",
+                    exp: "Kucing sedang tidur di atas tikar: 'sleeping on the mat'."
+                },
+                {
+                    text: "My father is a doctor.",
+                    q: "What is his job?",
+                    opts: ["Teacher", "Farmer", "Doctor", "Driver", "Chef"],
+                    ans: "Doctor",
+                    exp: "Pekerjaan ayahnya adalah seorang dokter: 'father is a doctor'."
+                },
+                {
+                    text: "I like to drink milk in the morning.",
+                    q: "When do I drink milk?",
+                    opts: ["At night", "In the morning", "In the afternoon", "At noon", "In the evening"],
+                    ans: "In the morning",
+                    exp: "Waktu meminum susu dijelaskan pada pagi hari: 'in the morning'."
+                },
+                {
+                    text: "The sun is very hot today.",
+                    q: "How is the sun?",
+                    opts: ["Cold", "Rainy", "Hot", "Windy", "Snowy"],
+                    ans: "Hot",
+                    exp: "Kondisi matahari hari ini digambarkan sangat panas: 'very hot'."
+                },
+                {
+                    text: "Birds can fly in the sky.",
+                    q: "What can birds do?",
+                    opts: ["Swim", "Fly", "Run", "Jump", "Crawl"],
+                    ans: "Fly",
+                    exp: "Kemampuan burung yang disebutkan adalah terbang di angkasa: 'can fly'."
+                },
+                {
+                    text: "She has three blue pens.",
+                    q: "How many pens does she have?",
+                    opts: ["Two", "Three", "Four", "Five", "Six"],
+                    ans: "Three",
+                    exp: "Jumlah pulpen yang dimilikinya adalah tiga buah: 'three blue pens'."
+                },
+                {
+                    text: "The elephant is a big animal.",
+                    q: "Is the elephant small?",
+                    opts: ["Yes", "No", "Maybe", "Sometimes", "I don't know"],
+                    ans: "No",
+                    exp: "Gajah adalah hewan yang besar ('big animal'), sehingga tidak kecil ('No')."
+                },
+                {
+                    text: "We play football on Sunday.",
+                    q: "What game do we play?",
+                    opts: ["Tennis", "Basketball", "Football", "Volleyball", "Badminton"],
+                    ans: "Football",
+                    exp: "Permainan yang dimainkan setiap hari Minggu adalah sepak bola ('football')."
+                },
+                {
+                    text: "My sister wears a yellow hat.",
+                    q: "What is she wearing?",
+                    opts: ["A hat", "A shirt", "A dress", "A jacket", "A skirt"],
+                    ans: "A hat",
+                    exp: "Barang yang dikenakan oleh saudara perempuannya adalah topi: 'a yellow hat'."
+                },
+                {
+                    text: "Coffee tastes bitter.",
+                    q: "How does the coffee taste?",
+                    opts: ["Sweet", "Sour", "Bitter", "Salty", "Spicy"],
+                    ans: "Bitter",
+                    exp: "Rasa kopi dalam teks disebutkan pahit ('bitter')."
+                },
+                {
+                    text: "The book is on the table.",
+                    q: "Where is the book?",
+                    opts: ["Under the table", "On the table", "Next to the chair", "In the bag", "On the floor"],
+                    ans: "On the table",
+                    exp: "Posisi buku berada di atas meja: 'on the table'."
+                },
+                {
+                    text: "It is raining outside.",
+                    q: "Should I take an umbrella?",
+                    opts: ["Yes", "No", "I don't know", "Maybe later", "Not today"],
+                    ans: "Yes",
+                    exp: "Karena di luar sedang hujan ('raining outside'), maka kita perlu membawa payung ('Yes')."
+                },
+                {
+                    text: "A fish lives in the water.",
+                    q: "Where does a fish live?",
+                    opts: ["In a tree", "In the water", "In the desert", "On a mountain", "In a house"],
+                    ans: "In the water",
+                    exp: "Ikan hidup di dalam air: 'lives in the water'."
+                },
+                {
+                    text: "I am hungry. I want to eat.",
+                    q: "What do I want to do?",
+                    opts: ["Sleep", "Drink", "Eat", "Run", "Read"],
+                    ans: "Eat",
+                    exp: "Karena merasa lapar ('hungry'), hal yang ingin dilakukan adalah makan ('eat')."
+                },
+                {
+                    text: "My brother is ten years old.",
+                    q: "How old is my brother?",
+                    opts: ["5", "10", "12", "8", "15"],
+                    ans: "10",
+                    exp: "Usia saudara laki-lakinya adalah 10 tahun ('ten years old')."
+                },
+                {
+                    text: "The grass is green.",
+                    q: "What color is the grass?",
+                    opts: ["Yellow", "Green", "Purple", "Blue", "Brown"],
+                    ans: "Green",
+                    exp: "Warna rumput yang tertera di teks adalah hijau: 'green'."
+                },
+                {
+                    text: "I wash my hands with soap.",
+                    q: "What do I use to wash?",
+                    opts: ["Soap", "Milk", "Juice", "Watermelon", "Oil"],
+                    ans: "Soap",
+                    exp: "Benda yang digunakan untuk mencuci tangan adalah sabun ('soap')."
+                },
+                {
+                    text: "The car is fast.",
+                    q: "Is the car slow?",
+                    opts: ["Yes", "No", "A little", "Sometimes", "Very slow"],
+                    ans: "No",
+                    exp: "Mobil digambarkan berkecepatan tinggi ('fast'), jadi mobil tidak lambat ('No')."
+                },
+                {
+                    text: "We see with our eyes.",
+                    q: "What do we use to see?",
+                    opts: ["Ears", "Nose", "Eyes", "Hands", "Mouth"],
+                    ans: "Eyes",
+                    exp: "Indera yang manusia gunakan untuk melihat adalah mata ('eyes')."
+                },
+                {
+                    text: "The dog barks at the mailman.",
+                    q: "Who does the dog bark at?",
+                    opts: ["The mailman", "The cat", "The cook", "The teacher", "The farmer"],
+                    ans: "The mailman",
+                    exp: "Anjing tersebut menggonggong kepada tukang pos ('the mailman')."
+                },
+                {
+                    text: "I wear shoes on my feet.",
+                    q: "Where do I wear shoes?",
+                    opts: ["On my hands", "On my feet", "On my head", "On my back", "On my arms"],
+                    ans: "On my feet",
+                    exp: "Sepatu dikenakan pada bagian kaki: 'on my feet'."
+                },
+                {
+                    text: "An orange is a fruit.",
+                    q: "What is an orange?",
+                    opts: ["Vegetable", "Meat", "Fruit", "Drink", "Grain"],
+                    ans: "Fruit",
+                    exp: "Jeruk dikategorikan sebagai buah-buahan ('a fruit')."
+                },
+                {
+                    text: "The moon shines at night.",
+                    q: "When does the moon shine?",
+                    opts: ["Day", "Morning", "Night", "Afternoon", "Noon"],
+                    ans: "Night",
+                    exp: "Bulan bersinar pada waktu malam hari: 'at night'."
+                },
+                {
+                    text: "I like to read books.",
+                    q: "What is my hobby?",
+                    opts: ["Reading", "Singing", "Dancing", "Swimming", "Running"],
+                    ans: "Reading",
+                    exp: "Kegemaran yang diutarakan adalah membaca buku ('Reading')."
+                },
+                {
+                    text: "Sugar is sweet.",
+                    q: "How is the sugar?",
+                    opts: ["Salty", "Sweet", "Spicy", "Bitter", "Sour"],
+                    ans: "Sweet",
+                    exp: "Rasa gula dalam teks adalah manis: 'sweet'."
+                },
+                {
+                    text: "There are seven days in a week.",
+                    q: "How many days in a week?",
+                    opts: ["Five", "Six", "Seven", "Eight", "Ten"],
+                    ans: "Seven",
+                    exp: "Jumlah hari dalam satu pekan adalah 7 hari ('seven days')."
+                },
+                {
+                    text: "My mom is cooking in the kitchen.",
+                    q: "Where is my mom?",
+                    opts: ["Bedroom", "Kitchen", "Garden", "Bathroom", "Garage"],
+                    ans: "Kitchen",
+                    exp: "Ibu sedang memasak di dapur: 'in the kitchen'."
+                },
+                {
+                    text: "The sky is blue today.",
+                    q: "What color is the sky?",
+                    opts: ["Blue", "Red", "Black", "Green", "White"],
+                    ans: "Blue",
+                    exp: "Warna langit hari ini dijelaskan berwarna biru cerah ('blue')."
+                },
+                {
+                    text: "I go to school by bus.",
+                    q: "How do I go to school?",
+                    opts: ["By plane", "By bus", "By boat", "By train", "By bicycle"],
+                    ans: "By bus",
+                    exp: "Moda transportasi yang digunakan adalah bus: 'by bus'."
+                }
+            ],
+            medium: [
+                {
+                    text: "Sarah loves gardening. She plants roses every spring.",
+                    q: "What does Sarah do in spring?",
+                    opts: ["Cooks food", "Plants flowers", "Goes hiking", "Reads books", "Plays football"],
+                    ans: "Plants flowers",
+                    exp: "Sarah menanam bunga mawar ('plants roses') yang tergolong jenis bunga ('plants flowers')."
+                },
+                {
+                    text: "Although it was raining, the players continued the match.",
+                    q: "Did the match stop?",
+                    opts: ["Yes, immediately", "No, it continued", "It was cancelled", "Yes, after an hour", "Nobody knows"],
+                    ans: "No, it continued",
+                    exp: "Pertandingan tetap dilanjutkan meskipun hujan: 'continued the match'."
+                },
+                {
+                    text: "To make a cup of tea, you need boiling water and a tea bag.",
+                    q: "What is the main ingredient?",
+                    opts: ["Cold water", "Boiling water", "Milk", "Sugar", "Juice"],
+                    ans: "Boiling water",
+                    exp: "Bahan cair panas yang wajib diperlukan adalah air mendidih: 'boiling water'."
+                },
+                {
+                    text: "Jakarta is the capital of Indonesia, known for busy traffic.",
+                    q: "What is Jakarta known for?",
+                    opts: ["Quiet streets", "Beautiful beaches", "Busy traffic", "Cold weather", "Large forests"],
+                    ans: "Busy traffic",
+                    exp: "Ciri khas Jakarta yang disebutkan adalah lalu lintas padat/macet: 'known for busy traffic'."
+                },
+                {
+                    text: "Dolphins are not fish; they are mammals that breathe air.",
+                    q: "What are dolphins?",
+                    opts: ["Fish", "Mammals", "Reptiles", "Birds", "Amphibians"],
+                    ans: "Mammals",
+                    exp: "Lumba-lumba bernapas menggunakan paru-paru dan tergolong mamalia: 'they are mammals'."
+                },
+                {
+                    text: "If you heat ice, it turns into water.",
+                    q: "What happens to heated ice?",
+                    opts: ["It disappears", "It stays solid", "It turns to water", "It becomes gas immediately", "It becomes sand"],
+                    ans: "It turns to water",
+                    exp: "Es yang dipanaskan akan mencair menjadi air: 'turns into water'."
+                },
+                {
+                    text: "The library is a quiet place where people go to study.",
+                    q: "Why do people go there?",
+                    opts: ["To talk loudly", "To study", "To buy food", "To play games", "To sleep all day"],
+                    ans: "To study",
+                    exp: "Orang mengunjungi perpustakaan untuk belajar: 'where people go to study'."
+                },
+                {
+                    text: "Exercise is important for our health and heart.",
+                    q: "What benefit does exercise give?",
+                    opts: ["Makes us tired", "Stronger heart", "Better sleep only", "Makes us hungry", "Makes us taller"],
+                    ans: "Stronger heart",
+                    exp: "Olahraga teratur memberikan manfaat menyehatkan jantung: 'important for our health and heart'."
+                },
+                {
+                    text: "Last year, my family visited Bali to see beautiful temples.",
+                    q: "Where did the family go?",
+                    opts: ["Jakarta", "Bali", "Lombok", "Bandung", "Surabaya"],
+                    ans: "Bali",
+                    exp: "Destinasi wisata yang dikunjungi keluarga adalah pulau 'Bali'."
+                },
+                {
+                    text: "A chef works in a restaurant preparing delicious meals.",
+                    q: "Where does a chef work?",
+                    opts: ["Hospital", "Restaurant", "School", "Airport", "Bank"],
+                    ans: "Restaurant",
+                    exp: "Tempat kerja seorang koki (chef) adalah di restoran: 'works in a restaurant'."
+                },
+                {
+                    text: "Trees provide oxygen for us to breathe.",
+                    q: "Why are trees important?",
+                    opts: ["They give oxygen", "They look nice", "They grow tall", "They make noise", "They produce plastic"],
+                    ans: "They give oxygen",
+                    exp: "Pohon sangat penting karena menyuplai oksigen untuk bernapas: 'provide oxygen'."
+                },
+                {
+                    text: "The internet helps people to communicate across the world.",
+                    q: "What is the use of internet?",
+                    opts: ["To sleep better", "To communicate", "To cook food", "To grow plants", "To drive cars"],
+                    ans: "To communicate",
+                    exp: "Manfaat internet yang disorot adalah mempermudah komunikasi: 'to communicate'."
+                },
+                {
+                    text: "In the desert, it is hot during the day but cold at night.",
+                    q: "How is the night in desert?",
+                    opts: ["Hot", "Rainy", "Cold", "Windy", "Warm"],
+                    ans: "Cold",
+                    exp: "Suhu udara malam hari di gurun digambarkan dingin: 'cold at night'."
+                },
+                {
+                    text: "Please turn off the lights before you leave the room.",
+                    q: "What should you do?",
+                    opts: ["Leave lights on", "Turn off lights", "Open the window", "Close the door", "Turn on the fan"],
+                    ans: "Turn off lights",
+                    exp: "Instruksi yang diminta adalah mematikan lampu: 'turn off the lights'."
+                },
+                {
+                    text: "Honey is made by bees using nectar from flowers.",
+                    q: "Who makes honey?",
+                    opts: ["Ants", "Butterflies", "Bees", "Birds", "Spiders"],
+                    ans: "Bees",
+                    exp: "Madu diproduksi oleh lebah dari nektar bunga: 'made by bees'."
+                },
+                {
+                    text: "Most snakes are not dangerous, but some are poisonous.",
+                    q: "Are all snakes dangerous?",
+                    opts: ["Yes", "No, only some", "No, none", "Only at night", "Only in winter"],
+                    ans: "No, only some",
+                    exp: "Tidak semua ular berbahaya, hanya sebagian yang beracun: 'No, only some'."
+                },
+                {
+                    text: "Breakfast is the most important meal for your energy.",
+                    q: "Why is breakfast important?",
+                    opts: ["For energy", "To lose weight", "To sleep", "To play games", "To watch TV"],
+                    ans: "For energy",
+                    exp: "Sarapan pagi penting sebagai sumber energi harian: 'for your energy'."
+                },
+                {
+                    text: "The Great Wall of China is a famous world wonder.",
+                    q: "Where is the Great Wall?",
+                    opts: ["Japan", "China", "Korea", "India", "Thailand"],
+                    ans: "China",
+                    exp: "Tembok Besar berada di negara Tiongkok ('China')."
+                },
+                {
+                    text: "Recycling helps reduce waste and protects nature.",
+                    q: "What is the goal of recycling?",
+                    opts: ["To buy more", "To reduce waste", "To make money", "To waste materials", "To increase pollution"],
+                    ans: "To reduce waste",
+                    exp: "Tujuan utama daur ulang adalah mengurangi timbunan sampah: 'reduce waste'."
+                },
+                {
+                    text: "Bats are active at night and sleep during the day.",
+                    q: "When are bats active?",
+                    opts: ["Morning", "Afternoon", "Night", "Noon", "Evening only"],
+                    ans: "Night",
+                    exp: "Kelelawar aktif mencari makan pada malam hari: 'active at night'."
+                },
+                {
+                    text: "To stay hydrated, you should drink 8 glasses of water.",
+                    q: "How much water is needed?",
+                    opts: ["2 glasses", "5 glasses", "8 glasses", "10 glasses", "12 glasses"],
+                    ans: "8 glasses",
+                    exp: "Jumlah air yang disarankan untuk hidrasi adalah 8 gelas: '8 glasses of water'."
+                },
+                {
+                    text: "Penguins live in the Southern Hemisphere, in Antarctica.",
+                    q: "Do penguins live in North?",
+                    opts: ["Yes", "No", "Only in summer", "Sometimes", "All year"],
+                    ans: "No",
+                    exp: "Habitat penguin ada di Belahan Selatan (Antarktika), bukan di Utara ('No')."
+                },
+                {
+                    text: "An architect is a person who designs buildings.",
+                    q: "What does an architect do?",
+                    opts: ["Build houses", "Design buildings", "Sell land", "Paint cars", "Teach students"],
+                    ans: "Design buildings",
+                    exp: "Tugas profesi arsitek adalah merancang bangunan: 'designs buildings'."
+                },
+                {
+                    text: "Gravity is the force that pulls things toward the earth.",
+                    q: "What does gravity do?",
+                    opts: ["Pushes away", "Pulls toward earth", "Makes things fly", "Stops time", "Creates light"],
+                    ans: "Pulls toward earth",
+                    exp: "Gravitasi menarik segala sesuatu ke arah bumi: 'pulls things toward the earth'."
+                },
+                {
+                    text: "Volcanoes can erupt and release hot lava and ash.",
+                    q: "What comes out of a volcano?",
+                    opts: ["Water", "Hot lava", "Ice", "Snow", "Wood"],
+                    ans: "Hot lava",
+                    exp: "Gunung berapi melepaskan lahar panas saat meletus: 'hot lava and ash'."
+                },
+                {
+                    text: "Computers are an essential part of modern education.",
+                    q: "Are computers important?",
+                    opts: ["No", "Yes, essential", "Only for games", "Only at home", "Sometimes unnecessary"],
+                    ans: "Yes, essential",
+                    exp: "Komputer digambarkan sangat penting bagi pendidikan: 'an essential part'."
+                },
+                {
+                    text: "A compass always points to the North.",
+                    q: "Where does a compass point?",
+                    opts: ["South", "East", "North", "West", "Northeast"],
+                    ans: "North",
+                    exp: "Jarum kompas selalu menunjuk ke arah utara: 'points to the North'."
+                },
+                {
+                    text: "Plastic pollution is a big problem for our oceans.",
+                    q: "Where is plastic a problem?",
+                    opts: ["Gardens", "Oceans", "Forests", "Mountains", "Deserts"],
+                    ans: "Oceans",
+                    exp: "Pencemaran plastik menjadi masalah besar bagi lautan: 'for our oceans'."
+                },
+                {
+                    text: "Thomas Edison was the inventor of the light bulb.",
+                    q: "What did Edison invent?",
+                    opts: ["Telephone", "Light bulb", "Car", "Computer", "Radio"],
+                    ans: "Light bulb",
+                    exp: "Penemuan terkenal Thomas Edison yang disebutkan adalah bola lampu: 'light bulb'."
+                },
+                {
+                    text: "Reading regularly can expand your vocabulary.",
+                    q: "What can reading do?",
+                    opts: ["Expand vocabulary", "Make you tired", "Cost money", "Reduce knowledge", "Stop learning"],
+                    ans: "Expand vocabulary",
+                    exp: "Membaca secara teratur bermanfaat memperkaya kosakata: 'expand your vocabulary'."
+                }
+            ],
+            hard: [
+                {
+                    text: "The Industrial Revolution marked a major turning point.",
+                    q: "What was the impact?",
+                    opts: ["Very small", "Major turning point", "Only in Europe", "No impact", "Only temporary"],
+                    ans: "Major turning point",
+                    exp: "Dampak Revolusi Industri dijelaskan sebagai titik balik besar ('major turning point')."
+                },
+                {
+                    text: "Predicting earthquakes remains a significant challenge.",
+                    q: "Can scientists predict them?",
+                    opts: ["Yes, easily", "No, it's a challenge", "Sometimes", "Always", "They never try"],
+                    ans: "No, it's a challenge",
+                    exp: "Memprediksi gempa masih menjadi tantangan ilmiah besar ('significant challenge')."
+                },
+                {
+                    text: "Photosynthesis is how plants use sunlight to make food.",
+                    q: "What is needed?",
+                    opts: ["Darkness", "Sunlight", "Soil only", "Wind only", "Fire"],
+                    ans: "Sunlight",
+                    exp: "Tumbuhan memanfaatkan cahaya matahari ('sunlight') untuk fotosintesis."
+                },
+                {
+                    text: "Einstein developed the theory of relativity.",
+                    q: "Who developed it?",
+                    opts: ["Newton", "Einstein", "Galileo", "Darwin", "Tesla"],
+                    ans: "Einstein",
+                    exp: "Pencetus teori relativitas adalah Albert 'Einstein'."
+                },
+                {
+                    text: "Biodiversity is crucial for ecosystem stability.",
+                    q: "Why is it important?",
+                    opts: ["For stability", "To look pretty", "To save space", "To increase pollution", "To reduce species"],
+                    ans: "For stability",
+                    exp: "Keanekaragaman hayati penting untuk stabilitas ekosistem ('ecosystem stability')."
+                },
+                {
+                    text: "Sustainable development meets needs without ruining the future.",
+                    q: "What is the focus?",
+                    opts: ["Future generations", "High profit now", "Only technology", "Immediate consumption", "More pollution"],
+                    ans: "Future generations",
+                    exp: "Pembangunan berkelanjutan berfokus melindungi generasi masa depan ('without ruining the future')."
+                },
+                {
+                    text: "Artificial Intelligence may transform the job market.",
+                    q: "What might AI change?",
+                    opts: ["The weather", "The job market", "Past history", "Ocean tides", "The seasons"],
+                    ans: "The job market",
+                    exp: "Kecerdasan buatan (AI) diprediksi mentransformasi pasar kerja ('the job market')."
+                },
+                {
+                    text: "Globalization led to a loss of some local traditions.",
+                    q: "What is a negative effect?",
+                    opts: ["More exchange", "Loss of traditions", "Better economy", "More local culture", "Less communication"],
+                    ans: "Loss of traditions",
+                    exp: "Dampak negatif globalisasi adalah hilangnya sebagian tradisi lokal ('loss of traditions')."
+                },
+                {
+                    text: "The brain controls all functions and interprets info.",
+                    q: "What does the brain do?",
+                    opts: ["Only thinks", "Controls functions", "Pumps blood", "Digests food", "Moves only the legs"],
+                    ans: "Controls functions",
+                    exp: "Fungsi otak mengendalikan seluruh kinerja tubuh ('controls all functions')."
+                },
+                {
+                    text: "Climate change is driven by greenhouse gases.",
+                    q: "What drives it?",
+                    opts: ["Ocean tides", "Greenhouse gases", "Volcanic ash", "Moonlight", "Earthquakes"],
+                    ans: "Greenhouse gases",
+                    exp: "Pendorong utama perubahan iklim adalah gas rumah kaca ('greenhouse gases')."
+                },
+                {
+                    text: "Economic inflation occurs when prices rise over time.",
+                    q: "What is inflation?",
+                    opts: ["Falling prices", "Rising prices", "Stable prices", "Free products", "Lower wages only"],
+                    ans: "Rising prices",
+                    exp: "Definisi inflasi terjadi saat harga-harga barang melonjak ('prices rise over time')."
+                },
+                {
+                    text: "Archeologists study history through artifacts.",
+                    q: "How do they study?",
+                    opts: ["Through books only", "Through artifacts", "By guessing", "Through weather", "Through computers only"],
+                    ans: "Through artifacts",
+                    exp: "Arkeolog meneliti sejarah melalui peninggalan artefak purbakala ('through artifacts')."
+                },
+                {
+                    text: "Genetic engineering allows scientists to modify DNA.",
+                    q: "What is modified?",
+                    opts: ["Behavior", "DNA", "Environment", "Weather", "Language"],
+                    ans: "DNA",
+                    exp: "Objek modifikasi pada rekayasa genetika adalah struktur 'DNA'."
+                },
+                {
+                    text: "The Renaissance was a period of artistic activity in Italy.",
+                    q: "Where did it begin?",
+                    opts: ["France", "Italy", "England", "Germany", "Spain"],
+                    ans: "Italy",
+                    exp: "Gerakan era Renaisans berkembang di negara Italia ('Italy')."
+                },
+                {
+                    text: "Renewable energy like solar is becoming cost-effective.",
+                    q: "Name a source.",
+                    opts: ["Coal", "Oil", "Solar", "Gas", "Diesel"],
+                    ans: "Solar",
+                    exp: "Sumber energi terbarukan yang dicontohkan adalah tenaga surya ('solar')."
+                },
+                {
+                    text: "Effective leadership requires empathy and strategy.",
+                    q: "Is empathy needed?",
+                    opts: ["No", "Yes", "Only strategy", "Only experience", "Never"],
+                    ans: "Yes",
+                    exp: "Kepemimpinan yang efektif membutuhkan empati ('requires empathy and strategy')."
+                },
+                {
+                    text: "Urbanization is people moving from rural areas to cities.",
+                    q: "What is urbanization?",
+                    opts: ["Moving to farms", "Moving to cities", "Staying home", "Moving to forests", "Moving to villages"],
+                    ans: "Moving to cities",
+                    exp: "Urbanisasi adalah perpindahan penduduk ke kota ('moving to cities')."
+                },
+                {
+                    text: "Microorganisms are seen only through a microscope.",
+                    q: "Can we see them easily?",
+                    opts: ["Yes", "No, need microscope", "Only in water", "Only at night", "Sometimes without tools"],
+                    ans: "No, need microscope",
+                    exp: "Mikroorganisme berukuran renik sehingga wajib memakai mikroskop ('need microscope')."
+                },
+                {
+                    text: "The judicial system is responsible for interpreting laws.",
+                    q: "What is its task?",
+                    opts: ["Making laws", "Interpreting laws", "Breaking laws", "Ignoring laws", "Rewriting history"],
+                    ans: "Interpreting laws",
+                    exp: "Wewenang badan yudisial adalah menafsirkan dan menegakkan hukum ('interpreting laws')."
+                },
+                {
+                    text: "Space exploration provides data about the solar system.",
+                    q: "What did we learn?",
+                    opts: ["Nothing new", "Origin of solar system", "Only about Mars", "Only about Earth", "Nothing about space"],
+                    ans: "Origin of solar system",
+                    exp: "Eksplorasi antariksa memberikan data tentang tata surya ('origin of solar system')."
+                },
+                {
+                    text: "Antibiotics treat bacteria but are ineffective for viruses.",
+                    q: "Do they kill viruses?",
+                    opts: ["Yes", "No", "Always", "Sometimes always", "Only in winter"],
+                    ans: "No",
+                    exp: "Antibiotik hanya membasmi bakteri dan tidak efektif melawan virus ('No')."
+                },
+                {
+                    text: "Cultural heritage includes artifacts and traditions.",
+                    q: "What does it include?",
+                    opts: ["Only old tools", "Both of them", "Only stories", "Only buildings", "Only paintings"],
+                    ans: "Both of them",
+                    exp: "Warisan budaya mencakup keduanya: artefak dan tradisi ('Both of them')."
+                },
+                {
+                    text: "Supply and demand determines the market price.",
+                    q: "What determines price?",
+                    opts: ["Government only", "Supply and demand", "The buyer only", "The seller only", "Weather"],
+                    ans: "Supply and demand",
+                    exp: "Harga pasar ditentukan oleh hukum penawaran dan permintaan ('supply and demand')."
+                },
+                {
+                    text: "Marine ecosystems are under threat from overfishing.",
+                    q: "What is one threat?",
+                    opts: ["Low salt", "Overfishing", "Too many fish", "Clean water", "Coral growth"],
+                    ans: "Overfishing",
+                    exp: "Ancaman bagi ekosistem laut salah satunya penangkapan ikan berlebih ('overfishing')."
+                },
+                {
+                    text: "Psychology is the scientific study of the human mind.",
+                    q: "What does it study?",
+                    opts: ["Physical body", "Mind and behavior", "Plants", "Rocks", "Weather"],
+                    ans: "Mind and behavior",
+                    exp: "Psikologi meneliti proses pikiran dan perilaku manusia ('human mind and behavior')."
+                },
+                {
+                    text: "Diplomacy is used between nations to maintain peace.",
+                    q: "What is the goal?",
+                    opts: ["To start war", "To maintain peace", "To sell goods", "To control countries", "To increase conflict"],
+                    ans: "To maintain peace",
+                    exp: "Tujuan utama diplomasi antarnegara adalah menjaga perdamaian ('maintain peace')."
+                },
+                {
+                    text: "Democracy is a system where power is in the people.",
+                    q: "Who holds the power?",
+                    opts: ["The King", "The People", "The Military", "The President only", "The Army"],
+                    ans: "The People",
+                    exp: "Dalam demokrasi, kedaulatan berada di tangan rakyat ('The People')."
+                },
+                {
+                    text: "Literacy rates indicate a country's development level.",
+                    q: "What does it show?",
+                    opts: ["Population size", "Development level", "Weather", "Land area", "Number of cities"],
+                    ans: "Development level",
+                    exp: "Tingkat melek huruf mencerminkan taraf kemajuan negara ('development level')."
+                },
+                {
+                    text: "A balanced diet includes proteins and vitamins.",
+                    q: "What is it?",
+                    opts: ["Only protein", "Variety of nutrients", "Only water", "Only carbohydrates", "Only vitamins"],
+                    ans: "Variety of nutrients",
+                    exp: "Pola makan seimbang mencakup berbagai nutrisi lengkap ('variety of nutrients')."
+                },
+                {
+                    text: "The Magna Carta limited the power of the English king.",
+                    q: "What did it do?",
+                    opts: ["More power", "Limited king's power", "Ended all wars", "Removed parliament", "Created a new country"],
+                    ans: "Limited king's power",
+                    exp: "Piagam Magna Carta membatasi kekuasaan absolut raja Inggris ('limited king's power')."
+                }
+            ]
+        };
 
-        // Bank Soal Reading Bahasa Inggris
-        const READING_BANK = [
-            {
-                text: "Sarah waters the fresh flowers in her front garden every morning before preparing for school.",
-                q: "When does Sarah water the flowers in her garden?",
-                options: ["Every morning", "Late at night", "During lunchtime", "Only on Sundays"],
-                a: "Every morning"
-            },
-            {
-                text: "Computer processors generate significant thermal heat, so cooling fans and heat sinks are essential to prevent hardware failure.",
-                q: "Why are cooling fans and heat sinks essential in computers?",
-                options: ["To prevent hardware failure", "To make the computer louder", "To double the monitor brightness", "To clean viruses automatically"],
-                a: "To prevent hardware failure"
-            },
-            {
-                text: "Vocational students practice network cabling in the computer laboratory twice a week under their teacher's guidance.",
-                q: "Where do the vocational students practice network cabling?",
-                options: ["In the computer laboratory", "In the school garden", "In the sports hall", "Inside the library"],
-                a: "In the computer laboratory"
-            },
-            {
-                text: "Regularly cleaning the dust inside your computer case ensures optimal airflow and extends the lifetime of internal components.",
-                q: "What is the primary benefit of maintaining optimal airflow inside the PC case?",
-                options: ["Extending component lifetime", "Decreasing Internet speed", "Changing the screen color", "Deleting temporary documents"],
-                a: "Extending component lifetime"
-            },
-            {
-                text: "Always remember to safely eject removable storage drives before physically disconnecting them to avoid file corruption.",
-                q: "What might happen if you unplug a storage drive without safely ejecting it?",
-                options: ["File corruption can occur", "The screen turns off forever", "Keyboard buttons will loosen", "The processor becomes cold"],
-                a: "File corruption can occur"
-            },
-            {
-                text: "Antivirus software constantly scans downloaded files to identify and quarantine potential malware threats.",
-                q: "What is the main task of an antivirus program?",
-                options: ["Identify and quarantine malware", "Increase speaker volume", "Write code automatically", "Charge the laptop battery"],
-                a: "Identify and quarantine malware"
-            }
-        ];
-
-        let questionIndex = 0;
-        let score = 0;
-        let isAnswered = false;
-        const studentName = localStorage.getItem('studentName') || "Siswa Baru";
+        // Kamus Glosarium Mini
+        const GLOSSARY_DICTIONARY = {
+            "apple": "apel (buah)", "red": "merah", "cat": "kucing", "sleeping": "sedang tidur",
+            "mat": "tikar / keset", "father": "ayah", "doctor": "dokter", "drink": "minum",
+            "milk": "susu", "morning": "pagi hari", "sun": "matahari", "hot": "panas",
+            "birds": "burung-burung", "fly": "terbang", "sky": "langit", "pens": "pulpen",
+            "elephant": "gajah", "big": "besar", "animal": "hewan / binatang", "football": "sepak bola",
+            "wears": "mengenakan / memakai", "hat": "topi", "coffee": "kopi", "bitter": "pahit",
+            "table": "meja", "raining": "hujan", "outside": "di luar ruangan", "umbrella": "payung",
+            "fish": "ikan", "water": "air", "hungry": "lapar", "eat": "makan", "grass": "rumput",
+            "soap": "sabun", "hands": "tangan", "fast": "cepat", "slow": "lambat", "eyes": "mata",
+            "mailman": "tukang pos", "shoes": "sepatu", "feet": "kaki", "fruit": "buah", "moon": "bulan",
+            "night": "malam hari", "sugar": "gula", "sweet": "manis", "week": "pekan / minggu",
+            "kitchen": "dapur", "cooking": "sedang memasak", "gardening": "berkebun", "plants": "menanam / tumbuhan",
+            "roses": "bunga mawar", "spring": "musim semi", "match": "pertandingan", "boiling": "mendidih",
+            "traffic": "lalu lintas", "dolphins": "lumba-lumba", "mammals": "hewan mamalia",
+            "breathe": "bernapas", "library": "perpustakaan", "exercise": "olahraga / latihan",
+            "heart": "jantung / hati", "health": "kesehatan", "chef": "koki / juru masak",
+            "restaurant": "restoran", "oxygen": "oksigen", "desert": "gurun pasir",
+            "honey": "madu", "bees": "lebah", "poisonous": "berbisa / beracun", "breakfast": "sarapan pagi",
+            "energy": "energi / tenaga", "recycling": "daur ulang", "waste": "limbah / sampah",
+            "bats": "kelelawar", "hydrated": "terhidrasi (cukup cairan)", "penguins": "penguin",
+            "architect": "arsitek (perancang bangunan)", "gravity": "gaya gravitasi", "volcanoes": "gunung berapi",
+            "lava": "lahar cair", "compass": "kompas penunjuk arah", "pollution": "pencemaran",
+            "oceans": "samudra / lautan", "inventor": "penemu", "vocabulary": "kosakata",
+            "revolution": "revolusi", "earthquakes": "gempa bumi", "challenge": "tantangan",
+            "photosynthesis": "fotosintesis", "sunlight": "cahaya matahari", "relativity": "relativitas",
+            "biodiversity": "keanekaragaman hayati", "ecosystem": "ekosistem", "stability": "kestabilan",
+            "sustainable": "berkelanjutan", "intelligence": "kecerdasan", "globalization": "globalisasi",
+            "traditions": "tradisi / adat", "functions": "fungsi / faal", "climate": "iklim",
+            "inflation": "inflasi (kenaikan harga)", "archeologists": "ahli arkeologi", "artifacts": "artefak purbakala",
+            "genetic": "genetika", "renaissance": "renaisans", "renewable": "terbarukan",
+            "leadership": "kepemimpinan", "empathy": "empati", "urbanization": "urbanisasi (ke kota)",
+            "microorganisms": "jasad renik / kuman", "microscope": "mikroskop", "judicial": "lembaga peradilan / hukum",
+            "exploration": "penjelajahan / eksplorasi", "antibiotics": "antibiotik", "bacteria": "bakteri",
+            "heritage": "warisan budaya", "demand": "permintaan", "supply": "penawaran",
+            "psychology": "ilmu psikologi", "diplomacy": "diplomasi", "democracy": "demokrasi",
+            "literacy": "kemampuan literasi / baca"
+        };
 
         // ==============================================================
-        // AUDIO ENGINE (FILE ASSET + WEB AUDIO FALLBACK)
+        // 2. STATE DAN PERSISTENSI TINGKAT KESULITAN & SESI 5 SOAL
+        // ==============================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentDifficulty = urlParams.get('lvl') || localStorage.getItem('maharati_difficulty') || 'easy';
+        currentDifficulty = currentDifficulty.toLowerCase();
+        if (!['easy', 'medium', 'hard'].includes(currentDifficulty)) currentDifficulty = 'easy';
+
+        const SESSION_QUESTIONS_COUNT = 5;
+        let sessionQuestions = [];
+        let sessionIndex = 0;
+        let sessionCorrectCount = 0;
+        let isAnswered = false;
+
+        let currentUtterance = null;
+        let isTTSPlaying = false;
+        let ttsIntervalTimer = null;
+        let activeGlossaryWord = "";
+
+        const studentName = localStorage.getItem('studentName') || "Siswa Baru";
+
+        function changeModuleDifficulty(lvl) {
+            playClickSound();
+            currentDifficulty = lvl;
+            localStorage.setItem('maharati_difficulty', lvl);
+            localStorage.setItem('studentLevel', lvl);
+            updateDifficultyTabsUI();
+            startNewQuizSession();
+        }
+
+        function updateDifficultyTabsUI() {
+            const tabs = ['easy', 'medium', 'hard'];
+            const labels = {
+                easy: { name: '🟢 Level: Mudah', border: 'border-emerald-300', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+                medium: { name: '🟠 Level: Sedang', border: 'border-amber-300', bg: 'bg-amber-50', text: 'text-amber-800' },
+                hard: { name: '🔴 Level: Sulit', border: 'border-rose-300', bg: 'bg-rose-50', text: 'text-rose-800' }
+            };
+
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-lvl-${t}`);
+                if (!btn) return;
+                if (t === currentDifficulty) {
+                    btn.className = `px-3 py-1.5 rounded-xl font-black text-[11px] uppercase transition flex items-center gap-1 shadow-sm ${t === 'easy' ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-400' : (t === 'medium' ? 'bg-amber-100 text-amber-800 border-2 border-amber-400' : 'bg-rose-100 text-rose-800 border-2 border-rose-400')}`;
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl font-black text-[11px] uppercase transition flex items-center gap-1 text-slate-600 hover:bg-slate-100";
+                }
+            });
+
+            const cardBadge = document.getElementById('level-badge-card');
+            if (cardBadge) {
+                const cfg = labels[currentDifficulty];
+                cardBadge.className = `text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${cfg.bg} ${cfg.text} border ${cfg.border} uppercase`;
+                cardBadge.innerText = cfg.name;
+            }
+        }
+
+        // ==============================================================
+        // 3. PENGACAKAN 5 SOAL DARI 30 BANK SOAL
+        // ==============================================================
+        function shuffleArray(arr) {
+            const copied = [...arr];
+            for (let i = copied.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copied[i], copied[j]] = [copied[j], copied[i]];
+            }
+            return copied;
+        }
+
+        function startNewQuizSession() {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            const allBankQuestions = READING_DATA[currentDifficulty] || READING_DATA.easy;
+            
+            // Acak seluruh 30 soal lalu ambil 5 soal pertama secara unik
+            const shuffledPool = shuffleArray(allBankQuestions);
+            sessionQuestions = shuffledPool.slice(0, SESSION_QUESTIONS_COUNT);
+            
+            sessionIndex = 0;
+            sessionCorrectCount = 0;
+            loadCurrentQuestion();
+        }
+
+        // ==============================================================
+        // 4. AUDIO ENGINE & WEB AUDIO PROCEDURAL FALLBACK
         // ==============================================================
         let audioCtx = null;
         function getAudioContext() {
@@ -261,7 +1082,7 @@
             return audioCtx;
         }
 
-        function playTone(freq, dur = 0.09, type = 'sine', gainVal = 0.18) {
+        function playTone(freq, dur = 0.08, type = 'sine', gainVal = 0.16) {
             try {
                 const ctx = getAudioContext();
                 if (!ctx) return;
@@ -291,57 +1112,228 @@
         function playClickSound() { playSound('snd-click', 650); }
 
         // ==============================================================
-        // GAMEPLAY & QUESTION LOGIC
+        // 5. PENYOROT KATA REAL-TIME TTS (WORD-BY-WORD HIGHLIGHT)
+        // ==============================================================
+        function renderPassageTokens(text) {
+            const container = document.getElementById('passage-container');
+            container.innerHTML = '';
+            
+            const words = text.split(/(\s+)/);
+            let wordCount = 0;
+
+            words.forEach(chunk => {
+                if (/^\s+$/.test(chunk)) {
+                    container.appendChild(document.createTextNode(chunk));
+                } else {
+                    const cleanWord = chunk.replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, "");
+                    const span = document.createElement('span');
+                    span.className = "word-token";
+                    span.id = `token-${wordCount}`;
+                    span.dataset.cleanWord = cleanWord.toLowerCase();
+                    span.innerText = chunk;
+                    span.onclick = () => openGlossary(cleanWord);
+                    container.appendChild(span);
+                    wordCount++;
+                }
+            });
+        }
+
+        function toggleReadPassage() {
+            playClickSound();
+            if (isTTSPlaying) {
+                stopTTS();
+                return;
+            }
+
+            if (!('speechSynthesis' in window)) {
+                showToast("⚠️ Browser belum mendukung Web Speech Audio!", false);
+                return;
+            }
+
+            if (sessionQuestions.length === 0) return;
+            const item = sessionQuestions[sessionIndex];
+            
+            stopTTS();
+            isTTSPlaying = true;
+            updateTTSButtonUI(true);
+
+            currentUtterance = new SpeechSynthesisUtterance(item.text);
+            currentUtterance.lang = 'en-US';
+            currentUtterance.rate = 0.85;
+
+            const allTokens = document.querySelectorAll('#passage-container .word-token');
+            let tokenIdx = 0;
+
+            if ('onboundary' in currentUtterance) {
+                currentUtterance.onboundary = (event) => {
+                    if (event.name === 'word') {
+                        highlightSpecificToken(tokenIdx);
+                        tokenIdx++;
+                    }
+                };
+            } else {
+                // Fallback interval estimasi per kata
+                const totalTokens = allTokens.length;
+                const estInterval = Math.max(220, (item.text.length * 60) / Math.max(1, totalTokens));
+                ttsIntervalTimer = setInterval(() => {
+                    if (tokenIdx < totalTokens) {
+                        highlightSpecificToken(tokenIdx);
+                        tokenIdx++;
+                    } else {
+                        clearInterval(ttsIntervalTimer);
+                    }
+                }, estInterval);
+            }
+
+            currentUtterance.onend = () => stopTTS();
+            currentUtterance.onerror = () => stopTTS();
+
+            window.speechSynthesis.speak(currentUtterance);
+        }
+
+        function highlightSpecificToken(index) {
+            document.querySelectorAll('#passage-container .word-token').forEach(el => el.classList.remove('word-highlight'));
+            const target = document.getElementById(`token-${index}`);
+            if (target) target.classList.add('word-highlight');
+        }
+
+        function stopTTS() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            if (ttsIntervalTimer) {
+                clearInterval(ttsIntervalTimer);
+                ttsIntervalTimer = null;
+            }
+            document.querySelectorAll('#passage-container .word-token').forEach(el => el.classList.remove('word-highlight'));
+            isTTSPlaying = false;
+            updateTTSButtonUI(false);
+        }
+
+        function updateTTSButtonUI(playing) {
+            const label = document.getElementById('label-tts');
+            const icon = document.getElementById('icon-tts');
+            if (playing) {
+                label.innerText = "Berhenti";
+                icon.setAttribute('data-lucide', 'square');
+            } else {
+                label.innerText = "Dengarkan";
+                icon.setAttribute('data-lucide', 'volume-2');
+            }
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+        }
+
+        // ==============================================================
+        // 6. GLOSARIUM MINI & PENGUCAPAN KATA TUNGGAL
+        // ==============================================================
+        function openGlossary(word) {
+            playClickSound();
+            const clean = word.toLowerCase().trim();
+            activeGlossaryWord = clean;
+
+            const modal = document.getElementById('glossary-modal');
+            const wordEnEl = document.getElementById('glossary-word-en');
+            const wordIdEl = document.getElementById('glossary-word-id');
+
+            wordEnEl.innerText = word;
+            wordIdEl.innerText = GLOSSARY_DICTIONARY[clean] || "Kosakata dalam kalimat";
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeGlossary() {
+            playClickSound();
+            document.getElementById('glossary-modal').classList.add('hidden');
+        }
+
+        function speakSingleWord(word) {
+            playClickSound();
+            if ('speechSynthesis' in window && word) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(word);
+                u.lang = 'en-US';
+                u.rate = 0.82;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        // ==============================================================
+        // 7. SIKLUS PERTANYAAN, PEMBAHASAN, & REKAP SESI
         // ==============================================================
         function loadCurrentQuestion() {
             isAnswered = false;
-            document.getElementById('action-container').classList.add('hidden');
+            stopTTS();
+            document.getElementById('action-wrapper').classList.add('hidden');
+            
+            const hintBox = document.getElementById('reading-hint-box');
+            if (hintBox) hintBox.classList.remove('hidden');
 
-            const item = READING_BANK[questionIndex % READING_BANK.length];
-            document.getElementById('round-indicator').innerText = `Soal ${(questionIndex % READING_BANK.length) + 1} / ${READING_BANK.length}`;
-            document.getElementById('passage-display').innerText = `"${item.text}"`;
+            if (sessionQuestions.length === 0) {
+                startNewQuizSession();
+                return;
+            }
+
+            const item = sessionQuestions[sessionIndex];
+            document.getElementById('round-indicator').innerText = `Soal ${sessionIndex + 1} / ${SESSION_QUESTIONS_COUNT}`;
+            renderPassageTokens(item.text);
             document.getElementById('question-display').innerText = item.q;
 
-            // Acak urutan pilihan jawaban
-            const shuffledOptions = [...item.options].sort(() => 0.5 - Math.random());
+            // Render 5 Pilihan Jawaban (A, B, C, D, E) Mengisi Grid 2-Kolom
             const container = document.getElementById('options-container');
             container.innerHTML = '';
+            const prefixes = ['A', 'B', 'C', 'D', 'E'];
 
-            const prefixes = ['A', 'B', 'C', 'D'];
-            shuffledOptions.forEach((opt, idx) => {
+            const btnNextText = document.getElementById('btn-next-text');
+            if (sessionIndex === SESSION_QUESTIONS_COUNT - 1) {
+                btnNextText.innerText = "SELESAI & LIHAT HASIL";
+            } else {
+                btnNextText.innerText = "SOAL BERIKUTNYA";
+            }
+
+            item.opts.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = "w-full p-3.5 sm:p-4 rounded-2xl btn-duo-white font-extrabold text-xs sm:text-sm text-slate-700 text-left flex items-center gap-3 transition-all";
+                const spanClass = (idx === 4) ? "sm:col-span-2 sm:max-w-xl sm:mx-auto w-full" : "w-full";
+                btn.className = `${spanClass} py-2.5 px-3.5 sm:py-3 sm:px-4 rounded-2xl btn-duo-white font-extrabold text-xs sm:text-sm text-slate-700 text-left flex items-center gap-3 transition-all`;
                 btn.innerHTML = `
-                    <span class="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-xs text-slate-600">${prefixes[idx]}</span>
-                    <span class="flex-1">${opt}</span>
-                    <span class="status-icon hidden"></span>
+                    <span class="w-7 h-7 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-xs text-slate-600 shrink-0">${prefixes[idx]}</span>
+                    <span class="flex-1 opt-text leading-snug">${opt}</span>
+                    <span class="status-icon hidden shrink-0"></span>
                 `;
-                btn.onclick = () => checkSelectedAnswer(btn, opt, item.a);
+                btn.onclick = () => verifyAnswer(btn, opt, item.ans, item.exp);
                 container.appendChild(btn);
             });
-            lucide.createIcons();
+
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
         }
 
-        function checkSelectedAnswer(btnEl, selectedText, correctAnswer) {
+        function verifyAnswer(btnEl, selectedText, correctAnswer, explanationText) {
             if (isAnswered) return;
             isAnswered = true;
 
             const isCorrect = selectedText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
             const allButtons = document.querySelectorAll('#options-container button');
-
-            // Nonaktifkan semua pilihan setelah menjawab
             allButtons.forEach(b => b.disabled = true);
 
+            const expBox = document.getElementById('explanation-box');
+            const expText = document.getElementById('explanation-text');
+            const expTitle = document.getElementById('explanation-title');
+            const hintBox = document.getElementById('reading-hint-box');
+            
+            if (hintBox) hintBox.classList.add('hidden');
+
             if (isCorrect) {
+                sessionCorrectCount++;
                 playSound('snd-right', 880);
                 btnEl.classList.add('btn-correct');
                 btnEl.querySelector('.status-icon').innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>';
                 btnEl.querySelector('.status-icon').classList.remove('hidden');
 
-                score += 20;
-                document.getElementById('score-display').innerText = `${score} XP`;
-                showToast("✨ Benar sekali! Pemahamanmu sangat tepat (+20 XP)", true);
-                saveScoreToSupabase(20);
+                addStudentXP(20);
+                showToast("✨ Jawaban Tepat! (+20 XP)", true);
+                
+                expBox.className = "flex-1 p-3 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-left text-xs space-y-0.5";
+                expTitle.innerText = "✓ Pembahasan Jawaban Benar:";
+                expText.innerText = explanationText;
             } else {
                 playSound('snd-wrong', 220);
                 btnEl.classList.add('btn-wrong');
@@ -351,71 +1343,91 @@
                 document.getElementById('question-card').classList.add('animate-shake');
                 setTimeout(() => document.getElementById('question-card').classList.remove('animate-shake'), 400);
 
-                // Tandai opsi yang benar agar siswa belajar
+                // Sorot kunci jawaban yang benar
                 allButtons.forEach(b => {
-                    const textSpan = b.querySelector('span:nth-child(2)').innerText;
-                    if (textSpan.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+                    const txt = b.querySelector('.opt-text').innerText;
+                    if (txt.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
                         b.classList.add('btn-correct');
                     }
                 });
 
-                showToast("⚠️ Kurang tepat! Perhatikan kunci jawaban di teks ya.", false);
+                showToast("⚠️ Kurang tepat! Simak pembahasan di bawah.", false);
+
+                expBox.className = "flex-1 p-3 rounded-xl bg-amber-50 border-2 border-amber-300 text-left text-xs space-y-0.5";
+                expTitle.innerText = "💡 Pembahasan & Kunci Jawaban:";
+                expText.innerText = `${explanationText} (Jawaban yang benar: ${correctAnswer})`;
             }
 
-            document.getElementById('action-container').classList.remove('hidden');
-            lucide.createIcons();
+            document.getElementById('action-wrapper').classList.remove('hidden');
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
         }
 
         function nextQuestion() {
             playClickSound();
-            questionIndex++;
-            loadCurrentQuestion();
+            sessionIndex++;
+            if (sessionIndex >= SESSION_QUESTIONS_COUNT) {
+                showSessionSummary();
+            } else {
+                loadCurrentQuestion();
+            }
+        }
+
+        function showSessionSummary() {
+            stopTTS();
+            playSound('snd-victory', 900);
+            const modal = document.getElementById('session-summary-modal');
+            const correctEl = document.getElementById('summary-correct-count');
+            const xpEl = document.getElementById('summary-xp-earned');
+            const levelTagEl = document.getElementById('summary-level-tag');
+
+            correctEl.innerText = `${sessionCorrectCount} / ${SESSION_QUESTIONS_COUNT}`;
+            xpEl.innerText = `+${sessionCorrectCount * 20} XP`;
+
+            const levelNames = { easy: '🟢 Level: Mudah', medium: '🟠 Level: Sedang', hard: '🔴 Level: Sulit' };
+            levelTagEl.innerText = `Tingkat: ${levelNames[currentDifficulty] || 'Mudah'}`;
+
+            modal.classList.remove('hidden');
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
         }
 
         // ==============================================================
-        // SPEECH SYNTHESIS (TTS AUDIO)
+        // 8. PENYIMPANAN SKOR XP & KEMAJUAN LOKAL
         // ==============================================================
-        function speakParagraph() {
-            playClickSound();
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const item = READING_BANK[questionIndex % READING_BANK.length];
-                const utterance = new SpeechSynthesisUtterance(item.text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.88;
-                window.speechSynthesis.speak(utterance);
+        function addStudentXP(pts) {
+            const current = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            const newTotal = current + pts;
+            localStorage.setItem('maharati_student_xp', newTotal);
+            document.getElementById('score-display').innerText = `${newTotal} XP`;
+
+            // Tandai modul Reading sudah selesai dikerjakan
+            let visited = JSON.parse(localStorage.getItem('maharati_visited_modules')) || [];
+            if (!visited.includes('Reading')) {
+                visited.push('Reading');
+                localStorage.setItem('maharati_visited_modules', JSON.stringify(visited));
             }
         }
 
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('toast');
-            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all ${isSuccess ? 'bg-emerald-500' : 'bg-amber-500'}`;
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-3 rounded-2xl text-center font-black text-white text-xs shadow-xl z-50 transition-all ${isSuccess ? 'bg-emerald-600' : 'bg-rose-600'}`;
             toast.innerText = msg;
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 2200);
         }
 
-        // ==============================================================
-        // SUPABASE DATABASE SYNC
-        // ==============================================================
-        async function saveScoreToSupabase(pts) {
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
-                    method: "POST",
-                    headers: {
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Content-Type": "application/json",
-                        "Prefer": "return=minimal"
-                    },
-                    body: JSON.stringify([{ name: studentName, activity: "Reading", level: "Easy", score: pts }])
-                });
-            } catch(e) {}
-        }
-
+        // Inisialisasi Saat Halaman Dimuat
         window.onload = () => {
             document.getElementById('student-badge').innerText = studentName;
-            loadCurrentQuestion();
-            lucide.createIcons();
+            const currentXP = parseInt(localStorage.getItem('maharati_student_xp')) || 0;
+            document.getElementById('score-display').innerText = `${currentXP} XP`;
+            
+            updateDifficultyTabsUI();
+            startNewQuizSession();
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+        };
+
+        window.onbeforeunload = () => {
+            stopTTS();
         };
     </script>
 </body>
