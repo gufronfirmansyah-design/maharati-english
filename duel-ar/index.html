@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Maharati - Portal Belajar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --duo-green: #58cc02;
+            --duo-green-shadow: #46a302;
+            --duo-blue: #1cb0f6;
+            --duo-blue-shadow: #1899d6;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f0fdf4;
+            background-image: linear-gradient(rgba(240, 253, 244, 0.90), rgba(240, 253, 244, 0.95)), url('asset/bg-maharati.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .font-game { font-family: 'Fredoka', sans-serif; }
+        
+        .duo-card {
+            background: #ffffff;
+            border: 3px solid #e5e7eb;
+            border-bottom-width: 6px;
+            transition: all 0.15s ease-in-out;
+        }
+        .duo-card:hover {
+            transform: translateY(-3px);
+            border-color: #cbd5e1;
+        }
+
+        .btn-duo-green {
+            background-color: var(--duo-green);
+            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+        }
+        .btn-duo-green:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-green-shadow);
+        }
+
+        .btn-duo-blue {
+            background-color: var(--duo-blue);
+            box-shadow: 0 5px 0 0 var(--duo-blue-shadow);
+        }
+        .btn-duo-blue:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-blue-shadow);
+        }
+
+        .btn-duo-white {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-bottom: 4px solid #cbd5e1;
+            color: #334155;
+        }
+        .btn-duo-white:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatSlow 3.2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between p-3 sm:p-6" onclick="unlockAudioOnce()">
+
+    <!-- Audio Elements dari folder asset/ -->
+    <audio id="snd-bg" loop preload="auto">
+        <source src="asset/bg-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="snd-click" preload="auto">
+        <source src="asset/click.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="snd-right" preload="auto">
+        <source src="asset/right.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Top Navigation Bar -->
+    <nav class="max-w-5xl w-full mx-auto duo-card rounded-3xl p-3 sm:p-4 flex items-center justify-between mb-6 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-[0_4px_0_0_#059669]">
+                <i data-lucide="languages" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-lg sm:text-xl font-black font-game text-slate-800 leading-tight tracking-wide">ENGLISH MAHARATI</h1>
+                <p class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">SMKN 2 Mantangai</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Profil Siswa -->
+            <button onclick="openNameModal()" class="btn-duo-white px-3 py-2 rounded-2xl flex items-center gap-1.5 text-xs font-bold transition">
+                <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
+                <span id="nav-student-name" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
+                <i data-lucide="edit-3" class="w-3 h-3 text-slate-400 ml-0.5"></i>
+            </button>
+
+            <!-- Skor XP -->
+            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
+                <span id="nav-xp-score">0 XP</span>
+            </div>
+
+            <!-- Tombol Musik -->
+            <button id="btn-music" onclick="toggleMusic(event)" title="Nyalakan/Matikan Musik" class="btn-duo-white p-2.5 rounded-2xl transition">
+                <i data-lucide="volume-x" id="icon-music" class="w-4 h-4 text-slate-400"></i>
+            </button>
+
+            <!-- Tombol Leaderboard -->
+            <button onclick="openLeaderboardModal()" title="Papan Peringkat" class="btn-duo-white p-2.5 rounded-2xl transition">
+                <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl w-full mx-auto space-y-6">
+        
+        <!-- Hero Banner Greeting -->
+        <div class="duo-card rounded-[2.5rem] p-6 sm:p-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-600 border-b-[7px] flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
+            <div class="space-y-2 text-center md:text-left">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-black uppercase tracking-wider backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
+                    Pembelajaran Interaktif
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-black font-game tracking-tight">
+                    Halo, <span id="hero-student-name">Siswa</span>! 👋
+                </h2>
+                <p class="text-xs sm:text-sm text-emerald-50 max-w-lg font-semibold leading-relaxed">
+                    Pilih modul di bawah untuk meningkatkan kemampuan bahasa Inggris dan mengumpulkan XP sebanyak-banyaknya!
+                </p>
+            </div>
+            
+            <div class="w-24 h-24 sm:w-28 sm:h-28 bg-white/15 rounded-3xl flex items-center justify-center p-3 backdrop-blur-sm border-2 border-white/30 animate-float shadow-inner">
+                <i data-lucide="sparkles" class="w-14 h-14 text-yellow-300"></i>
+            </div>
+        </div>
+
+        <!-- 6 Modul Utama (Path Lengkap index.html) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            
+            <!-- 1. Reading -->
+            <a href="reading/index.html" onclick="handleNav(event, 'reading/index.html')" class="duo-card rounded-3xl p-5 block group border-emerald-200 hover:border-emerald-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0] group-hover:scale-105 transition-transform">
+                        <i data-lucide="book-open" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">Membaca</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">Reading Comprehension</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pahami paragraf pendek dan jawab soal pilihan ganda.</p>
+                <div class="w-full py-2.5 rounded-xl btn-duo-green text-white font-black text-xs text-center uppercase tracking-wider">
+                    Mulai Belajar ➔
+                </div>
+            </a>
+
+            <!-- 2. Speaking -->
+            <a href="speaking/index.html" onclick="handleNav(event, 'speaking/index.html')" class="duo-card rounded-3xl p-5 block group border-sky-200 hover:border-sky-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-sky-600 shadow-[0_4px_0_0_#bae6fd] group-hover:scale-105 transition-transform">
+                        <i data-lucide="mic" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[10px] font-black uppercase">Bicara</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">Speaking Practice</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Latihan melafalkan kalimat bahasa Inggris langsung lewat mikrofon.</p>
+                <div class="w-full py-2.5 rounded-xl btn-duo-blue text-white font-black text-xs text-center uppercase tracking-wider">
+                    Mulai Bicara ➔
+                </div>
+            </a>
+
+            <!-- 3. Cursive Board -->
+            <a href="cursive/index.html" onclick="handleNav(event, 'cursive/index.html')" class="duo-card rounded-3xl p-5 block group border-rose-200 hover:border-rose-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shadow-[0_4px_0_0_#fecdd3] group-hover:scale-105 transition-transform">
+                        <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-black uppercase">Menulis</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-rose-600 transition-colors">Cursive Board</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Papan tulis interaktif menulis huruf tegak bersambung indah.</p>
+                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#e11d48]" style="background-color: #f43f5e;">
+                    Buka Papan ➔
+                </div>
+            </a>
+
+            <!-- 4. Roulette Sentence -->
+            <a href="roulette/index.html" onclick="handleNav(event, 'roulette/index.html')" class="duo-card rounded-3xl p-5 block group border-purple-200 hover:border-purple-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-[0_4px_0_0_#e9d5ff] group-hover:scale-105 transition-transform">
+                        <i data-lucide="refresh-cw" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-purple-50 text-purple-700 text-[10px] font-black uppercase">Spin Ide</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">Sentence Roulette</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Putar roda keberuntungan dan buat kalimat kreatif bahasa Inggris.</p>
+                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#9333ea]" style="background-color: #a855f7;">
+                    Putar Roda ➔
+                </div>
+            </a>
+
+            <!-- 5. Tarik Tambang -->
+            <a href="tarik-tambang/index.html" onclick="handleNav(event, 'tarik-tambang/index.html')" class="duo-card rounded-3xl p-5 block group border-amber-200 hover:border-amber-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-[0_4px_0_0_#fde68a] group-hover:scale-105 transition-transform">
+                        <i data-lucide="swords" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 text-[10px] font-black uppercase">Duel Seru</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">Battle Tarik Tambang</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Kuis tarik tambang solo atau 2 pemain tentang perawatan PC & kuis.</p>
+                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#d97706]" style="background-color: #f59e0b;">
+                    Mainkan Battle ➔
+                </div>
+            </a>
+
+            <!-- 6. Duel AR -->
+            <a href="duel-ar/index.html" onclick="handleNav(event, 'duel-ar/index.html')" class="duo-card rounded-3xl p-5 block group border-cyan-200 hover:border-cyan-400">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-100 flex items-center justify-center text-cyan-600 shadow-[0_4px_0_0_#a5f3fc] group-hover:scale-105 transition-transform">
+                        <i data-lucide="hand" class="w-7 h-7"></i>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-cyan-50 text-cyan-700 text-[10px] font-black uppercase">Augmented Reality</span>
+                </div>
+                <h3 class="text-lg font-black font-game text-slate-800 mb-1 group-hover:text-cyan-600 transition-colors">Word Clash AR (2 Player)</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-4 leading-relaxed">Pukul gelembung kata dengan kamera gestur tangan MediaPipe.</p>
+                <div class="w-full py-2.5 rounded-xl text-white font-black text-xs text-center uppercase tracking-wider shadow-[0_4px_0_0_#0891b2]" style="background-color: #06b6d4;">
+                    Aktifkan AR ➔
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Modal Ubah Nama Siswa -->
+    <div id="modal-name" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-sm w-full p-6 text-center space-y-4 bg-white">
+            <div class="w-16 h-16 bg-emerald-100 rounded-3xl mx-auto flex items-center justify-center text-emerald-600 shadow-[0_4px_0_0_#a7f3d0]">
+                <i data-lucide="user-check" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-black font-game text-slate-800">Siapa Nama Kamu?</h3>
+            <p class="text-xs font-bold text-slate-400">Nama ini akan digunakan untuk mencatat skor XP kamu di setiap modul.</p>
+            <input type="text" id="input-new-name" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 text-center font-bold text-base outline-none focus:border-emerald-500 shadow-inner" placeholder="Ketik nama lengkap..." maxlength="25">
+            <div class="flex gap-2">
+                <button onclick="saveStudentName()" class="flex-1 py-3.5 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
+                    Simpan Nama
+                </button>
+                <button onclick="closeNameModal()" class="px-4 py-3.5 rounded-2xl btn-duo-white text-slate-600 font-black text-xs uppercase">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Leaderboard -->
+    <div id="modal-leaderboard" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="duo-card rounded-[2.5rem] max-w-md w-full p-6 text-center space-y-4 bg-white">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
+                    <h3 class="text-lg font-black font-game text-slate-800 uppercase">Klasemen Top 10 XP</h3>
+                </div>
+                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div id="leaderboard-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>
+            </div>
+
+            <button onclick="closeLeaderboardModal()" class="w-full py-3 rounded-2xl btn-duo-green text-white font-black text-xs uppercase tracking-wider">
+                Tutup Papan Skor
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl w-full mx-auto text-center py-6 mt-6 border-t border-slate-200">
+        <p class="text-xs font-black text-slate-400 font-game uppercase tracking-wider">
+            English Maharati Learning System • SMKN 2 Mantangai Kapuas
+        </p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
+
+        let isMusicPlaying = false;
+        let audioUnlocked = false;
+
+        // Buka blokir audio browser saat klik pertama kali di mana saja
+        function unlockAudioOnce() {
+            if (audioUnlocked) return;
+            const bg = document.getElementById('snd-bg');
+            if (bg) {
+                bg.load();
+            }
+            audioUnlocked = true;
+        }
+
+        function playSoundEffect(elementId) {
+            const audio = document.getElementById(elementId);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            }
+        }
+
+        function playClickSound() {
+            playSoundEffect('snd-click');
+        }
+
+        function toggleMusic(e) {
+            if (e) e.stopPropagation();
+            const bgAudio = document.getElementById('snd-bg');
+            const icon = document.getElementById('icon-music');
+            if (!bgAudio) return;
+
+            if (isMusicPlaying) {
+                bgAudio.pause();
+                isMusicPlaying = false;
+                icon.setAttribute('data-lucide', 'volume-x');
+                icon.classList.remove('text-emerald-600');
+                icon.classList.add('text-slate-400');
+            } else {
+                bgAudio.volume = 0.35;
+                bgAudio.play().then(() => {
+                    isMusicPlaying = true;
+                    icon.setAttribute('data-lucide', 'volume-2');
+                    icon.classList.remove('text-slate-400');
+                    icon.classList.add('text-emerald-600');
+                }).catch(err => {
+                    alert("Klik di sembarang tempat pada layar terlebih dahulu, lalu klik tombol musik lagi.");
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function getStudentName() {
+            return localStorage.getItem('studentName') || 'Siswa Baru';
+        }
+
+        function updateProfileUI() {
+            const name = getStudentName();
+            document.getElementById('nav-student-name').innerText = name;
+            document.getElementById('hero-student-name').innerText = name;
+            fetchStudentTotalXP(name);
+        }
+
+        function openNameModal() {
+            playClickSound();
+            document.getElementById('input-new-name').value = getStudentName() === 'Siswa Baru' ? '' : getStudentName();
+            document.getElementById('modal-name').classList.remove('hidden');
+        }
+
+        function closeNameModal() {
+            playClickSound();
+            document.getElementById('modal-name').classList.add('hidden');
+        }
+
+        function saveStudentName() {
+            const input = document.getElementById('input-new-name').value.trim();
+            if (input) {
+                localStorage.setItem('studentName', input);
+                playSoundEffect('snd-right');
+                updateProfileUI();
+            }
+            closeNameModal();
+        }
+
+        async function fetchStudentTotalXP(studentName) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?name=eq.${encodeURIComponent(studentName)}&select=score`, {
+                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
+                });
+                if (!res.ok) return;
+                const rows = await res.json();
+                const total = rows.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
+                document.getElementById('nav-xp-score').innerText = `${total} XP`;
+            } catch(e) {}
+        }
+
+        async function openLeaderboardModal() {
+            playClickSound();
+            document.getElementById('modal-leaderboard').classList.remove('hidden');
+            const container = document.getElementById('leaderboard-list');
+            container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Memuat peringkat dari Supabase...</div>';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/recap?select=name,score`, {
+                    headers: { "apikey": SUPABASE_ANON_KEY, "Accept": "application/json" }
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                
+                const scoreMap = {};
+                data.forEach(item => {
+                    const n = (item.name || 'Siswa').trim();
+                    scoreMap[n] = (scoreMap[n] || 0) + (Number(item.score) || 0);
+                });
+
+                const sorted = Object.keys(scoreMap).map(name => ({
+                    name, score: scoreMap[name]
+                })).sort((a, b) => b.score - a.score).slice(0, 10);
+
+                if (sorted.length === 0) {
+                    container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Belum ada skor tercatat di database.</div>';
+                    return;
+                }
+
+                container.innerHTML = sorted.map((s, idx) => `
+                    <div class="flex items-center justify-between p-3 rounded-2xl ${idx === 0 ? 'bg-amber-50 border-2 border-amber-300' : 'bg-slate-50 border border-slate-200'}">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-400 text-white' : (idx === 1 ? 'bg-slate-300 text-slate-700' : 'bg-slate-200 text-slate-600')}">${idx + 1}</span>
+                            <span class="font-bold text-xs text-slate-800">${s.name}</span>
+                        </div>
+                        <span class="font-black text-xs text-emerald-600">${s.score} XP</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                container.innerHTML = '<div class="p-4 text-xs font-bold text-slate-400">Data offline / gagal terhubung ke database.</div>';
+            }
+        }
+
+        function closeLeaderboardModal() {
+            playClickSound();
+            document.getElementById('modal-leaderboard').classList.add('hidden');
+        }
+
+        function handleNav(e, fileUrl) {
+            e.preventDefault();
+            playClickSound();
+            setTimeout(() => {
+                window.location.href = fileUrl;
+            }, 100);
+        }
+
+        window.onload = () => {
+            updateProfileUI();
+            lucide.createIcons();
+            
+            if (!localStorage.getItem('studentName')) {
+                openNameModal();
+            }
+        };
+    </script>
+</body>
+</html>
