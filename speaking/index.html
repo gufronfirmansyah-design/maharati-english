@@ -2,224 +2,416 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Speaking Lab - English Maharati</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --duo-green: #58cc02;
-            --duo-green-dark: #46a302;
             --duo-blue: #1cb0f6;
-            --duo-blue-dark: #1899d6;
+            --duo-blue-shadow: #1899d6;
+            --duo-green: #58cc02;
+            --duo-green-shadow: #46a302;
+            --duo-rose: #f43f5e;
+            --duo-rose-shadow: #e11d48;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f7f9fa;
-            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
+            background-color: #f0f9ff;
+            background-image: 
+                radial-gradient(#e0f2fe 2px, transparent 2px),
+                linear-gradient(rgba(240, 249, 255, 0.92), rgba(240, 249, 255, 0.96)),
+                url('../asset/bg-maharati.gif');
+            background-size: 24px 24px, cover, cover;
+            background-position: 0 0, center, center;
+            background-attachment: fixed;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .font-game { font-family: 'Fredoka', sans-serif; }
+        
         .duo-card {
             background: #ffffff;
-            border: 3px solid #e5e5e5;
-            border-bottom: 6px solid #e5e5e5;
+            border: 3px solid #e0f2fe;
+            border-bottom-width: 6px;
+            transition: all 0.15s ease-in-out;
         }
+        .duo-card:hover {
+            border-color: #bae6fd;
+        }
+
         .btn-duo-blue {
             background-color: var(--duo-blue);
-            box-shadow: 0 5px 0 0 var(--duo-blue-dark);
+            box-shadow: 0 5px 0 0 var(--duo-blue-shadow);
         }
         .btn-duo-blue:active {
             transform: translateY(4px);
-            box-shadow: 0 1px 0 0 var(--duo-blue-dark);
+            box-shadow: 0 1px 0 0 var(--duo-blue-shadow);
         }
+
+        .btn-duo-green {
+            background-color: var(--duo-green);
+            box-shadow: 0 5px 0 0 var(--duo-green-shadow);
+        }
+        .btn-duo-green:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-green-shadow);
+        }
+
+        .btn-duo-rose {
+            background-color: var(--duo-rose);
+            box-shadow: 0 5px 0 0 var(--duo-rose-shadow);
+        }
+        .btn-duo-rose:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 0 var(--duo-rose-shadow);
+        }
+
         .btn-duo-white {
-            background-color: #ffffff;
-            color: #4b4b4b;
-            border: 2px solid #e5e5e5;
-            box-shadow: 0 4px 0 0 #e5e5e5;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-bottom: 4px solid #cbd5e1;
+            color: #334155;
+            transition: all 0.1s ease;
         }
         .btn-duo-white:active {
             transform: translateY(3px);
-            box-shadow: 0 1px 0 0 #e5e5e5;
+            border-bottom-width: 1px;
+        }
+
+        @keyframes micPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(244, 63, 94, 0); }
+        }
+        .mic-listening {
+            animation: micPulse 1.4s infinite ease-in-out;
+            background-color: #f43f5e !important;
+            box-shadow: 0 5px 0 0 #be123c !important;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 select-none text-slate-800">
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 text-slate-800">
 
-    <header class="max-w-3xl w-full mx-auto flex items-center justify-between pb-4">
-        <a href="../" onclick="playClick()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Menu Utama
+    <!-- Audio Elements dari folder asset/ induk -->
+    <audio id="snd-click" src="../asset/click.mp3" preload="auto"></audio>
+    <audio id="snd-right" src="../asset/right.mp3" preload="auto"></audio>
+    <audio id="snd-wrong" src="../asset/wrong.mp3" preload="auto"></audio>
+    <audio id="snd-victory" src="../asset/victory.mp3" preload="auto"></audio>
+
+    <!-- Header Navigation -->
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between pb-4">
+        <!-- Tautan eksplisit ke index.html induk agar tidak muncul Index of... -->
+        <a href="../index.html" onclick="playClickSound()" class="btn-duo-white px-4 py-2.5 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Menu Utama</span>
         </a>
-        <div class="flex items-center gap-3">
-            <span id="student-badge" class="px-3 py-1.5 rounded-xl bg-blue-100 text-blue-800 font-bold text-xs font-game">
-                👤 Siswa
-            </span>
-            <div class="px-3.5 py-1.5 rounded-xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-700 flex items-center gap-1.5">
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div class="px-3.5 py-2 rounded-2xl bg-sky-100 border-2 border-sky-300 font-bold text-xs text-sky-800 flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="user" class="w-4 h-4 text-sky-600"></i>
+                <span id="student-badge" class="max-w-[100px] sm:max-w-[140px] truncate">Siswa Baru</span>
+            </div>
+
+            <div class="px-3.5 py-2 rounded-2xl bg-amber-100 border-2 border-amber-300 font-black text-xs text-amber-800 flex items-center gap-1.5 shadow-sm">
                 <i data-lucide="flame" class="w-4 h-4 fill-amber-500 text-amber-500"></i>
                 <span id="score-display">0 XP</span>
             </div>
         </div>
     </header>
 
-    <main class="max-w-xl w-full mx-auto my-auto space-y-6">
-        <div class="duo-card p-6 sm:p-8 rounded-[2.5rem] text-center space-y-6">
-            <span class="text-xs font-black uppercase text-blue-500 tracking-wider font-game">
-                🎙️ Speaking & Pronunciation
-            </span>
+    <!-- Main Workspace Container -->
+    <main class="max-w-xl w-full mx-auto my-auto space-y-4">
+        <div id="speaking-card" class="duo-card p-5 sm:p-7 rounded-[2.5rem] text-center space-y-5 bg-white shadow-sm">
+            
+            <!-- Top Card Action Bar -->
+            <div class="flex items-center justify-between border-b border-sky-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
+                    <span class="text-xs font-black uppercase text-sky-600 tracking-wider font-game">
+                        Speaking & Pronunciation
+                    </span>
+                </div>
 
-            <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Tirukan Kalimat Ini:</p>
-                <h2 id="target-phrase" class="text-2xl sm:text-3xl font-black text-slate-800 font-game leading-tight italic">
-                    "Practice makes perfect"
+                <span id="round-indicator" class="px-3 py-1 rounded-xl bg-sky-50 border border-sky-200 font-black text-[11px] text-sky-700">
+                    Kalimat 1 / 6
+                </span>
+            </div>
+
+            <!-- Target Phrase Display Banner -->
+            <div class="py-2 bg-gradient-to-b from-sky-50/70 to-transparent rounded-2xl relative space-y-2">
+                <p class="text-[11px] font-bold text-sky-500 uppercase tracking-widest font-game">
+                    Tirukan Kalimat Berikut:
+                </p>
+                
+                <h2 id="target-phrase-display" class="text-xl sm:text-2xl font-black text-slate-800 font-game leading-snug px-3 italic">
+                    "Practice makes perfect in learning"
                 </h2>
+                
+                <p id="target-translation" class="text-xs font-semibold text-slate-400 italic">
+                    (Latihan membawa kesempurnaan dalam belajar)
+                </p>
             </div>
 
-            <!-- Controls -->
-            <div class="flex justify-center items-center gap-4 pt-2">
-                <button onclick="playTTS()" title="Dengarkan Contoh" class="w-14 h-14 rounded-2xl btn-duo-white flex items-center justify-center text-blue-500 transition">
-                    <i data-lucide="volume-2" class="w-6 h-6"></i>
-                </button>
-                <button id="btn-mic" onclick="toggleMic()" class="w-24 h-24 rounded-3xl btn-duo-blue text-white flex items-center justify-center transition shadow-lg">
-                    <i data-lucide="mic" class="w-10 h-10"></i>
-                </button>
+            <!-- Audio Controller & Big Microphone Button -->
+            <div class="flex flex-col items-center justify-center gap-3 pt-2">
+                <div class="flex items-center justify-center gap-4">
+                    <!-- Tombol Dengarkan Contoh Suara (TTS) -->
+                    <button onclick="playTTSPhrase()" title="Dengarkan Contoh Pengucapan" class="w-14 h-14 rounded-2xl btn-duo-white text-sky-600 flex items-center justify-center shadow-sm">
+                        <i data-lucide="volume-2" class="w-6 h-6"></i>
+                    </button>
+
+                    <!-- Tombol Utama Mikrofon -->
+                    <button id="btn-mic" onclick="toggleMicrophone()" title="Tekan & Bicara" class="w-24 h-24 rounded-3xl btn-duo-blue text-white flex items-center justify-center shadow-lg transition-transform">
+                        <i data-lucide="mic" id="mic-icon" class="w-10 h-10"></i>
+                    </button>
+                </div>
+
+                <p id="mic-status-text" class="text-xs font-bold text-slate-400 mt-1">
+                    Tekan tombol mikrofon biru dan ucapkan dengan jelas
+                </p>
             </div>
 
-            <p id="mic-status" class="text-xs font-bold text-slate-400">
-                Tekan tombol mikrofon biru dan ucapkan dengan jelas
-            </p>
-
-            <div id="transcript-box" class="p-4 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 text-xs font-bold text-slate-600 min-h-[48px] flex items-center justify-center">
+            <!-- Live Speech Recognition Transcript Box -->
+            <div id="transcript-box" class="p-3.5 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 text-xs font-bold text-slate-600 min-h-[50px] flex items-center justify-center text-center">
                 Belum ada suara terdeteksi
             </div>
+
+            <!-- Result Feedback Box -->
+            <div id="result-feedback" class="hidden p-3 rounded-2xl font-black text-xs uppercase tracking-wide"></div>
+
+            <!-- Next Phrase Button (Muncul setelah berhasil) -->
+            <button id="btn-next-phrase" onclick="nextPhrase()" class="hidden w-full py-4 rounded-2xl btn-duo-green text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                <span>Lanjut Kalimat Berikutnya</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
         </div>
     </main>
 
-    <div id="toast" class="hidden max-w-md w-full mx-auto p-4 rounded-2xl text-center font-black text-white text-sm shadow-xl transition-all"></div>
+    <!-- Feedback Toast -->
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all"></div>
 
-    <footer class="text-center text-xs font-bold text-slate-400 py-2 font-game">
-        Modul /speaking/ • SMKN 2 Mantangai Kapuas
+    <!-- Footer -->
+    <footer class="text-center text-xs font-bold text-slate-400 py-3 font-game">
+        Modul /speaking/ • English Maharati Learning System • SMKN 2 Mantangai
     </footer>
 
+    <!-- Script Logika Pembelajaran & Web Speech API -->
     <script>
         const SUPABASE_URL = "https://ruwzhfbdywroqhbfktfk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_twuLSbU5VBhEO9nILQNkAg_bKOJdCj-";
 
-        const PHRASES = [
-            "Practice makes perfect in learning",
-            "Good morning teachers and friends",
-            "Technology helps our education",
-            "I love studying English at school",
-            "Always keep the computer room clean"
+        // Bank Kalimat Speaking (Bahasa Inggris & Terjemahan)
+        const SPEAKING_BANK = [
+            { text: "Practice makes perfect in learning", id: "Latihan membawa kesempurnaan dalam belajar" },
+            { text: "Always maintain your computer hardware", id: "Selalu rawat perangkat keras komputermu" },
+            { text: "Vocational students have great practical skills", id: "Siswa kejuruan memiliki keterampilan praktik yang hebat" },
+            { text: "Regular maintenance prevents system overheat", id: "Perawatan rutin mencegah sistem mengalami panas berlebih" },
+            { text: "Technology opens new doors for education", id: "Teknologi membuka pintu baru bagi pendidikan" },
+            { text: "I enjoy practicing English with my classmates", id: "Saya senang berlatih bahasa Inggris bersama teman sekelas" }
         ];
 
-        let studentName = localStorage.getItem('studentName') || "Siswa Baru";
-        let score = 0;
         let phraseIndex = 0;
+        let score = 0;
         let isListening = false;
         let recognition = null;
+        const studentName = localStorage.getItem('studentName') || "Siswa Baru";
 
-        function playClick() {
+        // ==============================================================
+        // AUDIO EFFECT ENGINE (FILE ASSET + WEB AUDIO PROCEDURAL FALLBACK)
+        // ==============================================================
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                const Cls = window.AudioContext || window.webkitAudioContext;
+                if (Cls) audioCtx = new Cls();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, dur = 0.08, type = 'sine', gainVal = 0.18) {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = getAudioContext();
+                if (!ctx) return;
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.frequency.setValueAtTime(600, ctx.currentTime);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start();
-                osc.stop(ctx.currentTime + 0.08);
+                osc.stop(ctx.currentTime + dur);
             } catch(e) {}
         }
 
-        function loadPhrase() {
-            document.getElementById('target-phrase').innerText = `"${PHRASES[phraseIndex % PHRASES.length]}"`;
-            document.getElementById('transcript-box').innerText = "Tekan mikrofon lalu ucapkan kalimat di atas...";
-            lucide.createIcons();
+        function playSound(elementId, fallbackFreq = 650) {
+            const el = document.getElementById(elementId);
+            if (el && el.readyState >= 2) {
+                el.currentTime = 0;
+                el.play().catch(() => playTone(fallbackFreq));
+            } else {
+                playTone(fallbackFreq);
+            }
         }
 
-        function playTTS() {
-            if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(PHRASES[phraseIndex % PHRASES.length]);
-            u.lang = 'en-US';
-            u.rate = 0.88;
-            window.speechSynthesis.speak(u);
+        function playClickSound() { playSound('snd-click', 650); }
+
+        // ==============================================================
+        // GAMEPLAY & PHRASE RENDERING
+        // ==============================================================
+        function loadCurrentPhrase() {
+            const item = SPEAKING_BANK[phraseIndex % SPEAKING_BANK.length];
+            document.getElementById('round-indicator').innerText = `Kalimat ${(phraseIndex % SPEAKING_BANK.length) + 1} / ${SPEAKING_BANK.length}`;
+            document.getElementById('target-phrase-display').innerText = `"${item.text}"`;
+            document.getElementById('target-translation').innerText = `(${item.id})`;
+            document.getElementById('transcript-box').innerText = "Tekan mikrofon lalu tirukan pengucapannya...";
+            
+            const fb = document.getElementById('result-feedback');
+            fb.className = "hidden";
+            fb.innerText = "";
+
+            document.getElementById('btn-next-phrase').classList.add('hidden');
         }
 
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRec = window.webkitSpeechRecognition || window.SpeechRecognition;
+        // ==============================================================
+        // WEB SPEECH API (SPEECH RECOGNITION)
+        // ==============================================================
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
             recognition = new SpeechRec();
             recognition.lang = 'en-US';
             recognition.continuous = false;
             recognition.interimResults = false;
 
-            recognition.onresult = (e) => {
-                const transcript = e.results[0][0].transcript;
-                document.getElementById('transcript-box').innerText = `Terdeteksi: "${transcript}"`;
-                evaluateSpeech(transcript);
+            recognition.onresult = (event) => {
+                const spoken = event.results[0][0].transcript;
+                document.getElementById('transcript-box').innerText = `Terdeteksi: "${spoken}"`;
+                evaluateSpeech(spoken);
+            };
+
+            recognition.onerror = (e) => {
+                isListening = false;
+                updateMicUI(false);
+                document.getElementById('mic-status-text').innerText = "Suara tidak terdengar jelas. Coba lagi!";
             };
 
             recognition.onend = () => {
                 isListening = false;
-                document.getElementById('mic-status').innerText = "Selesai mendengarkan.";
-                document.getElementById('btn-mic').classList.remove('animate-pulse', 'bg-rose-500');
+                updateMicUI(false);
             };
         }
 
-        function toggleMic() {
+        function toggleMicrophone() {
+            playClickSound();
             if (!recognition) {
-                alertCustom("Speech Recognition belum didukung pada browser ini. Gunakan Google Chrome.");
+                showToast("⚠️ Fitur deteksi suara belum didukung di browser ini. Disarankan memakai Chrome.", false);
                 return;
             }
-            playClick();
+
             if (isListening) {
                 recognition.stop();
+                isListening = false;
+                updateMicUI(false);
             } else {
                 try {
                     recognition.start();
                     isListening = true;
-                    document.getElementById('mic-status').innerText = "Sedang mendengarkan... Ucapkan sekarang!";
-                    document.getElementById('btn-mic').classList.add('animate-pulse', 'bg-rose-500');
-                } catch(e) {}
+                    updateMicUI(true);
+                    document.getElementById('mic-status-text').innerText = "🔴 Sedang mendengarkan... Bicaralah sekarang!";
+                } catch(e) {
+                    isListening = false;
+                    updateMicUI(false);
+                }
             }
+        }
+
+        function updateMicUI(listening) {
+            const btn = document.getElementById('btn-mic');
+            const icon = document.getElementById('mic-icon');
+            if (listening) {
+                btn.classList.add('mic-listening');
+                icon.setAttribute('data-lucide', 'mic');
+            } else {
+                btn.classList.remove('mic-listening');
+                icon.setAttribute('data-lucide', 'mic');
+            }
+            lucide.createIcons();
         }
 
         function evaluateSpeech(spoken) {
-            const target = PHRASES[phraseIndex % PHRASES.length];
-            const cleanS = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().split(/\s+/);
-            const cleanT = target.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().split(/\s+/);
+            const target = SPEAKING_BANK[phraseIndex % SPEAKING_BANK.length].text;
+            const cleanSpoken = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().split(/\s+/);
+            const cleanTarget = target.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().split(/\s+/);
 
             let matches = 0;
-            cleanT.forEach(w => { if (cleanS.includes(w)) matches++; });
-            const accuracy = matches / cleanT.length;
+            cleanTarget.forEach(w => {
+                if (cleanSpoken.includes(w)) matches++;
+            });
 
-            const toast = document.getElementById('toast');
-            toast.classList.remove('hidden', 'bg-emerald-500', 'bg-rose-500');
+            const accuracy = matches / cleanTarget.length;
+            const fb = document.getElementById('result-feedback');
+            fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-700', 'border-emerald-300', 'bg-rose-100', 'text-rose-700', 'border-rose-300');
 
-            if (accuracy >= 0.6) {
-                score += 25;
+            if (accuracy >= 0.55) {
+                playSound('snd-right', 880);
+                fb.classList.add('bg-emerald-100', 'text-emerald-700', 'border', 'border-emerald-300');
+                fb.innerText = "✓ Luar Biasa! Pelafalanmu sangat jelas (+20 XP)";
+                
+                score += 20;
                 document.getElementById('score-display').innerText = `${score} XP`;
-                toast.classList.add('bg-emerald-500');
-                toast.innerText = "✓ Bagus Sekali! Pelafalan Jelas (+25 XP)";
-                saveScoreToSupabase(25);
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                    phraseIndex++;
-                    loadPhrase();
-                }, 1500);
+                document.getElementById('btn-next-phrase').classList.remove('hidden');
+                document.getElementById('mic-status-text').innerText = "Hebat! Lanjut ke kalimat berikutnya.";
+                showToast("✨ Pelafalan tepat! (+20 XP)", true);
+                saveScoreToSupabase(20);
             } else {
-                toast.classList.add('bg-rose-500');
-                toast.innerText = "✗ Belum pas. Tekan ikon suara dan coba ulangi lagi ya!";
-                setTimeout(() => toast.classList.add('hidden'), 2000);
+                playSound('snd-wrong', 220);
+                fb.classList.add('bg-rose-100', 'text-rose-700', 'border', 'border-rose-300');
+                fb.innerText = "✗ Belum pas. Dengarkan contoh suaranya lalu coba lagi ya!";
+                document.getElementById('mic-status-text').innerText = "Tekan tombol audio speaker di atas untuk mendengar contoh.";
+                showToast("⚠️ Pelafalan belum pas, ulangi sekali lagi!", false);
             }
         }
 
+        function nextPhrase() {
+            playClickSound();
+            phraseIndex++;
+            loadCurrentPhrase();
+        }
+
+        // ==============================================================
+        // SPEECH SYNTHESIS (TTS MODEL PRONUNCIATION)
+        // ==============================================================
+        function playTTSPhrase() {
+            playClickSound();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const item = SPEAKING_BANK[phraseIndex % SPEAKING_BANK.length];
+                const utterance = new SpeechSynthesisUtterance(item.text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-full p-4 rounded-2xl text-center font-black text-white text-xs sm:text-sm shadow-xl z-50 transition-all ${isSuccess ? 'bg-sky-500' : 'bg-amber-500'}`;
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2200);
+        }
+
+        // ==============================================================
+        // SUPABASE DATABASE SYNC
+        // ==============================================================
         async function saveScoreToSupabase(pts) {
             try {
                 await fetch(`${SUPABASE_URL}/rest/v1/recap`, {
@@ -235,8 +427,9 @@
         }
 
         window.onload = () => {
-            document.getElementById('student-badge').innerText = `👤 ${studentName}`;
-            loadPhrase();
+            document.getElementById('student-badge').innerText = studentName;
+            loadCurrentPhrase();
+            lucide.createIcons();
         };
     </script>
 </body>
